@@ -1,0 +1,17 @@
+name: order_repository
+
+
+environment:
+  sdk: '>=3.2.4 <4.0.0'
+
+dependencies:
+  firebase_auth: ^4.17.2
+  cloud_firestore: ^4.15.2
+  firebase_messaging: ^14.7.13
+  equatable: ^2.0.5
+  
+  
+
+dev_dependencies:
+  flutter_lints: ^3.0.1
+  

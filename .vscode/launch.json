@@ -1,0 +1,93 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "debug_option_web",
+            "request": "launch",
+            "type": "dart",
+            "flutterMode": "debug",
+            "args": [
+                "-d",
+                "chrome",
+                "--web-renderer",
+                "html",
+            ]
+        },
+        {
+            "name": "mlt_menu_admin_web",
+            "request": "launch",
+            "type": "dart"
+        },
+        {
+            "name": "mlt_menu_admin_web (profile mode)",
+            "request": "launch",
+            "type": "dart",
+            "flutterMode": "profile"
+        },
+        {
+            "name": "mlt_menu_admin_web (release mode)",
+            "request": "launch",
+            "type": "dart",
+            "flutterMode": "release"
+        },
+        {
+            "name": "authentication_repository",
+            "cwd": "packages\\authentication_repository",
+            "request": "launch",
+            "type": "dart"
+        },
+        {
+            "name": "authentication_repository (profile mode)",
+            "cwd": "packages\\authentication_repository",
+            "request": "launch",
+            "type": "dart",
+            "flutterMode": "profile"
+        },
+        {
+            "name": "authentication_repository (release mode)",
+            "cwd": "packages\\authentication_repository",
+            "request": "launch",
+            "type": "dart",
+            "flutterMode": "release"
+        },
+        {
+            "name": "category_repository",
+            "cwd": "packages\\category_repository",
+            "request": "launch",
+            "type": "dart"
+        },
+        {
+            "name": "food_repository",
+            "cwd": "packages\\food_repository",
+            "request": "launch",
+            "type": "dart"
+        },
+        {
+            "name": "order_repository",
+            "cwd": "packages\\order_repository",
+            "request": "launch",
+            "type": "dart"
+        },
+        {
+            "name": "print_repository",
+            "cwd": "packages\\print_repository",
+            "request": "launch",
+            "type": "dart"
+        },
+        {
+            "name": "table_repository",
+            "cwd": "packages\\table_repository",
+            "request": "launch",
+            "type": "dart"
+        },
+        {
+            "name": "user_repository",
+            "cwd": "packages\\user_repository",
+            "request": "launch",
+            "type": "dart"
+        }
+    ]
+}
