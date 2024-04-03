@@ -14,7 +14,6 @@ import 'package:mlt_menu_admin_web/features/order/view/screen/order_history_deta
 import 'package:mlt_menu_admin_web/features/order/view/screen/order_screen.dart';
 import 'package:mlt_menu_admin_web/features/user/view/screen/change_password.dart';
 import 'package:mlt_menu_admin_web/features/user/view/screen/update_user.dart';
-import 'package:mlt_menu_admin_web/features/food/view/screen/food_screen.dart';
 import 'package:mlt_menu_admin_web/features/register/view/screen/signup_screen.dart';
 import 'package:mlt_menu_admin_web/features/table/view/screen/create_or_update_table.dart';
 import 'package:mlt_menu_admin_web/features/food/view/screen/create_or_update_food_screen.dart';
@@ -80,9 +79,6 @@ final router = GoRouter(
       GoRoute(
           path: RouteName.register,
           builder: (context, state) => const SignUpScreen()),
-      GoRoute(
-          path: RouteName.searchFood,
-          builder: (context, state) => const FoodScreen()),
       GoRoute(
           path: RouteName.addFood,
           builder: (context, state) => const AddFoodToOrderScreen()),

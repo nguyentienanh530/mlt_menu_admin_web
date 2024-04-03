@@ -25,41 +25,44 @@ class ItemFood extends StatelessWidget {
   }
 
   Widget _buildItemSearch(BuildContext context, Food food) {
-    return Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8.0),
-        child: Card(
+    return LayoutBuilder(
+        builder: (context, constraints) => Card(
             elevation: 10,
-            child: AutofillGroup(
+            child: SizedBox(
+                height: constraints.maxHeight,
+                width: constraints.maxWidth,
                 child: Column(children: [
-              _buildHeader(context, food),
-              SizedBox(
-                  height: 80,
-                  child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        _buildImage(food),
-                        Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            mainAxisAlignment: MainAxisAlignment.spaceAround,
-                            children: [
-                              _buildTitle(context, food),
-                              // _buildCategory(context, food),
-                              _buildPrice(context, food)
-                            ])
-                      ]
-                          .animate(interval: 50.ms)
-                          .slideX(
-                              begin: -0.1,
-                              end: 0,
-                              curve: Curves.easeInOutCubic,
-                              duration: 500.ms)
-                          .fadeIn(
-                              curve: Curves.easeInOutCubic, duration: 500.ms)))
-            ]))));
+                  Expanded(child: _buildHeader(context, food)),
+                  Expanded(
+                    flex: 5,
+                    child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          Expanded(flex: 3, child: _buildImage(food)),
+                          Expanded(
+                              child: Column(
+                                  // crossAxisAlignment: CrossAxisAlignment.center,
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceAround,
+                                  children: [
+                                Expanded(child: _buildTitle(context, food)),
+                                Expanded(child: _buildPrice(context, food))
+                              ]))
+                        ]
+                            .animate(interval: 50.ms)
+                            .slideX(
+                                begin: -0.1,
+                                end: 0,
+                                curve: Curves.easeInOutCubic,
+                                duration: 500.ms)
+                            .fadeIn(
+                                curve: Curves.easeInOutCubic,
+                                duration: 500.ms)),
+                  )
+                ]))));
   }
 
   Widget _buildHeader(BuildContext context, Food food) => Container(
-      height: 40,
       color: context.colorScheme.primary.withOpacity(0.3),
       child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 8),
@@ -87,8 +90,8 @@ class ItemFood extends StatelessWidget {
   Widget _buildImage(Food food) {
     return Container(
         margin: EdgeInsets.all(defaultPadding / 2),
-        height: 80,
-        width: 80,
+        height: 120,
+        width: 120,
         decoration: BoxDecoration(
             shape: BoxShape.circle,
             color: Colors.black.withOpacity(0.3),
@@ -109,30 +112,38 @@ class ItemFood extends StatelessWidget {
     double discountAmount = (food.price * food.discount.toDouble()) / 100;
     double discountedPrice = food.price - discountAmount;
     return food.isDiscount == false
-        ? Text(Ultils.currencyFormat(double.parse(food.price.toString())),
-            style: TextStyle(
-                color: context.colorScheme.secondary,
-                fontWeight: FontWeight.bold))
-        : Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-            Row(children: [
-              Text(Ultils.currencyFormat(double.parse(food.price.toString())),
-                  style: const TextStyle(
-                      decoration: TextDecoration.lineThrough,
-                      decorationThickness: 3.0,
-                      decorationColor: Colors.red,
-                      decorationStyle: TextDecorationStyle.solid,
-                      // fontSize: defaultSizeText,
-                      color: Color.fromARGB(255, 131, 128, 126),
-                      fontWeight: FontWeight.w700)),
-              const SizedBox(width: 10.0),
-              Text(
-                  Ultils.currencyFormat(
-                      double.parse(discountedPrice.toString())),
-                  style: TextStyle(
-                      color: context.colorScheme.secondary,
-                      fontWeight: FontWeight.bold))
-            ])
-          ]);
+        ? FittedBox(
+            child: Text(
+                Ultils.currencyFormat(double.parse(food.price.toString())),
+                style: TextStyle(
+                    color: context.colorScheme.secondary,
+                    fontWeight: FontWeight.bold)),
+          )
+        : FittedBox(
+            child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Text(
+                      Ultils.currencyFormat(
+                          double.parse(food.price.toString())),
+                      style: const TextStyle(
+                          decoration: TextDecoration.lineThrough,
+                          decorationThickness: 3.0,
+                          decorationColor: Colors.red,
+                          decorationStyle: TextDecorationStyle.solid,
+                          // fontSize: defaultSizeText,
+                          color: Color.fromARGB(255, 131, 128, 126),
+                          fontWeight: FontWeight.w700)),
+                  const SizedBox(width: 10.0),
+                  Text(
+                      Ultils.currencyFormat(
+                          double.parse(discountedPrice.toString())),
+                      style: TextStyle(
+                          color: context.colorScheme.secondary,
+                          fontWeight: FontWeight.bold))
+                ]),
+          );
   }
 
   // Widget _buildPercentDiscount(Food food) {

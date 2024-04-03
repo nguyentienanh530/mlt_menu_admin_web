@@ -5,10 +5,11 @@ import 'package:mlt_menu_admin_web/common/widget/loading_screen.dart';
 import 'package:mlt_menu_admin_web/config/router.dart';
 import 'package:mlt_menu_admin_web/features/auth/bloc/auth_bloc.dart';
 import 'package:mlt_menu_admin_web/features/category/view/screen/categories_screen.dart';
+import 'package:mlt_menu_admin_web/features/food/view/widgets/list_food_is_show.dart';
+import 'package:mlt_menu_admin_web/features/home/cubit/home_cubit.dart';
 import 'package:mlt_menu_admin_web/features/order/view/screen/order_screen.dart';
 import 'package:mlt_menu_admin_web/features/user/bloc/user_bloc.dart';
 import 'package:mlt_menu_admin_web/features/dashboard/view/screen/dashboard_screen.dart';
-import 'package:mlt_menu_admin_web/features/food/view/screen/food_screen.dart';
 import 'package:mlt_menu_admin_web/features/user/view/screen/profile_screen.dart';
 import 'package:mlt_menu_admin_web/features/table/view/screen/table_screen.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -21,6 +22,7 @@ import 'package:go_router/go_router.dart';
 import 'package:user_repository/user_repository.dart';
 
 import '../../../../common/widget/responsive.dart';
+import '../../../food/view/widgets/list_food_dont_show.dart';
 import '../../../print/cubit/is_use_print_cubit.dart';
 import '../../../print/cubit/print_cubit.dart';
 import '../../../print/data/print_data_source/print_data_source.dart';
@@ -51,6 +53,7 @@ class _HomeViewState extends State<HomeView> {
     getUserData();
     getIsUsePrint();
     _handleGetPrint();
+
     super.initState();
   }
 
@@ -95,7 +98,7 @@ class _HomeViewState extends State<HomeView> {
   final List<Widget> _widgetOptions = [
     const DashboardScreen(),
     const OrderScreen(),
-    const FoodScreen(),
+    // const FoodScreen(),
     const TableScreen(),
     const CategoriesScreen(),
     const ProfileScreen()
@@ -104,11 +107,10 @@ class _HomeViewState extends State<HomeView> {
   @override
   Widget build(BuildContext context) {
     var userState = context.watch<UserBloc>().state;
-
+    var currentPageState = context.watch<PageHomeCubit>().state;
     switch (userState.status) {
       case Status.loading:
         return Scaffold(
-            // bottomNavigationBar: _buildBottomBar(context),
             body: PageView(
                 physics: const NeverScrollableScrollPhysics(),
                 controller: controller,
@@ -121,24 +123,20 @@ class _HomeViewState extends State<HomeView> {
         if (userState.data?.role == 'admin') {
           _updateToken();
           return Scaffold(
-              // bottomNavigationBar: _buildBottomBar(context),
               body: SizedBox(
-                  // width: 1300,
                   child: Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                 if (Responsive.isDesktop(context))
                   Expanded(child: SideMenu(onPageSelected: (page) {
-                    setState(() {
-                      // currentPage = page;
-                    });
+                    context.read<PageHomeCubit>().pageChanged(page);
                   })),
-                const Expanded(
+                Expanded(
                     flex: 5,
                     child: Padding(
-                        padding: EdgeInsets.all(16),
+                        padding: const EdgeInsets.all(16),
                         child: Column(children: [
-                          Expanded(flex: 5, child: DashboardScreen())
+                          Expanded(flex: 5, child: currentPageState)
                         ])))
               ]))
 
@@ -201,118 +199,94 @@ class SideMenu extends StatelessWidget {
     return Drawer(
         child: ListView(children: [
       DrawerHeader(child: Image.asset("assets/image/logo.png")),
-      DrawDashBoard(onPageSelected2: onPageSelected),
-      DrawDeleteEdit(onPageSelected2: onPageSelected),
-      DrawInfoUser(onPageSelected2: onPageSelected),
-      DrawSetting(onPageSelected2: onPageSelected),
-      DrawLogOut(onPageSelected2: onPageSelected),
+      DrawerListTile(
+          title: "Dashboard",
+          svgSrc: "assets/icon/dashboard.svg",
+          onTap: () => onPageSelected(const DashboardScreen())),
+      DrawerExpansionTile(
+          onPageSelected: onPageSelected,
+          title: "Món Ăn",
+          svgSrc: "assets/icon/food.svg",
+          onTap: () => onPageSelected(const SizedBox())),
+      DrawerListTile(
+          title: "Hồ sơ",
+          svgSrc: "assets/icon/user.svg",
+          onTap: () => onPageSelected(const ProfileScreen())),
+      DrawerListTile(
+          title: "Cài Đặt",
+          svgSrc: "assets/icon/setting.svg",
+          onTap: () => onPageSelected(const DashboardScreen())),
+      DrawerListTile(
+          title: 'Đăng Xuất',
+          svgSrc: 'assets/icon/logout.svg',
+          onTap: () => onPageSelected(const DashboardScreen()))
     ]));
   }
 }
 
 class DrawerListTile extends StatelessWidget {
-  const DrawerListTile({
-    super.key,
-    // For selecting those three line once press "Command+D"
-    required this.title,
-    required this.svgSrc,
-    required this.press,
-  });
+  const DrawerListTile(
+      {super.key,
+      required this.title,
+      required this.svgSrc,
+      required this.onTap});
 
   final String title, svgSrc;
-  final VoidCallback press;
+  final void Function()? onTap;
 
   @override
   Widget build(BuildContext context) {
     return ListTile(
-        onTap: press,
+        onTap: onTap,
         horizontalTitleGap: 0.0,
-        leading: SvgPicture.asset(
-          svgSrc,
-          colorFilter: const ColorFilter.mode(Colors.white70, BlendMode.srcIn),
-          height: 16,
-        ),
-        title: Text(title, style: const TextStyle(color: Colors.white70)));
+        leading: SvgPicture.asset(svgSrc,
+            colorFilter:
+                const ColorFilter.mode(Colors.white70, BlendMode.srcIn),
+            height: 16),
+        title: Text(title));
   }
 }
 
-class DrawDashBoard extends StatelessWidget {
-  final Function(Widget) onPageSelected2;
-  const DrawDashBoard({super.key, required this.onPageSelected2});
+class DrawerExpansionTile extends StatelessWidget {
+  const DrawerExpansionTile(
+      {super.key,
+      required this.title,
+      required this.svgSrc,
+      required this.onTap,
+      required this.onPageSelected});
+
+  final String title, svgSrc;
+  final void Function()? onTap;
+  final Function(Widget) onPageSelected;
 
   @override
   Widget build(BuildContext context) {
-    return DrawerListTile(
-      title: "Dashboard",
-      svgSrc: "assets/icons/menu_dashboard.svg",
-      press: () {
-        // onPageSelected2(DashBoard());
-      },
-    );
-  }
-}
-
-class DrawDeleteEdit extends StatelessWidget {
-  final Function(Widget) onPageSelected2;
-  const DrawDeleteEdit({
-    super.key,
-    required this.onPageSelected2,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return DrawerListTile(
-      title: "Món Ăn",
-      svgSrc: "assets/icons/food.svg",
-      press: () {
-        // onPageSelected2(FoodList());
-      },
-    );
-  }
-}
-
-class DrawInfoUser extends StatelessWidget {
-  final Function(Widget) onPageSelected2;
-  const DrawInfoUser({super.key, required this.onPageSelected2});
-
-  @override
-  Widget build(BuildContext context) {
-    return DrawerListTile(
-        title: "Thông tin User",
-        svgSrc: "assets/icons/user.svg",
-        press: () {
-          // onPageSelected2(InfoUsers());
-        });
-  }
-}
-
-class DrawSetting extends StatelessWidget {
-  final Function(Widget) onPageSelected2;
-  const DrawSetting({super.key, required this.onPageSelected2});
-
-  @override
-  Widget build(BuildContext context) {
-    return DrawerListTile(
-        title: "Cài Đặt",
-        svgSrc: "assets/icons/setting.svg",
-        press: () {
-          // onPageSelected2(SettingPage());
-        });
-  }
-}
-
-class DrawLogOut extends StatelessWidget {
-  final Function(Widget) onPageSelected2;
-  const DrawLogOut({super.key, required this.onPageSelected2});
-
-  @override
-  Widget build(BuildContext context) {
-    return DrawerListTile(
-      title: 'Đăng Xuất',
-      svgSrc: 'assets/icons/logout.svg',
-      press: () {
-        // onPageSelected2(SettingPage());
-      },
-    );
+    return ExpansionTile(
+        leading: SvgPicture.asset(svgSrc,
+            colorFilter:
+                const ColorFilter.mode(Colors.white70, BlendMode.srcIn),
+            height: 16),
+        title: Text(title),
+        children: [
+          ListTile(
+              onTap: () =>
+                  onPageSelected(const ListFoodIsShow(isShowFood: true)),
+              horizontalTitleGap: 0.0,
+              title: Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Text('Đang hiển thị',
+                      style: context.textStyleSmall!
+                          .copyWith(color: Colors.white70)))),
+          ListTile(
+              onTap: () {
+                onPageSelected(const ListFoodDontShow());
+              },
+              horizontalTitleGap: 0.0,
+              title: Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Text('Đang ẩn',
+                      style: context.textStyleSmall!
+                          .copyWith(color: Colors.white70))))
+        ]);
   }
 }

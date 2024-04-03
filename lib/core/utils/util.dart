@@ -1,9 +1,13 @@
 import 'dart:convert';
+import 'dart:html' as html;
 import 'dart:io';
-
+import 'dart:math';
+import 'dart:typed_data';
+import 'package:firebase_storage/firebase_storage.dart' as firebase_storage;
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:image/image.dart' as img;
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 
@@ -152,7 +156,8 @@ Future<String> uploadImage(
       .ref()
       .child('$path/${file.path.split('/').last}');
 
-  UploadTask uploadTask = storageReference.putFile(file);
+  UploadTask uploadTask = storageReference.putFile(
+      file, SettableMetadata(contentType: 'image/jpeg'));
   uploadTask.snapshotEvents.listen((event) {
     progress.value =
         ((event.bytesTransferred.toDouble() / event.totalBytes.toDouble()) *
@@ -180,4 +185,79 @@ Future<dynamic> pickImage() async {
     logger.d('No image selected!');
   }
   return imageFile;
+}
+
+Future<dynamic> pickImage1() async {
+  // ignore: prefer_typing_uninitialized_variables
+  var imageFile;
+  final imagePicker = ImagePicker();
+  var imagepicked = await imagePicker.pickImage(
+      source: ImageSource.gallery, maxHeight: 500, maxWidth: 500);
+  if (imagepicked != null) {
+    imageFile = File(imagepicked.path);
+  } else {
+    logger.d('No image selected!');
+  }
+  return imageFile;
+}
+
+class PickImage {
+  Function(Uint8List imageData) onImagePicked;
+
+  PickImage(this.onImagePicked);
+
+  Future<void> pickImage() async {
+    try {
+      final html.FileUploadInputElement input = html.FileUploadInputElement();
+      input.accept = 'image/*';
+      input.click();
+      await input.onChange.first;
+
+      final file = input.files!.first;
+      if (file != null) {
+        final reader = html.FileReader();
+        reader.readAsArrayBuffer(file);
+        await reader.onLoad.first;
+        final Uint8List imageData = reader.result as Uint8List;
+        onImagePicked(imageData); // Gọi hàm callback khi hình ảnh được chọn
+      } else {
+        print('No file selected.');
+      }
+    } catch (e) {
+      print('Error picking image: $e');
+    }
+  }
+}
+
+Future<String> uploadImageFirebase(
+    {required Uint8List pickedImageData,
+    required ValueNotifier progress,
+    required String path}) async {
+  try {
+    String dateTimeString = DateTime.now().toString();
+    String formattedDateTime =
+        dateTimeString.replaceAll(' ', '_').replaceAll(':', ':');
+    String fileName = '$formattedDateTime.${Random().nextInt(10000)}';
+    img.Image? image = img.decodeImage(pickedImageData);
+    img.Image resizedImage = img.copyResize(image!, width: 500, height: 500);
+    Uint8List resizedImageData =
+        Uint8List.fromList(img.encodePng(resizedImage));
+    final firebase_storage.Reference ref = firebase_storage
+        .FirebaseStorage.instance
+        .ref()
+        .child('$path/${fileName.split('/').last}');
+    UploadTask uploadTask = ref.putData(resizedImageData);
+    uploadTask.snapshotEvents.listen((event) {
+      progress.value =
+          ((event.bytesTransferred.toDouble() / event.totalBytes.toDouble()) *
+                  100)
+              .roundToDouble();
+    });
+
+    String downloadURL = await ref.getDownloadURL();
+    return downloadURL;
+  } catch (e) {
+    print('Error uploading image to Firebase Storage: $e');
+    return ''; // Trả về chuỗi rỗng trong trường hợp có lỗi
+  }
 }

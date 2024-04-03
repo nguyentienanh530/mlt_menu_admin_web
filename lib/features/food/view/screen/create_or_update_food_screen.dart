@@ -1,3 +1,5 @@
+import 'dart:typed_data';
+
 import 'package:mlt_menu_admin_web/common/bloc/generic_bloc_state.dart';
 import 'package:mlt_menu_admin_web/common/widget/empty_widget.dart';
 import 'package:mlt_menu_admin_web/common/widget/error_widget.dart';
@@ -7,7 +9,7 @@ import 'package:mlt_menu_admin_web/features/food/data/model/food_model.dart';
 import 'package:mlt_menu_admin_web/common/dialog/app_alerts.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'dart:io';
+
 import 'package:dotted_border/dotted_border.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:mlt_menu_admin_web/core/utils/utils.dart';
@@ -36,6 +38,7 @@ class CreateOrUpdateFoodScreen extends StatelessWidget {
 
   _buildAppbar(BuildContext context) {
     return AppBar(
+        automaticallyImplyLeading: false,
         title: Text(mode == Mode.update ? 'Cập nhật món ăn' : "Thêm món ăn",
             style: context.titleStyleMedium),
         centerTitle: true);
@@ -58,7 +61,7 @@ class _UpdateFoodViewState extends State<UpdateFoodView> {
   final _formKey = GlobalKey<FormState>();
   var _image = '';
   // ignore: prefer_typing_uninitialized_variables
-  var _imageFile, _imageFile1, _imageFile2, _imageFile3;
+  dynamic _imageFile, _imageFile1, _imageFile2, _imageFile3;
 
   var _categoryID = '';
   var _imageGallery1 = '';
@@ -129,10 +132,15 @@ class _UpdateFoodViewState extends State<UpdateFoodView> {
                       _ImageFood(
                           image: _image,
                           imageFile: _imageFile,
-                          onTap: () async =>
-                              await pickImage().then((file) => setState(() {
-                                    _imageFile = file;
-                                  }))),
+                          onTap: () async {
+                            PickImage pickImage =
+                                PickImage((Uint8List imageData) {
+                              setState(() {
+                                _imageFile = imageData;
+                              });
+                            });
+                            await pickImage.pickImage();
+                          }),
                       SizedBox(height: defaultPadding / 2),
                       Text("Tên món ăn: (*)", style: context.titleStyleMedium),
                       SizedBox(height: defaultPadding / 2),
@@ -162,18 +170,33 @@ class _UpdateFoodViewState extends State<UpdateFoodView> {
                           imageGallery1: _imageFile1,
                           imageGallery2: _imageFile2,
                           imageGallery3: _imageFile3,
-                          onTapImage1: () async =>
-                              await pickImage().then((file) => setState(() {
-                                    _imageFile1 = file;
-                                  })),
-                          onTapImage2: () async =>
-                              await pickImage().then((file) => setState(() {
-                                    _imageFile2 = file;
-                                  })),
-                          onTapImage3: () async =>
-                              await pickImage().then((file) => setState(() {
-                                    _imageFile3 = file;
-                                  }))),
+                          onTapImage1: () async {
+                            PickImage pickImage =
+                                PickImage((Uint8List imageData) {
+                              setState(() {
+                                _imageFile1 = imageData;
+                              });
+                            });
+                            await pickImage.pickImage();
+                          },
+                          onTapImage2: () async {
+                            PickImage pickImage =
+                                PickImage((Uint8List imageData) {
+                              setState(() {
+                                _imageFile2 = imageData;
+                              });
+                            });
+                            await pickImage.pickImage();
+                          },
+                          onTapImage3: () async {
+                            PickImage pickImage =
+                                PickImage((Uint8List imageData) {
+                              setState(() {
+                                _imageFile3 = imageData;
+                              });
+                            });
+                            await pickImage.pickImage();
+                          }),
                       SizedBox(height: defaultPadding / 2),
                       Text("Áp dụng khuyến mãi ? (*)",
                           style: context.titleStyleMedium),
@@ -297,27 +320,35 @@ class _UpdateFoodViewState extends State<UpdateFoodView> {
 
       if (_imageFile != null) {
         _isUploadImage.value = true;
-        _image = await uploadImage(
-            path: 'food', file: _imageFile, progress: _uploadImageProgress);
+        _image = await uploadImageFirebase(
+            path: 'food',
+            progress: _uploadImageProgress,
+            pickedImageData: _imageFile!);
         food = food.copyWith(image: _image);
       }
 
       if (_imageFile1 != null) {
         _isUploadImage.value = true;
-        _imageGallery1 = await uploadImage(
-            path: 'food', file: _imageFile1, progress: _uploadImage1Progress);
+        _imageGallery1 = await uploadImageFirebase(
+            path: 'food',
+            pickedImageData: _imageFile1!,
+            progress: _uploadImage1Progress);
       }
 
       if (_imageFile2 != null) {
         _isUploadImage.value = true;
-        _imageGallery2 = await uploadImage(
-            path: 'food', file: _imageFile2, progress: _uploadImage2Progress);
+        _imageGallery2 = await uploadImageFirebase(
+            path: 'food',
+            pickedImageData: _imageFile2!,
+            progress: _uploadImage2Progress);
       }
 
       if (_imageFile3 != null) {
         _isUploadImage.value = true;
-        _imageGallery3 = await uploadImage(
-            path: 'food', file: _imageFile3, progress: _uploadImage3Progress);
+        _imageGallery3 = await uploadImageFirebase(
+            path: 'food',
+            pickedImageData: _imageFile3!,
+            progress: _uploadImage3Progress);
       }
       _isUploadImage.value = false;
       food = food.copyWith(
@@ -342,14 +373,22 @@ class _UpdateFoodViewState extends State<UpdateFoodView> {
         _imageFile3 != null &&
         _categoryID.isNotEmpty) {
       _isUploadImage.value = true;
-      _image = await uploadImage(
-          path: 'food', file: _imageFile, progress: _uploadImageProgress);
-      _imageGallery1 = await uploadImage(
-          path: 'food', file: _imageFile1, progress: _uploadImage1Progress);
-      _imageGallery2 = await uploadImage(
-          path: 'food', file: _imageFile2, progress: _uploadImage2Progress);
-      _imageGallery3 = await uploadImage(
-          path: 'food', file: _imageFile3, progress: _uploadImage3Progress);
+      _image = await uploadImageFirebase(
+          path: 'food',
+          pickedImageData: _imageFile!,
+          progress: _uploadImageProgress);
+      _imageGallery1 = await uploadImageFirebase(
+          path: 'food',
+          pickedImageData: _imageFile1!,
+          progress: _uploadImage1Progress);
+      _imageGallery2 = await uploadImageFirebase(
+          path: 'food',
+          pickedImageData: _imageFile2!,
+          progress: _uploadImage2Progress);
+      _imageGallery3 = await uploadImageFirebase(
+          path: 'food',
+          pickedImageData: _imageFile3!,
+          progress: _uploadImage3Progress);
       _isUploadImage.value = false;
       var newFood = food.copyWith(
           isShowFood: _isShowFood.value,
@@ -546,7 +585,7 @@ class _PhotoGallery extends StatelessWidget {
 
   Widget _buildImageGallery(
       {required BuildContext context,
-      File? imageFile,
+      Uint8List? imageFile,
       Function()? onTap,
       String? image}) {
     return GestureDetector(
@@ -558,7 +597,7 @@ class _PhotoGallery extends StatelessWidget {
                 decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(defaultBorderRadius),
                     image: DecorationImage(
-                        image: FileImage(imageFile), fit: BoxFit.fill))));
+                        image: MemoryImage(imageFile), fit: BoxFit.fill))));
   }
 
   Widget _buildImage(BuildContext context, String image) {
@@ -605,7 +644,7 @@ class _ImageFood extends StatelessWidget {
                 decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(defaultBorderRadius),
                     image: DecorationImage(
-                        image: FileImage(imageFile), fit: BoxFit.cover))));
+                        image: MemoryImage(imageFile), fit: BoxFit.cover))));
   }
 
   Widget _buildImage(BuildContext context) {
@@ -647,8 +686,7 @@ class _ImageFood extends StatelessWidget {
             decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(defaultBorderRadius),
                 image: DecorationImage(
-                    image: NetworkImage(image), fit: BoxFit.cover)),
-          );
+                    image: NetworkImage(image), fit: BoxFit.cover)));
   }
 }
 

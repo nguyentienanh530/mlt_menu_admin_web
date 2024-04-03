@@ -21,11 +21,20 @@ class DefaultFirebaseOptions {
     }
     switch (defaultTargetPlatform) {
       case TargetPlatform.android:
-        return android;
+        throw UnsupportedError(
+          'DefaultFirebaseOptions have not been configured for android - '
+          'you can reconfigure this by running the FlutterFire CLI again.',
+        );
       case TargetPlatform.iOS:
-        return ios;
+        throw UnsupportedError(
+          'DefaultFirebaseOptions have not been configured for ios - '
+          'you can reconfigure this by running the FlutterFire CLI again.',
+        );
       case TargetPlatform.macOS:
-        return macos;
+        throw UnsupportedError(
+          'DefaultFirebaseOptions have not been configured for macos - '
+          'you can reconfigure this by running the FlutterFire CLI again.',
+        );
       case TargetPlatform.windows:
         throw UnsupportedError(
           'DefaultFirebaseOptions have not been configured for windows - '
@@ -51,31 +60,5 @@ class DefaultFirebaseOptions {
     authDomain: 'mltmenu.firebaseapp.com',
     storageBucket: 'mltmenu.appspot.com',
     measurementId: 'G-FQZTDC0BDB',
-  );
-
-  static const FirebaseOptions android = FirebaseOptions(
-    apiKey: 'AIzaSyBT0ydFg1_DkEtsLS6saG5al7L59pALaGU',
-    appId: '1:699436605619:android:e1ba5000ec39d8926610c6',
-    messagingSenderId: '699436605619',
-    projectId: 'mltmenu',
-    storageBucket: 'mltmenu.appspot.com',
-  );
-
-  static const FirebaseOptions ios = FirebaseOptions(
-    apiKey: 'AIzaSyARjUpadcj78ZBOSRQvzuVCfzKftmsKGWg',
-    appId: '1:699436605619:ios:c6481feadeca927a6610c6',
-    messagingSenderId: '699436605619',
-    projectId: 'mltmenu',
-    storageBucket: 'mltmenu.appspot.com',
-    iosBundleId: 'com.example.adminMltMenuMobile',
-  );
-
-  static const FirebaseOptions macos = FirebaseOptions(
-    apiKey: 'AIzaSyARjUpadcj78ZBOSRQvzuVCfzKftmsKGWg',
-    appId: '1:699436605619:ios:5e98f0282686d2296610c6',
-    messagingSenderId: '699436605619',
-    projectId: 'mltmenu',
-    storageBucket: 'mltmenu.appspot.com',
-    iosBundleId: 'com.example.adminMltMenuMobile.RunnerTests',
   );
 }

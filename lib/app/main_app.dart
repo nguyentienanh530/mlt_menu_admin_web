@@ -1,5 +1,6 @@
 import 'package:mlt_menu_admin_web/features/auth/bloc/auth_bloc.dart';
 import 'package:mlt_menu_admin_web/features/category/bloc/category_bloc.dart';
+import 'package:mlt_menu_admin_web/features/home/cubit/home_cubit.dart';
 import 'package:mlt_menu_admin_web/features/order/bloc/order_bloc.dart';
 import 'package:mlt_menu_admin_web/features/print/bloc/print_bloc.dart';
 import 'package:mlt_menu_admin_web/features/print/cubit/is_use_print_cubit.dart';
@@ -30,6 +31,7 @@ class MainApp extends StatelessWidget {
           BlocProvider(
               create: (_) => AuthBloc(
                   authenticationRepository: _authenticationRepository)),
+          BlocProvider(create: (_) => PageHomeCubit()),
           BlocProvider(create: (_) => OrderBloc()),
           BlocProvider(create: (_) => FoodBloc()),
           BlocProvider(create: (_) => TableBloc()),
