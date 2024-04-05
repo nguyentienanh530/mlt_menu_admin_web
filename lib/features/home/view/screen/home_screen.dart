@@ -4,14 +4,11 @@ import 'package:mlt_menu_admin_web/common/widget/error_screen.dart';
 import 'package:mlt_menu_admin_web/common/widget/loading_screen.dart';
 import 'package:mlt_menu_admin_web/config/router.dart';
 import 'package:mlt_menu_admin_web/features/auth/bloc/auth_bloc.dart';
-import 'package:mlt_menu_admin_web/features/category/view/screen/categories_screen.dart';
 import 'package:mlt_menu_admin_web/features/food/view/widgets/list_food_is_show.dart';
 import 'package:mlt_menu_admin_web/features/home/cubit/home_cubit.dart';
-import 'package:mlt_menu_admin_web/features/order/view/screen/order_screen.dart';
 import 'package:mlt_menu_admin_web/features/user/bloc/user_bloc.dart';
 import 'package:mlt_menu_admin_web/features/dashboard/view/screen/dashboard_screen.dart';
 import 'package:mlt_menu_admin_web/features/user/view/screen/profile_screen.dart';
-import 'package:mlt_menu_admin_web/features/table/view/screen/table_screen.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
@@ -23,6 +20,8 @@ import 'package:user_repository/user_repository.dart';
 
 import '../../../../common/widget/responsive.dart';
 import '../../../food/view/widgets/list_food_dont_show.dart';
+import '../../../order/view/screen/order_current_screen.dart';
+import '../../../order/view/screen/order_history_screen.dart';
 import '../../../print/cubit/is_use_print_cubit.dart';
 import '../../../print/cubit/print_cubit.dart';
 import '../../../print/data/print_data_source/print_data_source.dart';
@@ -46,7 +45,7 @@ class HomeView extends StatefulWidget {
 
 class _HomeViewState extends State<HomeView> {
   final PageController controller = PageController();
-
+  final _key = GlobalKey<ScaffoldState>();
   @override
   void initState() {
     _updateToken();
@@ -95,14 +94,12 @@ class _HomeViewState extends State<HomeView> {
   //   context.read<UserBloc>().add(UpdateToken(userID: userID, token: token));
   // }
 
-  final List<Widget> _widgetOptions = [
-    const DashboardScreen(),
-    const OrderScreen(),
-    // const FoodScreen(),
-    const TableScreen(),
-    const CategoriesScreen(),
-    const ProfileScreen()
-  ];
+  _buildAppbar() => AppBar(
+      leading: Responsive.isDesktop(context)
+          ? const SizedBox()
+          : IconButton(
+              icon: const Icon(Icons.menu),
+              onPressed: () => _key.currentState!.openDrawer()));
 
   @override
   Widget build(BuildContext context) {
@@ -110,11 +107,7 @@ class _HomeViewState extends State<HomeView> {
     var currentPageState = context.watch<PageHomeCubit>().state;
     switch (userState.status) {
       case Status.loading:
-        return Scaffold(
-            body: PageView(
-                physics: const NeverScrollableScrollPhysics(),
-                controller: controller,
-                children: _widgetOptions));
+        return const LoadingScreen();
       case Status.empty:
         return const EmptyScreen();
       case Status.failure:
@@ -123,28 +116,33 @@ class _HomeViewState extends State<HomeView> {
         if (userState.data?.role == 'admin') {
           _updateToken();
           return Scaffold(
+              key: _key,
+              appBar: _buildAppbar(),
+              drawer: SideMenu(
+                  scafoldKey: _key,
+                  onPageSelected: (page) {
+                    _key.currentState!.closeDrawer();
+                    context.read<PageHomeCubit>().pageChanged(page);
+                  }),
               body: SizedBox(
                   child: Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                if (Responsive.isDesktop(context))
-                  Expanded(child: SideMenu(onPageSelected: (page) {
-                    context.read<PageHomeCubit>().pageChanged(page);
-                  })),
-                Expanded(
-                    flex: 5,
-                    child: Padding(
-                        padding: const EdgeInsets.all(16),
-                        child: Column(children: [
-                          Expanded(flex: 5, child: currentPageState)
-                        ])))
-              ]))
-
-              // PageView(
-              //     physics: const NeverScrollableScrollPhysics(),
-              //     controller: controller,
-              //     children: _widgetOptions)
-              );
+                    if (Responsive.isDesktop(context))
+                      Expanded(
+                          child: SideMenu(
+                              scafoldKey: _key,
+                              onPageSelected: (page) {
+                                context.read<PageHomeCubit>().pageChanged(page);
+                              })),
+                    Expanded(
+                        flex: 5,
+                        child: Padding(
+                            padding: const EdgeInsets.all(16),
+                            child: Column(children: [
+                              Expanded(flex: 5, child: currentPageState)
+                            ])))
+                  ])));
         }
         return Center(
             child: Card(
@@ -189,10 +187,9 @@ class _HomeViewState extends State<HomeView> {
 
 class SideMenu extends StatelessWidget {
   final Function(Widget) onPageSelected;
-  const SideMenu({
-    super.key,
-    required this.onPageSelected,
-  });
+  final GlobalKey<ScaffoldState> scafoldKey;
+  const SideMenu(
+      {super.key, required this.onPageSelected, required this.scafoldKey});
 
   @override
   Widget build(BuildContext context) {
@@ -202,24 +199,41 @@ class SideMenu extends StatelessWidget {
       DrawerListTile(
           title: "Dashboard",
           svgSrc: "assets/icon/dashboard.svg",
-          onTap: () => onPageSelected(const DashboardScreen())),
+          onTap: () {
+            onPageSelected(const DashboardScreen());
+          }),
       DrawerExpansionTile(
-          onPageSelected: onPageSelected,
           title: "Món Ăn",
+          title1: 'Đang hiển thị',
+          title2: 'Đang ẩn',
           svgSrc: "assets/icon/food.svg",
-          onTap: () => onPageSelected(const SizedBox())),
+          onTap1: () => onPageSelected(const ListFoodIsShow(isShowFood: true)),
+          onTap2: () => onPageSelected(const ListFoodDontShow())),
+      DrawerExpansionTile(
+          title: "Đơn hàng",
+          title1: 'Đơn hàng hiện tại',
+          title2: 'Lịch sử đơn hàng',
+          svgSrc: "assets/icon/ordered.svg",
+          onTap1: () => onPageSelected(const CurrentOrder()),
+          onTap2: () => onPageSelected(const OrderHistoryScreen())),
       DrawerListTile(
           title: "Hồ sơ",
           svgSrc: "assets/icon/user.svg",
-          onTap: () => onPageSelected(const ProfileScreen())),
+          onTap: () {
+            onPageSelected(const ProfileScreen());
+          }),
       DrawerListTile(
           title: "Cài Đặt",
           svgSrc: "assets/icon/setting.svg",
-          onTap: () => onPageSelected(const DashboardScreen())),
+          onTap: () {
+            onPageSelected(const DashboardScreen());
+          }),
       DrawerListTile(
           title: 'Đăng Xuất',
           svgSrc: 'assets/icon/logout.svg',
-          onTap: () => onPageSelected(const DashboardScreen()))
+          onTap: () {
+            onPageSelected(const DashboardScreen());
+          })
     ]));
   }
 }
@@ -252,13 +266,14 @@ class DrawerExpansionTile extends StatelessWidget {
       {super.key,
       required this.title,
       required this.svgSrc,
-      required this.onTap,
-      required this.onPageSelected});
+      required this.onTap1,
+      required this.onTap2,
+      required this.title1,
+      required this.title2});
 
-  final String title, svgSrc;
-  final void Function()? onTap;
-  final Function(Widget) onPageSelected;
-
+  final String title, title1, title2, svgSrc;
+  final void Function()? onTap1;
+  final void Function()? onTap2;
   @override
   Widget build(BuildContext context) {
     return ExpansionTile(
@@ -269,22 +284,19 @@ class DrawerExpansionTile extends StatelessWidget {
         title: Text(title),
         children: [
           ListTile(
-              onTap: () =>
-                  onPageSelected(const ListFoodIsShow(isShowFood: true)),
+              onTap: onTap1,
               horizontalTitleGap: 0.0,
               title: Padding(
                   padding: const EdgeInsets.all(8.0),
-                  child: Text('Đang hiển thị',
+                  child: Text(title1,
                       style: context.textStyleSmall!
                           .copyWith(color: Colors.white70)))),
           ListTile(
-              onTap: () {
-                onPageSelected(const ListFoodDontShow());
-              },
+              onTap: onTap2,
               horizontalTitleGap: 0.0,
               title: Padding(
                   padding: const EdgeInsets.all(8.0),
-                  child: Text('Đang ẩn',
+                  child: Text(title2,
                       style: context.textStyleSmall!
                           .copyWith(color: Colors.white70))))
         ]);

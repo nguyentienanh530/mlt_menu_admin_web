@@ -72,39 +72,29 @@ class _OrderDetailViewState extends State<OrderDetailView> {
                 topLeft: Radius.circular(15), topRight: Radius.circular(15))),
         child: Column(children: [
           Expanded(
-              child: ListView.builder(
-                  physics: const BouncingScrollPhysics(),
-                  itemCount: orders.foods.length,
-                  itemBuilder: (context, index) => _buildItemFood(
-                          orders.foods[index], index)
-                      .animate()
-                      .slideX(
-                          begin: -0.1,
-                          end: 0,
-                          curve: Curves.easeInOutCubic,
-                          duration: 500.ms)
-                      .fadeIn(curve: Curves.easeInOutCubic, duration: 500.ms))),
+              child: Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: GridView.builder(
+                      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                          crossAxisCount: countGridView(context),
+                          mainAxisSpacing: 16,
+                          crossAxisSpacing: 16),
+                      physics: const BouncingScrollPhysics(),
+                      itemCount: orders.foods.length,
+                      itemBuilder: (context, index) =>
+                          _buildItem(orders.foods[index], index)
+                              .animate()
+                              .slideX(
+                                  begin: -0.1,
+                                  end: 0,
+                                  curve: Curves.easeInOutCubic,
+                                  duration: 500.ms)
+                              .fadeIn(
+                                  curve: Curves.easeInOutCubic,
+                                  duration: 500.ms)))),
           _buildBottomAction()
         ]));
   }
-
-  Widget _buildItemFood(FoodDto foodDto, int index) {
-    return Padding(
-        padding: EdgeInsets.symmetric(horizontal: defaultPadding / 2),
-        child: _buildItem(foodDto, index));
-  }
-
-  // SlidableAction(
-  //                     borderRadius: BorderRadius.circular(defaultBorderRadius),
-  //                     flex: 1,
-  //                     // spacing: 8,
-  //                     padding: EdgeInsets.all(defaultPadding),
-  //                     onPressed: (ct) {
-  //                       _handleDeleteItem(foodDto);
-  //                     },
-  //                     backgroundColor: context.colorScheme.error,
-  //                     foregroundColor: Colors.white,
-  //                     icon: Icons.delete_forever)
 
   Widget _buildItem(FoodDto foodDto, int index) {
     // final foodDtoo = ValueNotifier(foodDto);

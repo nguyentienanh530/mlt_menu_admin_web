@@ -13,16 +13,22 @@ class FoodDetailScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (context) => FoodBloc(),
-      child: Scaffold(
-          appBar: _buildAppbar(context), body: FoodDetailView(food: food!)),
-    );
+        create: (context) => FoodBloc(),
+        child: Container(
+            decoration: BoxDecoration(borderRadius: BorderRadius.circular(30)),
+            child: Column(children: [
+              _buildAppbar(context),
+              Expanded(child: FoodDetailView(food: food ?? Food()))
+            ])));
   }
 
   _buildAppbar(BuildContext context) {
-    return AppBar(
-        title: Text(AppString.titleFoodDetail, style: context.titleStyleMedium),
-        centerTitle: true);
+    return Container(
+        alignment: Alignment.center,
+        height: 60,
+        width: double.infinity,
+        child:
+            Text(AppString.titleFoodDetail, style: context.titleStyleMedium));
   }
 }
 

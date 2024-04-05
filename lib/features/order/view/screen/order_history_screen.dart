@@ -1,9 +1,9 @@
+import 'package:flutter/widgets.dart';
 import 'package:mlt_menu_admin_web/common/bloc/generic_bloc_state.dart';
 import 'package:mlt_menu_admin_web/common/dialog/progress_dialog.dart';
 import 'package:mlt_menu_admin_web/common/dialog/retry_dialog.dart';
 import 'package:mlt_menu_admin_web/common/widget/common_bottomsheet.dart';
 import 'package:mlt_menu_admin_web/common/widget/common_icon_button.dart';
-import 'package:mlt_menu_admin_web/common/widget/common_refresh_indicator.dart';
 import 'package:mlt_menu_admin_web/features/order/bloc/order_bloc.dart';
 import 'package:mlt_menu_admin_web/core/utils/utils.dart';
 import 'package:mlt_menu_admin_web/common/widget/empty_screen.dart';
@@ -14,7 +14,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:mlt_menu_admin_web/config/config.dart';
 import 'package:go_router/go_router.dart';
-import 'package:grouped_list/grouped_list.dart';
+import 'package:mlt_menu_admin_web/features/order/data/model/order_group.dart';
 import '../../../../common/widget/common_line_text.dart';
 import '../../data/model/order_model.dart';
 
@@ -60,56 +60,133 @@ class _OrderHistoryViewState extends State<OrderHistoryView> {
 
   @override
   Widget build(BuildContext context) {
-    var orderState = context.watch<OrderBloc>().state;
-    return CommonRefreshIndicator(
-        onRefresh: () async {
-          await Future.delayed(const Duration(milliseconds: 500));
-          getData();
-        },
-        child: (switch (orderState.status) {
-          Status.loading => const LoadingScreen(),
-          Status.empty => const EmptyScreen(),
-          Status.failure => ErrorScreen(errorMsg: orderState.error),
-          Status.success =>
-            _buildBody(context, orderState.datas as List<Orders>)
-        }));
+    return Builder(builder: (context) {
+      var orderState = context.watch<OrderBloc>().state;
+      return (switch (orderState.status) {
+        Status.loading => const LoadingScreen(),
+        Status.empty => const EmptyScreen(),
+        Status.failure => ErrorScreen(errorMsg: orderState.error),
+        Status.success => _buildBody(orderState.datas as List<Orders>)
+      });
+    });
   }
 
-  Widget _buildBody(BuildContext context, List<Orders> orders) {
-    return GroupedListView(
-        physics: const BouncingScrollPhysics(),
-        elements: orders,
-        groupBy: (element) => Ultils.formatToDate(element.payTime!),
-        itemComparator: (element1, element2) =>
-            element2.payTime!.compareTo(element1.payTime!),
-        order: GroupedListOrder.DESC,
-        useStickyGroupSeparators: true,
-        floatingHeader: true,
-        groupSeparatorBuilder: (String value) {
-          var totalPrice = 0.0;
-          for (var element in orders) {
-            if (Ultils.formatToDate(element.payTime!) == value) {
-              totalPrice =
-                  totalPrice + double.parse(element.totalPrice.toString());
-            }
-          }
-          return Container(
-              width: context.sizeDevice.width * 3 / 4,
-              decoration: BoxDecoration(
-                  color: context.colorScheme.primary,
-                  borderRadius: BorderRadius.circular(defaultBorderRadius)),
-              padding: EdgeInsets.all(defaultPadding),
-              margin: EdgeInsets.all(defaultPadding),
-              child: Text(
-                  '${Ultils.reverseDate(value)} - ${Ultils.currencyFormat(totalPrice)}',
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                      color: context.colorScheme.tertiary,
-                      fontWeight: FontWeight.bold)));
-        },
-        indexedItemBuilder: (context, element, index) {
-          return _buildItemListView(context, element, index);
-        });
+  Widget _buildBody(List<Orders> orders) {
+    final groupedOrders = groupOrdersByPayTime(orders);
+    groupedOrders.sort((a, b) => b.payTime!.compareTo(a.payTime!));
+
+    return SizedBox(
+        height: double.infinity,
+        width: double.infinity,
+        child: GridView.builder(
+            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: countGridView(context),
+                crossAxisSpacing: 16,
+                mainAxisSpacing: 16),
+            itemCount: groupedOrders.length,
+            itemBuilder: (context, index) {
+              final group = groupedOrders[index];
+              var totalPrice = 0.0;
+              var totalOrder = 0;
+              for (var element in group.orders) {
+                totalPrice =
+                    totalPrice + double.parse(element.totalPrice.toString());
+                totalOrder++;
+              }
+              return Card(
+                  elevation: 10,
+                  child: Column(children: [
+                    _buildHeaderItem(group.orders, index),
+                    Expanded(
+                        child: Column(
+                            mainAxisAlignment: MainAxisAlignment.spaceAround,
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                          Expanded(
+                              flex: 2,
+                              child: _buildBodyItem(group, totalOrder)),
+                          Divider(
+                              color:
+                                  context.colorScheme.primary.withOpacity(0.3)),
+                          Expanded(
+                              child: Padding(
+                                  padding: const EdgeInsets.all(8.0),
+                                  child: _buildPrice(
+                                      Ultils.currencyFormat(totalPrice))))
+                        ]))
+                  ]));
+              // Column(
+              //     crossAxisAlignment: CrossAxisAlignment.start,
+              //     children: [
+              //      ,
+              //       // GridView.builder(
+              //       //     shrinkWrap: true,
+              //       //     physics: const NeverScrollableScrollPhysics(),
+              //       //     itemCount: group.orders.length,
+              //       //     itemBuilder: (context, idx) {
+              //       //       final order = group.orders[idx];
+              //       //       return _buildItemListView(context, order, idx);
+              //       //     },
+              //       //     gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+              //       //         crossAxisCount: countGridView(context)))
+              //     ]);
+            }));
+  }
+
+  Widget _buildBodyItem(OrdersGroupByPayTime group, int totalOrder) {
+    columnInItem(String title, value) =>
+        Column(mainAxisAlignment: MainAxisAlignment.center, children: [
+          _buildTitle(title),
+          const SizedBox(height: 8),
+          _buildValue(value)
+        ]);
+    return Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+      Expanded(
+          child: columnInItem('Ngày', Ultils.reverseDate(group.payTime ?? ''))),
+      Expanded(child: columnInItem('Tổng đơn', totalOrder.toString()))
+    ]);
+  }
+
+  Widget _buildTitle(String title) {
+    return Text(title,
+        style: context.textStyleSmall!
+            .copyWith(color: Colors.white.withOpacity(0.3)));
+  }
+
+  Widget _buildValue(String title) {
+    return Text(title,
+        style: context.textStyleLarge!.copyWith(fontWeight: FontWeight.bold));
+  }
+
+  Widget _buildHeaderItem(List<Orders> orders, int index) {
+    return Container(
+        height: 40,
+        width: double.infinity,
+        color: context.colorScheme.primary.withOpacity(0.3),
+        child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 8),
+            child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text('#${index + 1}',
+                      style: const TextStyle(fontWeight: FontWeight.bold)),
+                  CommonIconButton(
+                      onTap: () => context.push(
+                          RouteName.orderHistoryDetailOnDayScreen,
+                          extra: orders),
+                      color: Colors.green,
+                      icon: Icons.remove_red_eye)
+                ])));
+  }
+
+  Widget _buildPrice(String price) {
+    return Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
+      _buildTitle('Tổng tiền:'),
+      Text(price,
+          style: context.textStyleLarge!.copyWith(
+              color: context.colorScheme.secondary,
+              fontWeight: FontWeight.bold))
+    ]);
   }
 
   Widget _buildItemListView(

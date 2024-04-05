@@ -25,7 +25,7 @@ class ItemFood extends StatelessWidget {
     return Card(
         child: Column(
             mainAxisAlignment: MainAxisAlignment.start,
-            crossAxisAlignment: CrossAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
           Container(
               height: 40,
@@ -44,26 +44,47 @@ class ItemFood extends StatelessWidget {
                             color: context.colorScheme.errorContainer,
                             icon: Icons.delete)
                       ]))),
-          Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-            Row(children: [
-              _buildImage(foodDto),
-              Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                const SizedBox(),
-                Text(foodDto.foodName),
-                SizedBox(height: defaultPadding / 2),
-                _buildQuality(context, foodDto)
-              ])
-            ]),
-            Column(children: [
-              Padding(
-                  padding: EdgeInsets.only(right: defaultPadding / 2),
-                  child: ValueListenableBuilder(
-                      valueListenable: totalPriceFood,
-                      builder: (context, value, child) =>
-                          _PriceFoodItem(totalPrice: value.toString()))),
-              const SizedBox(height: 8)
-            ])
-          ]),
+          Expanded(
+              child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                Expanded(flex: 3, child: _buildImage(foodDto)),
+                Expanded(
+                    flex: 2,
+                    child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          const SizedBox(),
+                          Expanded(child: Text(foodDto.foodName)),
+                          Expanded(child: _buildQuality(context, foodDto))
+                        ])),
+                Expanded(child: SizedBox()),
+                Expanded(
+                    child: Padding(
+                        padding: EdgeInsets.only(right: defaultPadding / 2),
+                        child: ValueListenableBuilder(
+                            valueListenable: totalPriceFood,
+                            builder: (context, value, child) =>
+                                _PriceFoodItem(totalPrice: value.toString()))))
+              ])),
+          // Expanded(
+          //     child: Column(
+          //         mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          //         children: [
+          //       Column(children: [
+          //         Expanded(flex: 3, child: _buildImage(foodDto)),
+          //         Expanded(
+          //             flex: 2,
+          //             child: Column(
+          //                 crossAxisAlignment: CrossAxisAlignment.start,
+          //                 children: [
+          //                   const SizedBox(),
+          //                   Expanded(child: Text(foodDto.foodName)),
+          //                   Expanded(child: _buildQuality(context, foodDto))
+          //                 ]))
+          //       ]),
+
+          //     ])),
           foodDto.note.isNotEmpty
               ? Padding(
                   padding: const EdgeInsets.all(8.0),
@@ -81,7 +102,7 @@ class ItemFood extends StatelessWidget {
   }
 
   Widget _buildQuality(BuildContext context, FoodDto foodDto) {
-    return Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
+    return Row(mainAxisAlignment: MainAxisAlignment.center, children: [
       // LineText(title: "Số lượng: ", value: food.quantity.toString()),
       InkWell(
           onTap: onTapDecrement,

@@ -1,16 +1,13 @@
 import 'dart:convert';
-import 'dart:html' as html;
 import 'dart:io';
-import 'dart:math';
 import 'dart:typed_data';
-import 'package:firebase_storage/firebase_storage.dart' as firebase_storage;
+import 'package:file_picker/file_picker.dart';
 import 'package:firebase_storage/firebase_storage.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:image/image.dart' as img;
-import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
-
+import '../../common/widget/responsive.dart';
 import 'utils.dart';
 
 class Ultils {
@@ -134,41 +131,28 @@ Future pop(BuildContext context, int returnedLevel) async {
   }
 }
 
-// Future<String> uploadImage({required String path, required File file}) async {
-//   var image = '';
-//   Reference storageReference = FirebaseStorage.instance
-//       .ref()
-//       .child('$path/${file.path.split('/').last}');
-//   UploadTask uploadTask = storageReference.putFile(file);
-//   await uploadTask.whenComplete(() async {
-//     var url = await storageReference.getDownloadURL();
-//     image = url.toString();
-//   });
-//   return image;
-// }
-
 Future<String> uploadImage(
     {required String path,
-    required File file,
+    required Uint8List file,
     required ValueNotifier progress}) async {
   var image = '';
   Reference storageReference = FirebaseStorage.instance
       .ref()
-      .child('$path/${file.path.split('/').last}');
+      .child('$path/${DateTime.now().millisecondsSinceEpoch.toString()}');
 
-  UploadTask uploadTask = storageReference.putFile(
-      file, SettableMetadata(contentType: 'image/jpeg'));
-  uploadTask.snapshotEvents.listen((event) {
-    progress.value =
-        ((event.bytesTransferred.toDouble() / event.totalBytes.toDouble()) *
-                100)
-            .roundToDouble();
-  });
+  if (kIsWeb) {
+    final uploadTask = storageReference.putData(
+        file, SettableMetadata(contentType: 'image/jpeg'));
+    uploadTask.snapshotEvents.listen((TaskSnapshot taskSnapshot) {
+      progress.value =
+          100.0 * (taskSnapshot.bytesTransferred / taskSnapshot.totalBytes);
+    });
 
-  await uploadTask.then((snap) async {
-    var url = await snap.ref.getDownloadURL();
-    image = url.toString();
-  });
+    await uploadTask.then((snap) async {
+      var url = await snap.ref.getDownloadURL();
+      image = url.toString();
+    });
+  }
 
   return image;
 }
@@ -176,88 +160,24 @@ Future<String> uploadImage(
 Future<dynamic> pickImage() async {
   // ignore: prefer_typing_uninitialized_variables
   var imageFile;
-  final imagePicker = ImagePicker();
-  var imagepicked = await imagePicker.pickImage(
-      source: ImageSource.gallery, maxHeight: 500, maxWidth: 500);
-  if (imagepicked != null) {
-    imageFile = File(imagepicked.path);
+  FilePickerResult? filePickerResult =
+      await FilePicker.platform.pickFiles(type: FileType.image);
+  if (filePickerResult != null) {
+    imageFile = filePickerResult.files.single.bytes;
   } else {
     logger.d('No image selected!');
   }
+
   return imageFile;
 }
 
-Future<dynamic> pickImage1() async {
-  // ignore: prefer_typing_uninitialized_variables
-  var imageFile;
-  final imagePicker = ImagePicker();
-  var imagepicked = await imagePicker.pickImage(
-      source: ImageSource.gallery, maxHeight: 500, maxWidth: 500);
-  if (imagepicked != null) {
-    imageFile = File(imagepicked.path);
+int countGridView(BuildContext context) {
+  if (Responsive.isMobile(context)) {
+    return 2;
+  }
+  if (Responsive.isTablet(context)) {
+    return 3;
   } else {
-    logger.d('No image selected!');
-  }
-  return imageFile;
-}
-
-class PickImage {
-  Function(Uint8List imageData) onImagePicked;
-
-  PickImage(this.onImagePicked);
-
-  Future<void> pickImage() async {
-    try {
-      final html.FileUploadInputElement input = html.FileUploadInputElement();
-      input.accept = 'image/*';
-      input.click();
-      await input.onChange.first;
-
-      final file = input.files!.first;
-      if (file != null) {
-        final reader = html.FileReader();
-        reader.readAsArrayBuffer(file);
-        await reader.onLoad.first;
-        final Uint8List imageData = reader.result as Uint8List;
-        onImagePicked(imageData); // Gọi hàm callback khi hình ảnh được chọn
-      } else {
-        print('No file selected.');
-      }
-    } catch (e) {
-      print('Error picking image: $e');
-    }
-  }
-}
-
-Future<String> uploadImageFirebase(
-    {required Uint8List pickedImageData,
-    required ValueNotifier progress,
-    required String path}) async {
-  try {
-    String dateTimeString = DateTime.now().toString();
-    String formattedDateTime =
-        dateTimeString.replaceAll(' ', '_').replaceAll(':', ':');
-    String fileName = '$formattedDateTime.${Random().nextInt(10000)}';
-    img.Image? image = img.decodeImage(pickedImageData);
-    img.Image resizedImage = img.copyResize(image!, width: 500, height: 500);
-    Uint8List resizedImageData =
-        Uint8List.fromList(img.encodePng(resizedImage));
-    final firebase_storage.Reference ref = firebase_storage
-        .FirebaseStorage.instance
-        .ref()
-        .child('$path/${fileName.split('/').last}');
-    UploadTask uploadTask = ref.putData(resizedImageData);
-    uploadTask.snapshotEvents.listen((event) {
-      progress.value =
-          ((event.bytesTransferred.toDouble() / event.totalBytes.toDouble()) *
-                  100)
-              .roundToDouble();
-    });
-
-    String downloadURL = await ref.getDownloadURL();
-    return downloadURL;
-  } catch (e) {
-    print('Error uploading image to Firebase Storage: $e');
-    return ''; // Trả về chuỗi rỗng trong trường hợp có lỗi
+    return 5;
   }
 }

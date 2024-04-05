@@ -2,6 +2,7 @@ import 'package:mlt_menu_admin_web/features/category/data/model/category_model.d
 import 'package:mlt_menu_admin_web/features/category/view/screen/categories_screen.dart';
 import 'package:mlt_menu_admin_web/features/category/view/screen/create_or_update_category.dart';
 import 'package:mlt_menu_admin_web/features/order/data/model/order_model.dart';
+import 'package:mlt_menu_admin_web/features/order/view/screen/order_history_detail_on_day_screen.dart';
 import 'package:mlt_menu_admin_web/features/order/view/screen/order_on_table.dart';
 import 'package:mlt_menu_admin_web/features/print/data/model/print_model.dart';
 import 'package:mlt_menu_admin_web/features/print/view/screen/create_or_update_print.dart';
@@ -47,6 +48,8 @@ class RouteName {
   static const String createOrUpdatePrint = '/createOrUpdatePrint';
   static const String categoriesScreen = '/categoriesScreen';
   static const String createOrUpdateCategory = '/createOrUpdateCategory';
+  static const String orderHistoryDetailOnDayScreen =
+      '/orderHistoryDetailOnDayScreen';
 
   static const publicRoutes = [login, register];
 }
@@ -111,6 +114,13 @@ final router = GoRouter(
           builder: (context, state) {
             final Orders orders = GoRouterState.of(context).extra as Orders;
             return OrderDetailScreen(orders: orders);
+          }),
+      GoRoute(
+          path: RouteName.orderHistoryDetailOnDayScreen,
+          builder: (context, state) {
+            final List<Orders> orders =
+                GoRouterState.of(context).extra as List<Orders>;
+            return OrderHistoryDetailOnDayScreen(orders: orders);
           }),
       GoRoute(
           path: RouteName.orderHistoryDetail,

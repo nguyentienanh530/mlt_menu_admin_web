@@ -1,6 +1,7 @@
 import 'package:awesome_dialog/awesome_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
+import 'package:go_router/go_router.dart';
 import '../widget/common_text_style.dart';
 import '../../core/utils/utils.dart';
 
@@ -51,6 +52,7 @@ class AppAlerts {
       Function()? btnCancelOnPress,
       Function()? btnOkOnPress}) {
     AwesomeDialog(
+      width: 500,
       dialogBackgroundColor: context.colorScheme.primary.withOpacity(0.3),
       dismissOnTouchOutside: false,
       titleTextStyle:
@@ -73,6 +75,7 @@ class AppAlerts {
       Function()? btnCancelOnPress,
       Function()? btnOkOnPress}) {
     AwesomeDialog(
+      width: 500,
       dismissOnTouchOutside: false,
       dialogBackgroundColor: context.colorScheme.background,
       titleTextStyle:
@@ -96,6 +99,7 @@ class AppAlerts {
       Function()? btnCancelOnPress,
       Function()? btnOkOnPress}) {
     AwesomeDialog(
+      width: 500,
       dismissOnTouchOutside: false,
       btnCancelText: textCancel ?? 'Cancel',
       btnOkText: textOk ?? 'Ok',
@@ -107,7 +111,7 @@ class AppAlerts {
       animType: AnimType.rightSlide,
       title: title ?? 'Thông báo',
       desc: desc ?? '',
-      btnCancelOnPress: btnCancelOnPress,
+      btnCancelOnPress: () => context.pop(),
       btnOkOnPress: btnOkOnPress,
     ).show();
   }

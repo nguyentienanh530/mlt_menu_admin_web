@@ -8,15 +8,13 @@ import 'package:mlt_menu_admin_web/common/widget/error_screen.dart';
 import 'package:mlt_menu_admin_web/common/widget/loading_screen.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:mlt_menu_admin_web/config/config.dart';
 import 'package:go_router/go_router.dart';
-import 'package:grouped_list/grouped_list.dart';
 import '../../../../common/dialog/progress_dialog.dart';
 import '../../../../common/dialog/retry_dialog.dart';
 import '../../../../common/widget/common_bottomsheet.dart';
-import '../../../../common/widget/common_line_text.dart';
+import '../../data/model/order_group.dart';
 import '../../data/model/order_model.dart';
 
 class CurrentOrder extends StatefulWidget {
@@ -33,16 +31,15 @@ class _CurrentOrderState extends State<CurrentOrder>
     super.build(context);
     return BlocProvider(
         create: (context) => OrderBloc()..add(NewOrdersFecthed()),
-        child: Scaffold(body: OrderHistoryView()));
+        child: const Scaffold(body: OrderHistoryView()));
   }
 
   @override
   bool get wantKeepAlive => true;
 }
 
-// ignore: must_be_immutable
 class OrderHistoryView extends StatelessWidget {
-  OrderHistoryView({super.key});
+  const OrderHistoryView({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -62,52 +59,51 @@ class OrderHistoryView extends StatelessWidget {
   }
 
   Widget _buildBody(BuildContext context, List<Orders> orders) {
-    return GroupedListView(
-        physics: const AlwaysScrollableScrollPhysics(),
-        elements: orders,
-        groupBy: (element) => element.tableName,
-        itemComparator: (element1, element2) =>
-            element2.tableID!.compareTo(element1.tableID!),
-        order: GroupedListOrder.DESC,
-        useStickyGroupSeparators: true,
-        floatingHeader: true,
-        groupSeparatorBuilder: (String value) {
-          return Container(
-              width: context.sizeDevice.width * 3 / 4,
-              decoration: BoxDecoration(
-                  color: context.colorScheme.primary,
-                  borderRadius: BorderRadius.circular(defaultBorderRadius)),
-              padding: EdgeInsets.all(defaultPadding),
-              margin: EdgeInsets.all(defaultPadding),
-              child: Text(value,
-                  textAlign: TextAlign.center,
-                  style: context.titleStyleMedium!.copyWith(
-                      color: context.colorScheme.tertiary,
-                      fontWeight: FontWeight.bold)));
-        },
-        indexedItemBuilder: (context, element, index) {
-          return _buildItemListView(context, element, index)
-              .animate()
-              .slideX(
-                  begin: -0.1,
-                  end: 0,
-                  curve: Curves.easeInOutCubic,
-                  duration: 500.ms)
-              .fadeIn(curve: Curves.easeInOutCubic, duration: 500.ms);
+    final groupedOrders = groupOrdersByTable(orders);
+
+    return ListView.builder(
+        itemCount: groupedOrders.length,
+        itemBuilder: (context, index) {
+          final group = groupedOrders[index];
+          return Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Container(
+                    margin: const EdgeInsets.all(16),
+                    alignment: Alignment.center,
+                    width: double.infinity,
+                    height: 55,
+                    decoration: BoxDecoration(
+                        color: context.colorScheme.tertiaryContainer,
+                        borderRadius: BorderRadius.circular(16)),
+                    child: Text('Bàn ăn: ${group.tableName ?? 'Unknown'}',
+                        style: const TextStyle(fontWeight: FontWeight.bold))),
+                GridView.builder(
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    itemCount: group.orders.length,
+                    itemBuilder: (context, idx) {
+                      final order = group.orders[idx];
+                      return _buildItemListView(context, order, idx);
+                    },
+                    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                        crossAxisCount: countGridView(context),
+                        crossAxisSpacing: 16,
+                        mainAxisSpacing: 16))
+              ]);
         });
   }
 
   Widget _buildItemListView(
       BuildContext context, Orders orderModel, int index) {
     return Card(
-        margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         elevation: 10,
         child: Column(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            crossAxisAlignment: CrossAxisAlignment.start,
+            // crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               _buildHeaderItem(context, index, orderModel),
-              _buildBodyItem(orderModel)
+              Expanded(child: _buildBodyItem(context, orderModel))
             ]));
   }
 
@@ -120,16 +116,8 @@ class OrderHistoryView extends StatelessWidget {
               child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Row(children: [
-                      Text('#${index + 1} - ',
-                          style: const TextStyle(fontWeight: FontWeight.bold)),
-                      Text(
-                          Ultils.currencyFormat(double.parse(
-                              orders.totalPrice?.toString() ?? '0')),
-                          style: TextStyle(
-                              color: context.colorScheme.secondary,
-                              fontWeight: FontWeight.bold))
-                    ]),
+                    Text('#${index + 1} - ',
+                        style: const TextStyle(fontWeight: FontWeight.bold)),
                     Row(children: [
                       const SizedBox(width: 8),
                       CommonIconButton(
@@ -185,19 +173,57 @@ class OrderHistoryView extends StatelessWidget {
         });
   }
 
-  _buildBodyItem(Orders orderModel) => Padding(
+  _buildBodyItem(BuildContext context, Orders orderModel) => Padding(
       padding: const EdgeInsets.all(8.0),
-      child: Column(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            CommonLineText(title: 'ID: ', value: orderModel.id ?? ''),
-            const SizedBox(height: 8.0),
-            CommonLineText(title: 'Bàn: ', value: orderModel.tableName),
-            const SizedBox(height: 8.0),
-            CommonLineText(
-                title: 'Đặt lúc: ',
-                value: Ultils.formatDateTime(
-                    orderModel.orderTime ?? DateTime.now().toString()))
-          ]));
+      child: Column(children: [
+        Expanded(
+            flex: 3,
+            child: Column(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  _buildColumnValueItem(
+                      title: 'ID', value: orderModel.id ?? ''),
+                  _buildColumnValueItem(
+                      title: 'Bàn', value: orderModel.tableName),
+                  _buildColumnValueItem(
+                      title: 'Đặt lúc',
+                      value: Ultils.formatDateTime(
+                          orderModel.orderTime ?? DateTime.now().toString()))
+                ])),
+        Divider(color: context.colorScheme.primary.withOpacity(0.3)),
+        Expanded(
+            child: Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: _buildPrice(
+                    context,
+                    Ultils.currencyFormat(double.parse(
+                        orderModel.totalPrice?.toString() ?? '0')))))
+      ]));
+
+  Widget _buildPrice(BuildContext context, String price) {
+    return Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
+      Text('Tổng tiền:',
+          style: TextStyle(color: Colors.white.withOpacity(0.3))),
+      Text(price,
+          style: context.textStyleLarge!.copyWith(
+              color: context.colorScheme.secondary,
+              fontWeight: FontWeight.bold))
+    ]);
+  }
+
+  Widget _buildColumnValueItem({required String title, required String value}) {
+    return Expanded(
+        child: FittedBox(
+            child: Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+          Text(title, style: TextStyle(color: Colors.white.withOpacity(0.3))),
+          Text(value,
+              maxLines: 1,
+              overflow: TextOverflow.clip,
+              style: const TextStyle(
+                  color: Colors.white, fontWeight: FontWeight.bold))
+        ])));
+  }
 }

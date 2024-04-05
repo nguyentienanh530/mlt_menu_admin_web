@@ -59,8 +59,10 @@ dependencies:
   fl_chart: ^0.66.2
   flutter_native_splash: ^2.3.10
   flutter_launcher_icons: ^0.13.1
-  # flutter_web: any
-  # flutter_web_ui: any
+  file_picker: ^8.0.0+1
+  group_grid_view: ^1.0.1
+  collection: ^1.18.0
+ 
  
   
 

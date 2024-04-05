@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:mlt_menu_admin_web/common/widget/common_icon_button.dart';
 import 'package:mlt_menu_admin_web/common/widget/loading_screen.dart';
 import 'package:mlt_menu_admin_web/features/order/data/model/food_dto.dart';
@@ -24,17 +25,19 @@ class OrderHistoryDetailScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     _isUsePrint = context.watch<IsUsePrintCubit>().state;
     _print = context.watch<PrintCubit>().state;
-    return Scaffold(
-        appBar: _buildAppbar(context),
-        body: ValueListenableBuilder(
-            valueListenable: _loading,
-            builder: (context, value, child) => value
-                ? const LoadingScreen()
-                : OrderHistoryDetailView(orders: orders)));
+    return ValueListenableBuilder(
+        valueListenable: _loading,
+        builder: (context, value, child) => value
+            ? const LoadingScreen()
+            : Column(children: [
+                _buildAppbar(context),
+                Expanded(child: OrderHistoryDetailView(orders: orders))
+              ]));
   }
 
   _buildAppbar(BuildContext context) {
     return AppBar(
+        automaticallyImplyLeading: false,
         title: Text('Chi tiết đơn hàng', style: context.titleStyleMedium),
         centerTitle: true,
         actions: [
