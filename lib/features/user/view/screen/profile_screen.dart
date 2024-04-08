@@ -1,6 +1,9 @@
 import 'package:mlt_menu_admin_web/common/bloc/bloc_helper.dart';
 import 'package:mlt_menu_admin_web/common/bloc/generic_bloc_state.dart';
-import 'package:mlt_menu_admin_web/common/widget/common_refresh_indicator.dart';
+import 'package:mlt_menu_admin_web/common/dialog/app_alerts.dart';
+import 'package:mlt_menu_admin_web/common/widget/responsive.dart';
+import 'package:mlt_menu_admin_web/features/print/view/screen/print_screen.dart';
+import 'package:mlt_menu_admin_web/features/print/view/screen/print_setting.dart';
 import 'package:mlt_menu_admin_web/features/user/bloc/user_bloc.dart';
 import 'package:mlt_menu_admin_web/features/user/data/model/user_model.dart';
 import 'package:mlt_menu_admin_web/core/utils/utils.dart';
@@ -11,6 +14,8 @@ import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:go_router/go_router.dart';
+import 'package:mlt_menu_admin_web/features/user/view/screen/change_password.dart';
+import 'package:mlt_menu_admin_web/features/user/view/screen/update_user.dart';
 
 import '../../../../config/config.dart';
 import '../../../auth/bloc/auth_bloc.dart';
@@ -26,9 +31,7 @@ class ProfileScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (context) => UserBloc(),
-      child: const ProfileView(),
-    );
+        create: (context) => UserBloc(), child: const ProfileView());
   }
 }
 
@@ -59,67 +62,113 @@ class _ProfileViewState extends State<ProfileView>
   @override
   Widget build(BuildContext context) {
     super.build(context);
-    return Scaffold(
-      appBar: AppBar(
-          centerTitle: true,
-          title: Text('Cá nhân', style: context.titleStyleMedium)),
-      body: SafeArea(
-          child: Padding(
-              padding: EdgeInsets.all(defaultPadding),
-              child: CommonRefreshIndicator(
-                onRefresh: () async {
-                  await Future.delayed(const Duration(milliseconds: 500));
-                  getUser();
-                },
-                child: BlocBuilder<UserBloc, GenericBlocState<UserModel>>(
-                    buildWhen: (previous, current) =>
-                        context.read<UserBloc>().operation ==
-                        ApiOperation.select,
-                    builder: (context, state) {
-                      return (switch (state.status) {
-                        Status.loading => const LoadingScreen(),
-                        Status.failure => ErrorScreen(errorMsg: state.error),
-                        Status.empty => const EmptyScreen(),
-                        Status.success => _buildBody(state.data ?? UserModel())
-                      });
-                    }),
-              ))),
-    );
+
+    return BlocBuilder<UserBloc, GenericBlocState<UserModel>>(
+        buildWhen: (previous, current) =>
+            context.read<UserBloc>().operation == ApiOperation.select,
+        builder: (context, state) {
+          return (switch (state.status) {
+            Status.loading => const LoadingScreen(),
+            Status.failure => ErrorScreen(errorMsg: state.error),
+            Status.empty => const EmptyScreen(),
+            Status.success => CustomScrollView(
+                  physics: const BouncingScrollPhysics(),
+                  slivers: [
+                    SliverAppBar(
+                        automaticallyImplyLeading:
+                            Responsive.isDesktop(context) ? false : true,
+                        expandedHeight: 300,
+                        pinned: true,
+                        stretch: true,
+                        flexibleSpace: FlexibleSpaceBar(
+                            collapseMode: CollapseMode.pin,
+                            background: Container(
+                                // padding: const EdgeInsets.only(bottom: 120),
+                                margin: const EdgeInsets.only(bottom: 50),
+                                decoration: const BoxDecoration(
+                                    color: Colors.transparent,
+                                    image: DecorationImage(
+                                        fit: BoxFit.cover,
+                                        image: AssetImage(
+                                            "assets/image/backgroundProfile.png"))),
+                                child: Align(
+                                    alignment: Alignment.bottomCenter,
+                                    child: Column(
+                                        mainAxisSize: MainAxisSize.min,
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.center,
+                                        children: [
+                                          Transform.translate(
+                                              offset: const Offset(0, 50),
+                                              child: CircleAvatar(
+                                                  backgroundColor: Colors.white,
+                                                  radius: 50,
+                                                  child: CircleAvatar(
+                                                      radius: 49,
+                                                      backgroundImage:
+                                                          _buildImage(state
+                                                                  .data ??
+                                                              UserModel()))))
+                                        ]))))),
+                    SliverToBoxAdapter(
+                        child: _buildBody(state.data ?? UserModel()))
+                  ])
+          });
+        });
+  }
+
+  Widget _buildItem(BuildContext context, IconData icon, String title) {
+    return Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+      Icon(icon, size: 15),
+      const SizedBox(width: 3),
+      Text(title, style: TextStyle(color: Colors.white.withOpacity(0.5)))
+    ]);
   }
 
   Widget _buildBody(UserModel user) {
-    return SingleChildScrollView(
-        physics: const AlwaysScrollableScrollPhysics(),
-        child: SizedBox(
-            height: context.sizeDevice.height,
-            child: Column(
-                children: [
-              _CardProfife(user: user),
-              Expanded(
-                  child: SingleChildScrollView(
-                      child: Column(children: [
-                _ItemProfile(
-                    svgPath: 'assets/icon/user_config.svg',
-                    title: 'Cập nhật thông tin',
-                    onTap: () => _handleUserUpdated(user)),
-                _ItemProfile(
-                    svgPath: 'assets/icon/lock.svg',
-                    title: 'Đổi mật khẩu',
-                    onTap: () => context.push(RouteName.changePassword)),
-                _buildItemPrint(context),
-                _ItemProfile(
-                    svgPath: 'assets/icon/logout.svg',
-                    title: 'Đăng xuất',
-                    onTap: () => _handleLogout())
-              ])))
-            ]
-                    .animate(interval: 50.ms)
-                    .slideX(
-                        begin: -0.1,
-                        end: 0,
-                        curve: Curves.easeInOutCubic,
-                        duration: 500.ms)
-                    .fadeIn(curve: Curves.easeInOutCubic, duration: 500.ms))));
+    return SizedBox(
+        height: context.sizeDevice.height,
+        child: Column(
+            children: [
+          SizedBox(height: defaultPadding),
+          Text(user.name),
+          SizedBox(height: defaultPadding / 4),
+          _buildItem(context, Icons.email_rounded, user.email),
+          SizedBox(height: defaultPadding / 4),
+          user.phoneNumber.isEmpty
+              ? const SizedBox()
+              : _buildItem(context, Icons.phone_android_rounded,
+                  user.phoneNumber.toString()),
+          const SizedBox(height: 16),
+          Expanded(
+              child: SingleChildScrollView(
+                  child: Column(children: [
+            _ItemProfile(
+                svgPath: 'assets/icon/user_config.svg',
+                title: 'Cập nhật thông tin',
+                onTap: () => _handleUserUpdated(user)),
+            _ItemProfile(
+                svgPath: 'assets/icon/lock.svg',
+                title: 'Đổi mật khẩu',
+                onTap: () => showDialog(
+                    context: context,
+                    builder: (context) => AlertDialog(
+                        content:
+                            SizedBox(width: 600, child: ChangePassword())))),
+            _buildItemPrint(context),
+            _ItemProfile(
+                svgPath: 'assets/icon/logout.svg',
+                title: 'Đăng xuất',
+                onTap: () => _handleLogout())
+          ])))
+        ]
+                .animate(interval: 50.ms)
+                .slideX(
+                    begin: -0.1,
+                    end: 0,
+                    curve: Curves.easeInOutCubic,
+                    duration: 500.ms)
+                .fadeIn(curve: Curves.easeInOutCubic, duration: 500.ms)));
   }
 
   Widget _buildItemPrint(BuildContext context) {
@@ -157,42 +206,58 @@ class _ProfileViewState extends State<ProfileView>
           ? _ItemProfile(
               svgPath: 'assets/icon/file_setting.svg',
               title: 'Cấu hình máy in',
-              onTap: () => context.push(RouteName.printSeting))
+              onTap: () {
+                showDialog(
+                    context: context,
+                    builder: (context) => const AlertDialog(
+                        content: SizedBox(width: 600, child: PrintScreen())));
+              })
           : const SizedBox()
     ]);
   }
 
-  _handleUserUpdated(UserModel user) async {
-    var result = await context.push<bool>(RouteName.updateUser, extra: user);
-    if (result is bool && result) {
-      if (!mounted) return;
-      var userID = context.read<AuthBloc>().state.user.id;
-      context.read<UserBloc>().add(UserFecthed(userID: userID));
-    }
-    // late UserModel newUser;
-    // late File imageFile;
-    // bool isUpdate = await updateUserDialog(
-    //     user: user,
-    //     type: Type.update,
-    //     context: context,
-    //     userData: (userModel, image) {
-    //       newUser = userModel;
-    //       imageFile = image;
-    //     });
+  _buildImage(UserModel user) {
+    return user.image.isEmpty
+        ? const AssetImage('assets/icon/profile.png')
+        : NetworkImage(user.image);
   }
 
-  _handleLogout() {
-    showCupertinoModalPopup<void>(
+  _handleUserUpdated(UserModel user) async {
+    await showDialog(
         context: context,
-        builder: (context) => CommonBottomSheet(
-            title: 'Chắc chắn muốn đăng xuất?',
-            textCancel: 'Hủy',
-            textConfirm: 'Đăng xuất',
-            textConfirmColor: context.colorScheme.errorContainer,
-            onConfirm: () {
-              context.read<AuthBloc>().add(const AuthLogoutRequested());
-              context.go(RouteName.login);
-            }));
+        builder: (context) => AlertDialog(
+              content: SizedBox(width: 600, child: UpdateUser(user: user)),
+            )).then((result) {
+      if (result is bool && result) {
+        if (!mounted) return;
+        var userID = context.read<AuthBloc>().state.user.id;
+        context.read<UserBloc>().add(UserFecthed(userID: userID));
+      }
+    });
+  }
+
+  _handleLogout() async {
+    // showCupertinoModalPopup<void>(
+    //     context: context,
+    //     builder: (context) => CommonBottomSheet(
+    //         title: 'Chắc chắn muốn đăng xuất?',
+    //         textCancel: 'Hủy',
+    //         textConfirm: 'Đăng xuất',
+    //         textConfirmColor: context.colorScheme.errorContainer,
+    //         onConfirm: () {
+    //           context.read<AuthBloc>().add(const AuthLogoutRequested());
+    //           context.go(RouteName.login);
+    //         }));
+
+    await AppAlerts.warningDialog(context,
+        title: 'Chắc chắn muốn đăng xuất?',
+        textCancel: 'Hủy',
+        textOk: 'Đăng xuất',
+        btnCancelOnPress: () => context.pop(),
+        btnOkOnPress: () {
+          context.read<AuthBloc>().add(const AuthLogoutRequested());
+          context.go(RouteName.login);
+        });
   }
 }
 

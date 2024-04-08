@@ -1,6 +1,7 @@
 import 'package:mlt_menu_admin_web/features/category/data/model/category_model.dart';
 import 'package:mlt_menu_admin_web/features/category/view/screen/categories_screen.dart';
 import 'package:mlt_menu_admin_web/features/category/view/screen/create_or_update_category.dart';
+import 'package:mlt_menu_admin_web/features/dashboard/view/screen/dashboard_screen.dart';
 import 'package:mlt_menu_admin_web/features/order/data/model/order_model.dart';
 import 'package:mlt_menu_admin_web/features/order/view/screen/order_history_detail_on_day_screen.dart';
 import 'package:mlt_menu_admin_web/features/order/view/screen/order_on_table.dart';
@@ -14,6 +15,7 @@ import 'package:mlt_menu_admin_web/features/order/view/screen/order_detail_scree
 import 'package:mlt_menu_admin_web/features/order/view/screen/order_history_detail_screen.dart';
 import 'package:mlt_menu_admin_web/features/order/view/screen/order_screen.dart';
 import 'package:mlt_menu_admin_web/features/user/view/screen/change_password.dart';
+import 'package:mlt_menu_admin_web/features/user/view/screen/profile_screen.dart';
 import 'package:mlt_menu_admin_web/features/user/view/screen/update_user.dart';
 import 'package:mlt_menu_admin_web/features/register/view/screen/signup_screen.dart';
 import 'package:mlt_menu_admin_web/features/table/view/screen/create_or_update_table.dart';
@@ -29,6 +31,7 @@ import '../features/print/view/screen/print_screen.dart';
 
 class RouteName {
   static const String home = '/';
+  static const String dashboard = '/dashboard';
   static const String login = '/login';
   static const String postDetail = '/post/:id';
   static const String profile = '/profile';
@@ -74,11 +77,17 @@ final router = GoRouter(
             final arg = GoRouterState.of(context).extra as Map<String, dynamic>;
             final mode = arg['mode'] as Mode;
             final table = arg['table'] ?? TableModel();
-            return CreateTable(mode: mode, tableModel: table);
+            return CreateOrUpdateTable(mode: mode, tableModel: table);
           }),
       GoRoute(
           path: RouteName.login,
           builder: (context, state) => const LoginScreen()),
+      GoRoute(
+          path: RouteName.profile,
+          builder: (context, state) => const ProfileScreen()),
+      GoRoute(
+          path: RouteName.dashboard,
+          builder: (context, state) => const DashboardScreen()),
       GoRoute(
           path: RouteName.register,
           builder: (context, state) => const SignUpScreen()),

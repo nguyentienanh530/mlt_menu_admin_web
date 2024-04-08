@@ -25,4 +25,10 @@ class PrintRepo extends FirebaseBase<PrintModel> {
     return await updateItem(_printRepository.updatePrint(
         printID: printModel.id, dataJson: printModel.toJson()));
   }
+
+  Future<FirebaseResult<bool>> deletePrint(
+      {required PrintModel printModel}) async {
+    return await deleteItem(
+        _printRepository.deletePrint(printID: printModel.id));
+  }
 }

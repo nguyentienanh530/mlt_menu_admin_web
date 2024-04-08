@@ -1,3 +1,5 @@
+import 'package:flutter/widgets.dart';
+import 'package:go_router/go_router.dart';
 import 'package:mlt_menu_admin_web/common/bloc/generic_bloc_state.dart';
 import 'package:mlt_menu_admin_web/common/dialog/progress_dialog.dart';
 import 'package:mlt_menu_admin_web/common/dialog/retry_dialog.dart';
@@ -58,11 +60,19 @@ class _CreateOrUpdatePrintState extends State<CreateOrUpdatePrint> {
   Widget build(BuildContext context) {
     return BlocProvider(
         create: (context) => PrintBloc(),
-        child: Scaffold(appBar: _buildAppbar(), body: _buildBody()));
+        child:
+            Column(children: [_buildAppbar(), Expanded(child: _buildBody())]));
   }
 
   _buildAppbar() => AppBar(
       centerTitle: true,
+      backgroundColor: Colors.transparent,
+      automaticallyImplyLeading: false,
+      actions: [
+        IconButton(
+            onPressed: () => context.pop(),
+            icon: const Icon(Icons.highlight_remove_rounded))
+      ],
       title: Text(_mode == Mode.create ? 'Thêm máy in' : 'Cập nhật máy in',
           style: context.titleStyleMedium));
 

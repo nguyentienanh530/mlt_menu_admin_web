@@ -1,4 +1,3 @@
-import 'package:flutter/cupertino.dart';
 import 'package:mlt_menu_admin_web/common/widget/common_icon_button.dart';
 import 'package:mlt_menu_admin_web/common/widget/loading_screen.dart';
 import 'package:mlt_menu_admin_web/features/order/data/model/food_dto.dart';
@@ -109,10 +108,10 @@ class OrderHistoryDetailView extends StatelessWidget {
           Table(
               border: TableBorder.all(
                   color: context.colorScheme.primary, width: 0.3),
-              columnWidths: <int, TableColumnWidth>{
-                0: FixedColumnWidth(context.sizeDevice.width * 0.5),
-                1: FlexColumnWidth(context.sizeDevice.width * 0.0015),
-                2: const FlexColumnWidth()
+              columnWidths: const <int, TableColumnWidth>{
+                0: FixedColumnWidth(200),
+                1: FlexColumnWidth(200),
+                2: FlexColumnWidth(200)
               },
               children: [
                 TableRow(children: <Widget>[
@@ -136,10 +135,10 @@ class OrderHistoryDetailView extends StatelessWidget {
           Table(
               border: TableBorder.all(
                   color: context.colorScheme.primary, width: 0.3),
-              columnWidths: <int, TableColumnWidth>{
-                0: FixedColumnWidth(context.sizeDevice.width * 0.5),
-                1: FlexColumnWidth(context.sizeDevice.width * 0.0015),
-                2: const FlexColumnWidth()
+              columnWidths: const <int, TableColumnWidth>{
+                0: FixedColumnWidth(200),
+                1: FlexColumnWidth(200),
+                2: FlexColumnWidth(200)
               },
               children:
                   orders.foods.map((e) => _buildTable(context, e)).toList()),

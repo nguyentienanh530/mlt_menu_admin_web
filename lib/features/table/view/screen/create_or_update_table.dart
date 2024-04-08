@@ -1,4 +1,6 @@
 import 'dart:io';
+import 'package:flutter/cupertino.dart';
+import 'package:go_router/go_router.dart';
 import 'package:mlt_menu_admin_web/common/dialog/progress_dialog.dart';
 import 'package:mlt_menu_admin_web/features/table/bloc/table_bloc.dart';
 import 'package:mlt_menu_admin_web/features/table/data/model/table_model.dart';
@@ -14,15 +16,15 @@ import '../../../../common/bloc/generic_bloc_state.dart';
 import '../../../../common/dialog/retry_dialog.dart';
 import '../../../../common/widget/common_text_field.dart';
 
-class CreateTable extends StatefulWidget {
-  const CreateTable({super.key, required this.mode, this.tableModel});
+class CreateOrUpdateTable extends StatefulWidget {
+  const CreateOrUpdateTable({super.key, required this.mode, this.tableModel});
   final Mode mode;
   final TableModel? tableModel;
   @override
-  State<CreateTable> createState() => _CreateTableState();
+  State<CreateOrUpdateTable> createState() => _CreateTableState();
 }
 
-class _CreateTableState extends State<CreateTable> {
+class _CreateTableState extends State<CreateOrUpdateTable> {
   final TextEditingController _nameController = TextEditingController();
 
   final _seats = ['2', '4', '6', '8', '10', '12', '14', '16', '18', '20'];
@@ -69,48 +71,47 @@ class _CreateTableState extends State<CreateTable> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(appBar: _buildAppbar(context), body: _buildBody());
+    return Column(
+        children: [_buildAppbar(context), Expanded(child: _buildBody())]);
   }
 
   Widget _buildBody() {
     return SafeArea(
         child: Form(
             key: _formKey,
-            child: Padding(
-                padding: EdgeInsets.all(defaultPadding),
-                child: SizedBox(
-                    height: context.sizeDevice.height,
-                    child: Column(children: [
-                      Expanded(
-                          child: SingleChildScrollView(
-                              child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    SizedBox(height: defaultPadding / 2),
-                                    SizedBox(height: defaultPadding / 2),
-                                    _buildTitle('Tên bàn:'),
-                                    SizedBox(height: defaultPadding / 2),
-                                    _NameTable(nameController: _nameController),
-                                    SizedBox(height: defaultPadding / 2),
-                                    _buildTitle('Số ghế:'),
-                                    SizedBox(height: defaultPadding / 2),
-                                    _buildSeats(),
-                                    SizedBox(height: defaultPadding / 2),
-                                    SizedBox(height: defaultPadding / 2),
-                                    _buildTableStatus()
-                                  ]
-                                      .animate(interval: 50.ms)
-                                      .slideX(
-                                          begin: -0.1,
-                                          end: 0,
-                                          curve: Curves.easeInOutCubic,
-                                          duration: 500.ms)
-                                      .fadeIn(
-                                          curve: Curves.easeInOutCubic,
-                                          duration: 500.ms)))),
-                      SizedBox(height: defaultPadding / 2),
-                      _buildButtonSubmited(),
-                    ])))));
+            child: SizedBox(
+                height: context.sizeDevice.height,
+                child: Column(children: [
+                  Expanded(
+                      child: SingleChildScrollView(
+                          child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                SizedBox(height: defaultPadding / 2),
+                                SizedBox(height: defaultPadding / 2),
+                                _buildTitle('Tên bàn:'),
+                                SizedBox(height: defaultPadding / 2),
+                                _NameTable(nameController: _nameController),
+                                SizedBox(height: defaultPadding / 2),
+                                _buildTitle('Số ghế:'),
+                                SizedBox(height: defaultPadding / 2),
+                                _buildSeats(),
+                                SizedBox(height: defaultPadding / 2),
+                                SizedBox(height: defaultPadding / 2),
+                                _buildTableStatus()
+                              ]
+                                  .animate(interval: 50.ms)
+                                  .slideX(
+                                      begin: -0.1,
+                                      end: 0,
+                                      curve: Curves.easeInOutCubic,
+                                      duration: 500.ms)
+                                  .fadeIn(
+                                      curve: Curves.easeInOutCubic,
+                                      duration: 500.ms)))),
+                  SizedBox(height: defaultPadding / 2),
+                  _buildButtonSubmited(),
+                ]))));
   }
 
   Widget _buildTableStatus() {
@@ -261,6 +262,13 @@ class _CreateTableState extends State<CreateTable> {
   _buildAppbar(BuildContext context) {
     return AppBar(
         centerTitle: true,
+        automaticallyImplyLeading: false,
+        backgroundColor: Colors.transparent,
+        actions: [
+          IconButton(
+              onPressed: () => context.pop(),
+              icon: const Icon(Icons.highlight_remove_outlined))
+        ],
         title: Text(widget.mode == Mode.create ? 'Tạo bàn ăn' : 'Cập nhật',
             style: context.titleStyleMedium));
   }

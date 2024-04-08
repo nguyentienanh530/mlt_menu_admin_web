@@ -4,8 +4,10 @@ import 'package:mlt_menu_admin_web/common/widget/error_screen.dart';
 import 'package:mlt_menu_admin_web/common/widget/loading_screen.dart';
 import 'package:mlt_menu_admin_web/config/router.dart';
 import 'package:mlt_menu_admin_web/features/auth/bloc/auth_bloc.dart';
+import 'package:mlt_menu_admin_web/features/category/view/screen/categories_screen.dart';
 import 'package:mlt_menu_admin_web/features/food/view/widgets/list_food_is_show.dart';
 import 'package:mlt_menu_admin_web/features/home/cubit/home_cubit.dart';
+import 'package:mlt_menu_admin_web/features/table/view/screen/table_screen.dart';
 import 'package:mlt_menu_admin_web/features/user/bloc/user_bloc.dart';
 import 'package:mlt_menu_admin_web/features/dashboard/view/screen/dashboard_screen.dart';
 import 'package:mlt_menu_admin_web/features/user/view/screen/profile_screen.dart';
@@ -95,6 +97,8 @@ class _HomeViewState extends State<HomeView> {
   // }
 
   _buildAppbar() => AppBar(
+      title: Text('Quản lý', style: context.titleStyleMedium),
+      centerTitle: true,
       leading: Responsive.isDesktop(context)
           ? const SizedBox()
           : IconButton(
@@ -117,7 +121,7 @@ class _HomeViewState extends State<HomeView> {
           _updateToken();
           return Scaffold(
               key: _key,
-              appBar: _buildAppbar(),
+              // appBar: _buildAppbar(),
               drawer: SideMenu(
                   scafoldKey: _key,
                   onPageSelected: (page) {
@@ -198,8 +202,9 @@ class SideMenu extends StatelessWidget {
       DrawerHeader(child: Image.asset("assets/image/logo.png")),
       DrawerListTile(
           title: "Dashboard",
-          svgSrc: "assets/icon/dashboard.svg",
+          svgSrc: "assets/icon/home.svg",
           onTap: () {
+            // context.pushReplacement(RouteName.dashboard);
             onPageSelected(const DashboardScreen());
           }),
       DrawerExpansionTile(
@@ -217,23 +222,36 @@ class SideMenu extends StatelessWidget {
           onTap1: () => onPageSelected(const CurrentOrder()),
           onTap2: () => onPageSelected(const OrderHistoryScreen())),
       DrawerListTile(
-          title: "Hồ sơ",
-          svgSrc: "assets/icon/user.svg",
+          title: "Bàn ăn",
+          svgSrc: "assets/icon/chair.svg",
           onTap: () {
-            onPageSelected(const ProfileScreen());
+            onPageSelected(const TableScreen());
           }),
+      DrawerListTile(
+          title: "Danh mục",
+          svgSrc: "assets/icon/category.svg",
+          onTap: () {
+            onPageSelected(const CategoriesScreen());
+          }),
+      // DrawerListTile(
+      //     title: "Hồ sơ",
+      //     svgSrc: "assets/icon/user.svg",
+      //     onTap: () {
+      //       onPageSelected(const ProfileScreen());
+      //     }),
       DrawerListTile(
           title: "Cài Đặt",
           svgSrc: "assets/icon/setting.svg",
           onTap: () {
-            onPageSelected(const DashboardScreen());
+            onPageSelected(const ProfileScreen());
+            // context.pushReplacement(RouteName.profile);
           }),
-      DrawerListTile(
-          title: 'Đăng Xuất',
-          svgSrc: 'assets/icon/logout.svg',
-          onTap: () {
-            onPageSelected(const DashboardScreen());
-          })
+      // DrawerListTile(
+      //     title: 'Đăng Xuất',
+      //     svgSrc: 'assets/icon/logout.svg',
+      //     onTap: () {
+      //       onPageSelected(const DashboardScreen());
+      //     })
     ]));
   }
 }

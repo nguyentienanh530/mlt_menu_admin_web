@@ -1,3 +1,5 @@
+import 'package:flutter/cupertino.dart';
+import 'package:go_router/go_router.dart';
 import 'package:mlt_menu_admin_web/common/bloc/generic_bloc_state.dart';
 import 'package:mlt_menu_admin_web/features/user/bloc/user_bloc.dart';
 import 'package:mlt_menu_admin_web/features/user/data/model/user_model.dart';
@@ -19,21 +21,21 @@ class ChangePassword extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-        appBar: _buildAppbar(context),
-        body: Form(
-            key: _formKey,
-            child: Padding(
-                padding: const EdgeInsets.all(16),
-                child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      _CurrentPassword(currentCtrl: currentCtrl),
-                      const SizedBox(height: 16),
-                      _NewPassword(newCtrl: newCtrl),
-                      const SizedBox(height: 32),
-                      _buildButtonSubmit(context)
-                    ]))));
+    return Form(
+        key: _formKey,
+        child: Column(children: [
+          _buildAppbar(context),
+          Expanded(
+              child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                _CurrentPassword(currentCtrl: currentCtrl),
+                const SizedBox(height: 16),
+                _NewPassword(newCtrl: newCtrl),
+                const SizedBox(height: 32),
+                _buildButtonSubmit(context)
+              ]))
+        ]));
   }
 
   Widget _buildButtonSubmit(BuildContext context) {
@@ -82,6 +84,13 @@ class ChangePassword extends StatelessWidget {
 
   _buildAppbar(BuildContext context) => AppBar(
       centerTitle: true,
+      backgroundColor: Colors.transparent,
+      automaticallyImplyLeading: false,
+      actions: [
+        IconButton(
+            onPressed: () => context.pop(),
+            icon: const Icon(Icons.highlight_remove_rounded))
+      ],
       title: Text('Đổi mật khẩu', style: context.titleStyleMedium));
 }
 

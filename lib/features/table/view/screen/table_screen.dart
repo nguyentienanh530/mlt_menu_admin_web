@@ -1,18 +1,18 @@
+import 'package:mlt_menu_admin_web/common/dialog/app_alerts.dart';
 import 'package:mlt_menu_admin_web/common/widget/common_refresh_indicator.dart';
-import 'package:mlt_menu_admin_web/config/config.dart';
 import 'package:mlt_menu_admin_web/features/table/bloc/table_bloc.dart';
 import 'package:mlt_menu_admin_web/core/utils/utils.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:mlt_menu_admin_web/features/table/view/screen/create_or_update_table.dart';
 import '../../../../common/bloc/bloc_helper.dart';
 import '../../../../common/bloc/generic_bloc_state.dart';
 import '../../../../common/dialog/progress_dialog.dart';
 import '../../../../common/dialog/retry_dialog.dart';
-import '../../../../common/widget/common_bottomsheet.dart';
 import '../../../../common/widget/common_icon_button.dart';
 import '../../../../common/widget/common_line_text.dart';
+import '../../../../common/widget/responsive.dart';
 import '../../data/model/table_model.dart';
 import '../../../../common/widget/empty_screen.dart';
 import '../../../../common/widget/error_screen.dart';
@@ -36,11 +36,38 @@ class _TableScreenState extends State<TableScreen>
   @override
   Widget build(BuildContext context) {
     super.build(context);
-    return Scaffold(
-        floatingActionButton: _buildFloatingActionButton(),
-        floatingActionButtonAnimator: FloatingActionButtonAnimator.scaling,
-        appBar: _buildAppbar(context),
-        body: const SafeArea(child: TableView()));
+    return SafeArea(
+        child: CustomScrollView(slivers: [
+      SliverAppBar(
+          title: Text('Danh sách bàn ăn',
+              style: context.titleStyleMedium!
+                  .copyWith(fontWeight: FontWeight.bold)),
+          centerTitle: true,
+          pinned: true,
+          stretch: true,
+          automaticallyImplyLeading:
+              Responsive.isDesktop(context) ? false : true,
+          actions: [
+            FilledButton.icon(
+                onPressed: () async {
+                  await showDialog(
+                          context: context,
+                          builder: (context) => const AlertDialog(
+                              content: SizedBox(
+                                  width: 600,
+                                  child:
+                                      CreateOrUpdateTable(mode: Mode.create))))
+                      .then((value) {
+                    if (value != null && value) {
+                      getData();
+                    }
+                  });
+                },
+                icon: const Icon(Icons.add),
+                label: const Text('Thêm bàn'))
+          ]),
+      const SliverToBoxAdapter(child: TableView())
+    ]));
   }
 
   getData() async {
@@ -53,11 +80,17 @@ class _TableScreenState extends State<TableScreen>
         heroTag: 'addTable',
         backgroundColor: context.colorScheme.secondary,
         onPressed: () async {
-          var result = await context
-              .push<bool>(RouteName.createTable, extra: {'mode': Mode.create});
-          if (result != null && result) {
-            getData();
-          }
+          await showDialog(
+                  context: context,
+                  builder: (context) => const AlertDialog(
+                      content: SizedBox(
+                          width: 600,
+                          child: CreateOrUpdateTable(mode: Mode.create))))
+              .then((value) {
+            if (value != null && value) {
+              getData();
+            }
+          });
         },
         child: const Icon(Icons.add));
   }
@@ -101,26 +134,37 @@ class TableView extends StatelessWidget {
   }
 
   Widget _buildBody(BuildContext context, List<TableModel> tables) {
-    return Padding(
-      padding: const EdgeInsets.all(16.0),
-      child: ListView.builder(
-          physics: const AlwaysScrollableScrollPhysics(),
-          itemCount: tables.length,
-          itemBuilder: (context, index) =>
-              _buildItem(context, tables[index], index)),
-    );
+    return GridView.builder(
+        shrinkWrap: true,
+        physics: const AlwaysScrollableScrollPhysics(),
+        itemCount: tables.length,
+        itemBuilder: (context, index) =>
+            _buildItem(context, tables[index], index),
+        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: countGridView(context),
+            // childAspectRatio: 1.5,
+            mainAxisSpacing: 16,
+            crossAxisSpacing: 16));
   }
 
-  void _dialogDeleted(BuildContext context, TableModel table) {
-    showCupertinoModalPopup(
-        context: context,
-        builder: (context) => CommonBottomSheet(
-              title: 'Chắc chắn muốn xóa bàn: ${table.name}?',
-              textCancel: 'Hủy',
-              textConfirm: 'Xóa',
-              textConfirmColor: context.colorScheme.errorContainer,
-              onConfirm: () => onDeleteTable(context, table),
-            ));
+  void _dialogDeleted(BuildContext context, TableModel table) async {
+    // showCupertinoModalPopup(
+    //     context: context,
+    //     builder: (context) => CommonBottomSheet(
+    //           title: 'Chắc chắn muốn xóa bàn: ${table.name}?',
+    //           textCancel: 'Hủy',
+    //           textConfirm: 'Xóa',
+    //           textConfirmColor: context.colorScheme.errorContainer,
+    //           onConfirm: () => onDeleteTable(context, table),
+    //         ));
+
+    await AppAlerts.warningDialog(context,
+        title: 'Chắc chắn muốn xóa bàn: ${table.name}?',
+        desc: 'Kiểm tra kĩ trước khi xóa!',
+        textCancel: 'Hủy',
+        textOk: 'Xóa',
+        btnCancelOnPress: () => context.pop(),
+        btnOkOnPress: () => onDeleteTable(context, table));
   }
 
   Widget _buildActionSlidable(BuildContext context,
@@ -163,7 +207,7 @@ class TableView extends StatelessWidget {
                     descriptrion: "Đã xoá bàn: ${table.name}",
                     onPressed: () {
                       context.read<TableBloc>().add(TablesFetched());
-                      pop(context, 2);
+                      pop(context, 1);
                     },
                     isProgressed: false)
               };
@@ -197,45 +241,53 @@ class TableView extends StatelessWidget {
   Widget _buildItem(BuildContext context, TableModel table, int index) {
     return Card(
         elevation: 10,
-
-        // shape: const OutlineInputBorder(borderRadius: BorderRadius.zero),
-        margin: const EdgeInsets.symmetric(vertical: 8),
-        child: Column(
-          children: [
-            _buildHeader(context, table, index),
-            Container(
-                width: context.sizeDevice.width,
-                padding: const EdgeInsets.all(8),
-                child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      CommonLineText(
-                          title: 'Tên bàn: ',
-                          value: table.name,
-                          valueStyle: TextStyle(
-                              color: context.colorScheme.secondary,
-                              fontWeight: FontWeight.bold)),
-                      const SizedBox(height: 8),
-                      CommonLineText(
-                          title: 'Số ghế: ', value: table.seats.toString()),
-                      const SizedBox(height: 8),
-                      CommonLineText(
-                          title: 'Trạng thái: ',
-                          value: Ultils.tableStatus(table.isUse),
-                          valueStyle: TextStyle(
-                              color: table.isUse
-                                  ? Colors.greenAccent
-                                  : Colors.redAccent)),
-                    ])),
-          ],
-        ));
+        // margin: const EdgeInsets.symmetric(vertical: 8),
+        child: Column(children: [
+          _buildHeader(context, table, index),
+          Container(
+              width: context.sizeDevice.width,
+              padding: const EdgeInsets.all(8),
+              child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    CommonLineText(
+                        title: 'Tên bàn: ',
+                        value: table.name,
+                        valueStyle: TextStyle(
+                            color: context.colorScheme.secondary,
+                            fontWeight: FontWeight.bold)),
+                    const SizedBox(height: 8),
+                    CommonLineText(
+                        title: 'Số ghế: ', value: table.seats.toString()),
+                    const SizedBox(height: 8),
+                    CommonLineText(
+                        title: 'Trạng thái: ',
+                        value: Ultils.tableStatus(table.isUse),
+                        valueStyle: TextStyle(
+                            color: table.isUse
+                                ? Colors.greenAccent
+                                : Colors.redAccent))
+                  ]))
+        ]));
   }
 
-  _goToEditTable(BuildContext context, TableModel tableModel) {
-    context.push(RouteName.createTable,
-        extra: {'mode': Mode.update, 'table': tableModel}).then((result) {
-      if (result is bool && result) {
+  _goToEditTable(BuildContext context, TableModel tableModel) async {
+    // context.push(RouteName.createTable,
+    //     extra: {'mode': Mode.update, 'table': tableModel}).then((result) {
+    //   if (result is bool && result) {
+    //     context.read<TableBloc>().add(TablesFetched());
+    //   }
+    // });
+
+    await showDialog(
+        context: context,
+        builder: (context) => AlertDialog(
+            content: SizedBox(
+                width: 600,
+                child: CreateOrUpdateTable(
+                    mode: Mode.update, tableModel: tableModel)))).then((value) {
+      if (value is bool && value) {
         context.read<TableBloc>().add(TablesFetched());
       }
     });

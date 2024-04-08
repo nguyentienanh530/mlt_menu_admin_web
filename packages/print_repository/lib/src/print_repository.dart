@@ -18,13 +18,13 @@ class PrintRepository {
     }
   }
 
-  // Future<void> deleteTable({required String idTable}) async {
-  //   try {
-  //     await _firebaseFirestore.collection('table').doc(idTable).delete();
-  //   } catch (e) {
-  //     throw '$e';
-  //   }
-  // }
+  Future<void> deletePrint({required String printID}) async {
+    try {
+      await _firebaseFirestore.collection('prints').doc(printID).delete();
+    } catch (e) {
+      throw '$e';
+    }
+  }
 
   Future<void> createPrint({required Map<String, dynamic> dataJson}) async {
     try {

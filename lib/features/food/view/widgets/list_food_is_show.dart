@@ -1,4 +1,3 @@
-import 'package:mlt_menu_admin_web/common/widget/common_refresh_indicator.dart';
 import 'package:mlt_menu_admin_web/common/widget/common_text_field.dart';
 import 'package:mlt_menu_admin_web/common/widget/loading_screen.dart';
 import 'package:flutter/material.dart';
@@ -76,17 +75,25 @@ class _ListFoodIsShowViewState extends State<ListFoodIsShowView>
     super.build(context);
     return Builder(builder: (context) {
       var foodIsShow = context.watch<FoodBloc>().state;
-      return CommonRefreshIndicator(
-          child: (switch (foodIsShow.status) {
-            Status.loading => const LoadingScreen(),
-            Status.empty => const EmptyScreen(),
-            Status.failure => ErrorScreen(errorMsg: foodIsShow.error),
-            Status.success => _buildWidget(foodIsShow.datas ?? <Food>[])
-          }),
-          onRefresh: () async {
-            await Future.delayed(const Duration(milliseconds: 500));
-            _getData();
-          });
+      return (switch (foodIsShow.status) {
+        Status.loading => const LoadingScreen(),
+        Status.empty => const EmptyScreen(),
+        Status.failure => ErrorScreen(errorMsg: foodIsShow.error),
+        Status.success =>
+          CustomScrollView(physics: const BouncingScrollPhysics(), slivers: [
+            SliverAppBar(
+                stretch: true,
+                pinned: true,
+                centerTitle: true,
+                automaticallyImplyLeading:
+                    Responsive.isDesktop(context) ? false : true,
+                title: Text('Danh sách món đang hiện thị',
+                    style: context.titleStyleMedium!
+                        .copyWith(fontWeight: FontWeight.bold))),
+            SliverToBoxAdapter(
+                child: _buildWidget(foodIsShow.datas ?? <Food>[])),
+          ])
+      });
     });
   }
 
@@ -121,11 +128,7 @@ class _ListFoodIsShowViewState extends State<ListFoodIsShowView>
       ]);
 
   _buildHeaderWeb() => Row(children: [
-        Expanded(
-            flex: 4,
-            child: Text('Danh Sách Món Ăn',
-                style: context.titleStyleLarge!
-                    .copyWith(fontWeight: FontWeight.bold))),
+        const Expanded(flex: 4, child: SizedBox()),
         Expanded(
             flex: 4,
             child: CommonTextField(
@@ -158,47 +161,47 @@ class _ListFoodIsShowViewState extends State<ListFoodIsShowView>
   Widget _buildWidget(List<Food> listFood) {
     _list = listFood;
 
-    return Scaffold(
-        body: Column(children: [
+    return Column(children: [
       Responsive(
           mobile: _buildHeaderMobile(),
           tablet: _buildHeaderMobile(),
           desktop: _buildHeaderWeb()),
-      // const SizedBox(height: 16),
-      Expanded(
-          child: ValueListenableBuilder(
-              valueListenable: _searchText,
-              builder: (context, value, child) {
-                _buildSreachList(value);
-                return Padding(
-                    padding: const EdgeInsets.all(16.0),
-                    child: GridView.builder(
-                        physics: const BouncingScrollPhysics(),
-                        itemCount: _searchList.length,
-                        itemBuilder: (context, i) {
-                          return ItemFood(
-                              onTapEditFood: () async =>
-                                  await _goToEditFood(context, _searchList[i]),
-                              onTapDeleteFood: () =>
-                                  _buildDeleteFood(context, _searchList[i]),
-                              index: i,
-                              food: _searchList[i],
-                              onTapView: () {
-                                showDialog(
-                                    context: context,
-                                    builder: (context) => Dialog(
-                                        child: SizedBox(
-                                            width: 600,
-                                            child: FoodDetailScreen(
-                                                food: _searchList[i]))));
-                              });
-                        },
-                        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                            mainAxisSpacing: 16,
-                            crossAxisSpacing: 16,
-                            crossAxisCount: countGridView(context))));
-              }))
-    ]));
+      const SizedBox(height: 16),
+      ValueListenableBuilder(
+          valueListenable: _searchText,
+          builder: (context, value, child) {
+            _buildSreachList(value);
+            return Padding(
+              padding: const EdgeInsets.only(top: 16.0),
+              child: GridView.builder(
+                  shrinkWrap: true,
+                  physics: const BouncingScrollPhysics(),
+                  itemCount: _searchList.length,
+                  itemBuilder: (context, i) {
+                    return ItemFood(
+                        onTapEditFood: () async =>
+                            await _goToEditFood(context, _searchList[i]),
+                        onTapDeleteFood: () =>
+                            _buildDeleteFood(context, _searchList[i]),
+                        index: i,
+                        food: _searchList[i],
+                        onTapView: () {
+                          showDialog(
+                              context: context,
+                              builder: (context) => Dialog(
+                                  child: SizedBox(
+                                      width: 600,
+                                      child: FoodDetailScreen(
+                                          food: _searchList[i]))));
+                        });
+                  },
+                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                      mainAxisSpacing: 16,
+                      crossAxisSpacing: 16,
+                      crossAxisCount: countGridView(context))),
+            );
+          })
+    ]);
   }
 
   _buildSreachList(String textSearch) {

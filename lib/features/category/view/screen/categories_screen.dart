@@ -1,27 +1,27 @@
 import 'package:mlt_menu_admin_web/common/bloc/generic_bloc_state.dart';
+import 'package:mlt_menu_admin_web/common/dialog/app_alerts.dart';
 import 'package:mlt_menu_admin_web/common/widget/common_refresh_indicator.dart';
 import 'package:mlt_menu_admin_web/common/widget/empty_screen.dart';
 import 'package:mlt_menu_admin_web/common/widget/error_screen.dart';
 import 'package:mlt_menu_admin_web/common/widget/error_widget.dart';
 import 'package:mlt_menu_admin_web/common/widget/loading_screen.dart';
-import 'package:mlt_menu_admin_web/config/router.dart';
 import 'package:mlt_menu_admin_web/core/utils/utils.dart';
 import 'package:mlt_menu_admin_web/features/category/bloc/category_bloc.dart';
 import 'package:mlt_menu_admin_web/features/category/data/model/category_model.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:mlt_menu_admin_web/features/category/view/screen/create_or_update_category.dart';
 import '../../../../common/dialog/progress_dialog.dart';
-import '../../../../common/widget/common_bottomsheet.dart';
 import '../../../../common/widget/common_icon_button.dart';
+import '../../../../common/widget/responsive.dart';
 
 class CategoriesScreen extends StatelessWidget {
   const CategoriesScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return const Scaffold(body: CategoriesView());
+    return const CategoriesView();
   }
 }
 
@@ -48,10 +48,37 @@ class _CategoriesViewState extends State<CategoriesView>
   @override
   Widget build(BuildContext context) {
     super.build(context);
-    return Scaffold(
-        floatingActionButton: _buildFloadtingButton(),
-        appBar: _buildAppbar(),
-        body: SafeArea(child: _buildBody()));
+    return CustomScrollView(slivers: [
+      SliverAppBar(
+          title: Text('Danh mục',
+              style: context.titleStyleMedium!
+                  .copyWith(fontWeight: FontWeight.bold)),
+          centerTitle: true,
+          pinned: true,
+          stretch: true,
+          automaticallyImplyLeading:
+              Responsive.isDesktop(context) ? false : true,
+          actions: [
+            FilledButton.icon(
+                onPressed: () async {
+                  await showDialog(
+                      context: context,
+                      builder: (context) => AlertDialog(
+                          content: SizedBox(
+                              width: 600,
+                              child: CreateOrUpdateCategory(
+                                  categoryModel: CategoryModel(),
+                                  mode: Mode.create)))).then((result) {
+                    if (result is bool && result) {
+                      _getData();
+                    }
+                  });
+                },
+                icon: const Icon(Icons.add),
+                label: const Text('Thêm'))
+          ]),
+      SliverToBoxAdapter(child: _buildBody())
+    ]);
   }
 
   Widget _buildBody() {
@@ -85,16 +112,7 @@ class _CategoriesViewState extends State<CategoriesView>
               const SizedBox(width: 8),
               CommonIconButton(
                   icon: Icons.edit,
-                  onTap: () async {
-                    var result = await context
-                        .push(RouteName.createOrUpdateCategory, extra: {
-                      'categoryModel': categoryModel,
-                      'mode': Mode.update
-                    });
-                    if (result is bool && result) {
-                      _getData();
-                    }
-                  }),
+                  onTap: () async => _editCategory(categoryModel)),
               const SizedBox(width: 8),
               BlocProvider(
                 create: (context) => CategoryBloc(),
@@ -106,23 +124,46 @@ class _CategoriesViewState extends State<CategoriesView>
             ])
           ])));
 
-  _buildDeleteFood(CategoryModel categoryModel) {
-    showCupertinoModalPopup<void>(
+  _editCategory(CategoryModel categoryModel) async {
+    await showDialog(
         context: context,
-        builder: (BuildContext context) {
-          return SizedBox(
-              // height: 200,
-              child: CommonBottomSheet(
-                  title: "Bạn có muốn xóa danh mục này không?",
-                  textConfirm: 'Xóa',
-                  textCancel: "Hủy",
-                  textConfirmColor: context.colorScheme.errorContainer,
-                  onConfirm: () => _handleDeleteFood(categoryModel)));
-        });
+        builder: (context) => AlertDialog(
+            content: SizedBox(
+                width: 600,
+                child: CreateOrUpdateCategory(
+                    categoryModel: categoryModel,
+                    mode: Mode.update)))).then((result) {
+      if (result is bool && result) {
+        _getData();
+      }
+    });
+  }
+
+  _buildDeleteFood(CategoryModel categoryModel) async {
+    // showCupertinoModalPopup<void>(
+    //     context: context,
+    //     builder: (BuildContext context) {
+    //       return SizedBox(
+    //           // height: 200,
+    //           child: CommonBottomSheet(
+    //               title: "Bạn có muốn xóa danh mục này không?",
+    //               textConfirm: 'Xóa',
+    //               textCancel: "Hủy",
+    //               textConfirmColor: context.colorScheme.errorContainer,
+    //               onConfirm: () => _handleDeleteFood(categoryModel)));
+    //     });
+
+    await AppAlerts.warningDialog(context,
+        title: 'Xóa "${categoryModel.name}"?',
+        desc: 'Kiểm tra kĩ trước khi xóa!',
+        textCancel: 'Hủy',
+        textOk: 'Xóa',
+        btnCancelOnPress: () => context.pop(),
+        btnOkOnPress: () => _handleDeleteFood(categoryModel));
   }
 
   void _handleDeleteFood(CategoryModel categoryModel) {
-    context.pop();
+    // context.pop();
     context
         .read<CategoryBloc>()
         .add(CategoryDeleted(categoryModel: categoryModel));
@@ -149,12 +190,15 @@ class _CategoriesViewState extends State<CategoriesView>
   bool get wantKeepAlive => true;
 
   Widget _buildCategories(List<CategoryModel> categories) {
-    return Padding(
-        padding: const EdgeInsets.all(8.0),
-        child: ListView.builder(
-            itemCount: categories.length,
-            itemBuilder: (context, index) =>
-                _buildCategory(categories[index], index)));
+    return GridView.builder(
+        shrinkWrap: true,
+        itemCount: categories.length,
+        itemBuilder: (context, index) =>
+            _buildCategory(categories[index], index),
+        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: countGridView(context),
+            mainAxisSpacing: 16,
+            crossAxisSpacing: 16));
   }
 
   Widget _buildCategory(CategoryModel categoryModel, int index) {
@@ -162,63 +206,83 @@ class _CategoriesViewState extends State<CategoriesView>
         elevation: 10,
         child: Column(children: [
           _buildHeader(categoryModel, index),
-          _buildItemBody(categoryModel)
+          Expanded(child: _buildItemBody(categoryModel))
         ]));
   }
 
-  _buildItemBody(CategoryModel categoryModel) {
-    return Row(
-        children: [_buildImage(categoryModel), _buildInfo(categoryModel)]);
+  Widget _buildItemBody(CategoryModel categoryModel) {
+    return Column(crossAxisAlignment: CrossAxisAlignment.center, children: [
+      Expanded(flex: 2, child: _buildImage(categoryModel)),
+      Expanded(child: _buildInfo(categoryModel))
+    ]);
   }
 
   _buildAppbar() => AppBar(
       title: Text('Danh mục', style: context.titleStyleMedium),
       centerTitle: true);
 
-  _buildImage(CategoryModel categoryModel) => Container(
+  Widget _buildImage(CategoryModel categoryModel) => Container(
       margin: const EdgeInsets.all(8),
       padding: const EdgeInsets.all(8),
       clipBehavior: Clip.hardEdge,
       decoration: BoxDecoration(
           color: context.colorScheme.background, shape: BoxShape.circle),
-      height: 60,
-      width: 60,
+      // height: 60,
+      // width: 60,
       child: Image.network(categoryModel.image ?? noImage,
           loadingBuilder: (context, child, loadingProgress) =>
               loadingProgress == null ? child : const LoadingScreen()));
 
-  _buildInfo(CategoryModel categoryModel) => Column(
+  Widget _buildInfo(CategoryModel categoryModel) => Column(
           mainAxisAlignment: MainAxisAlignment.start,
-          crossAxisAlignment: CrossAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            Text(categoryModel.name ?? ''),
-            const SizedBox(height: 8),
-            Row(children: [
-              Text('Mô tả: ',
-                  style: context.textStyleSmall!
-                      .copyWith(color: Colors.white.withOpacity(0.5))),
-              SizedBox(
-                  width: context.sizeDevice.width -
-                      context.sizeDevice.width * 0.35,
-                  child: Text(
-                      categoryModel.description!.isEmpty
-                          ? '_'
-                          : categoryModel.description!,
-                      overflow: TextOverflow.ellipsis,
-                      maxLines: 1,
-                      style: context.textStyleSmall!
-                          .copyWith(color: Colors.white.withOpacity(0.5))))
-            ])
+            Expanded(
+                child: FittedBox(
+                    child: Text(categoryModel.name ?? '',
+                        textAlign: TextAlign.center))),
+            Expanded(
+                child: Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          Expanded(
+                              child: Text('Mô tả: ',
+                                  style: context.textStyleSmall!.copyWith(
+                                      color: Colors.white.withOpacity(0.5)))),
+                          Expanded(
+                              flex: 5,
+                              child: Text(
+                                  categoryModel.description!.isEmpty
+                                      ? '_'
+                                      : categoryModel.description!,
+                                  overflow: TextOverflow.ellipsis,
+                                  textAlign: TextAlign.start,
+                                  maxLines: 1,
+                                  style: context.textStyleSmall!.copyWith(
+                                      color: Colors.white.withOpacity(0.5))))
+                        ])))
           ]);
 
   _buildFloadtingButton() => FloatingActionButton(
       backgroundColor: context.colorScheme.secondary,
       onPressed: () async {
-        var result = await context.push(RouteName.createOrUpdateCategory,
-            extra: {'categoryModel': CategoryModel(), 'mode': Mode.create});
-        if (result is bool && result) {
-          _getData();
-        }
+        // var result = await context.push(RouteName.createOrUpdateCategory,
+        //     extra: {'categoryModel': CategoryModel(), 'mode': Mode.create});
+
+        await showDialog(
+            context: context,
+            builder: (context) => AlertDialog(
+                content: SizedBox(
+                    width: 600,
+                    child: CreateOrUpdateCategory(
+                        categoryModel: CategoryModel(),
+                        mode: Mode.create)))).then((result) {
+          if (result is bool && result) {
+            _getData();
+          }
+        });
       },
       child: const Icon(Icons.add));
 }

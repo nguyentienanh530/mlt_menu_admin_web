@@ -1,11 +1,14 @@
+import 'package:mlt_menu_admin_web/common/dialog/app_alerts.dart';
+import 'package:mlt_menu_admin_web/common/dialog/progress_dialog.dart';
+import 'package:mlt_menu_admin_web/common/dialog/retry_dialog.dart';
 import 'package:mlt_menu_admin_web/common/widget/common_icon_button.dart';
-import 'package:mlt_menu_admin_web/config/config.dart';
 import 'package:mlt_menu_admin_web/core/utils/utils.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
+import 'package:mlt_menu_admin_web/features/print/view/screen/create_or_update_print.dart';
 
 import '../../../../../common/bloc/generic_bloc_state.dart';
 import '../../../../../common/widget/empty_screen.dart';
@@ -37,7 +40,32 @@ class PrintView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(appBar: _buildAppbar(context), body: _buildBody(context));
+    return Column(children: [
+      AppBar(
+          automaticallyImplyLeading: false,
+          backgroundColor: Colors.transparent,
+          actions: [
+            CommonIconButton(
+                icon: Icons.add,
+                color: Colors.green,
+                onTap: () async => await showDialog(
+                        context: context,
+                        builder: (context) => AlertDialog(
+                            content: SizedBox(
+                                width: 600,
+                                child: CreateOrUpdatePrint(
+                                    mode: Mode.create,
+                                    printModel: PrintModel())))).then((value) {
+                      if (value is bool && value) {
+                        _getData(context);
+                      }
+                    })),
+            IconButton(
+                onPressed: () => context.pop(),
+                icon: const Icon(Icons.highlight_remove_rounded))
+          ]),
+      Expanded(child: _buildBody(context))
+    ]);
   }
 
   Widget _buildBody(BuildContext context) {
@@ -124,25 +152,6 @@ class PrintView extends StatelessWidget {
     ]);
   }
 
-  _buildAppbar(BuildContext context) => AppBar(
-          centerTitle: true,
-          title: Text('Cấu hình máy in', style: context.titleStyleMedium),
-          actions: [
-            CommonIconButton(
-                icon: Icons.add,
-                color: Colors.green,
-                onTap: () async => await context
-                        .push(RouteName.createOrUpdatePrint, extra: {
-                      'mode': Mode.create,
-                      'print': PrintModel()
-                    }).then((value) {
-                      if (value is bool && value) {
-                        _getData(context);
-                      }
-                    })),
-            const SizedBox(width: 8)
-          ]);
-
   _buildHeader(BuildContext context, int index, PrintModel printModel) =>
       Container(
           padding: const EdgeInsets.symmetric(horizontal: 8),
@@ -155,10 +164,14 @@ class PrintView extends StatelessWidget {
             Row(children: [
               CommonIconButton(
                   onTap: () async {
-                    await context.push(RouteName.createOrUpdatePrint, extra: {
-                      'mode': Mode.update,
-                      'print': printModel
-                    }).then((value) {
+                    await showDialog(
+                        context: context,
+                        builder: (context) => AlertDialog(
+                            content: SizedBox(
+                                width: 600,
+                                child: CreateOrUpdatePrint(
+                                    mode: Mode.update,
+                                    printModel: printModel)))).then((value) {
                       if (value is bool && value) {
                         _getData(context);
                       }
@@ -167,9 +180,57 @@ class PrintView extends StatelessWidget {
                   icon: Icons.edit),
               const SizedBox(width: 8),
               CommonIconButton(
-                  onTap: () {},
+                  onTap: () => _deletePrintSubmit(context, printModel),
                   icon: Icons.delete,
                   color: context.colorScheme.errorContainer)
             ])
           ]));
+
+  _deletePrintSubmit(BuildContext context, PrintModel printModel) async {
+    await AppAlerts.warningDialog(context,
+            title: 'Xóa "${printModel.name}"?',
+            desc: 'Kiểm tra kĩ trước khi xóa!',
+            textCancel: 'Hủy',
+            textOk: 'Xóa',
+            btnCancelOnPress: () => context.pop(),
+            btnOkOnPress: () => _handleDeletePrint(context, printModel))
+        .then((value) {
+      print(value);
+      if (value is bool && value) {
+        _getData(context);
+      }
+    });
+  }
+
+  _handleDeletePrint(BuildContext context, PrintModel printModel) async {
+    showDialog(
+        context: context,
+        builder: (context) => BlocProvider(
+            create: (context) =>
+                PrintBloc()..add(PrintDeleted(printModel: printModel)),
+            child: Builder(builder: (context) {
+              var state = context.watch<PrintBloc>().state;
+              return switch (state.status) {
+                Status.loading => const ProgressDialog(
+                    descriptrion: 'Đang xóa...', isProgressed: true),
+                Status.empty => const SizedBox(),
+                Status.failure => RetryDialog(
+                    title: state.error ?? '',
+                    onRetryPressed: () => context
+                        .read<PrintBloc>()
+                        .add(PrintDeleted(printModel: printModel))),
+                Status.success => ProgressDialog(
+                    descriptrion: 'Đang xóa...',
+                    isProgressed: false,
+                    onPressed: () {
+                      pop(context, 1);
+                      // _getData(context);
+                    })
+              };
+            }))).then((value) {
+      if (value is bool && value) {
+        _getData(context);
+      }
+    });
+  }
 }

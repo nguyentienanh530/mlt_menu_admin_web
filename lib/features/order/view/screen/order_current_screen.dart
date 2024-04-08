@@ -1,21 +1,21 @@
+import 'package:go_router/go_router.dart';
 import 'package:mlt_menu_admin_web/common/bloc/generic_bloc_state.dart';
+import 'package:mlt_menu_admin_web/common/dialog/app_alerts.dart';
 import 'package:mlt_menu_admin_web/common/widget/common_icon_button.dart';
 import 'package:mlt_menu_admin_web/common/widget/common_refresh_indicator.dart';
+import 'package:mlt_menu_admin_web/common/widget/responsive.dart';
 import 'package:mlt_menu_admin_web/features/order/bloc/order_bloc.dart';
 import 'package:mlt_menu_admin_web/core/utils/utils.dart';
 import 'package:mlt_menu_admin_web/common/widget/empty_screen.dart';
 import 'package:mlt_menu_admin_web/common/widget/error_screen.dart';
 import 'package:mlt_menu_admin_web/common/widget/loading_screen.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:mlt_menu_admin_web/config/config.dart';
-import 'package:go_router/go_router.dart';
 import '../../../../common/dialog/progress_dialog.dart';
 import '../../../../common/dialog/retry_dialog.dart';
-import '../../../../common/widget/common_bottomsheet.dart';
 import '../../data/model/order_group.dart';
 import '../../data/model/order_model.dart';
+import 'order_detail_screen.dart';
 
 class CurrentOrder extends StatefulWidget {
   const CurrentOrder({super.key});
@@ -31,7 +31,21 @@ class _CurrentOrderState extends State<CurrentOrder>
     super.build(context);
     return BlocProvider(
         create: (context) => OrderBloc()..add(NewOrdersFecthed()),
-        child: const Scaffold(body: OrderHistoryView()));
+        child: CustomScrollView(
+          physics: const BouncingScrollPhysics(),
+          slivers: [
+            SliverAppBar(
+                stretch: true,
+                pinned: true,
+                automaticallyImplyLeading:
+                    Responsive.isDesktop(context) ? false : true,
+                centerTitle: true,
+                title: Text('Đơn hiện tại',
+                    style: context.titleStyleMedium!
+                        .copyWith(fontWeight: FontWeight.bold))),
+            const SliverToBoxAdapter(child: OrderHistoryView())
+          ],
+        ));
   }
 
   @override
@@ -62,6 +76,7 @@ class OrderHistoryView extends StatelessWidget {
     final groupedOrders = groupOrdersByTable(orders);
 
     return ListView.builder(
+        shrinkWrap: true,
         itemCount: groupedOrders.length,
         itemBuilder: (context, index) {
           final group = groupedOrders[index];
@@ -128,48 +143,66 @@ class OrderHistoryView extends StatelessWidget {
                       CommonIconButton(
                           icon: Icons.delete,
                           color: context.colorScheme.errorContainer,
-                          onTap: () =>
-                              _handleDeleteOrder(context, orders.id ?? ''))
+                          onTap: () => _handleDeleteOrder(context, orders))
                     ])
                   ])));
 
-  Future<void> _goToEditOrder(BuildContext context, Orders orders) async =>
-      await context.push(RouteName.orderDetail, extra: orders).then((value) {
-        if (!context.mounted) return;
-        context.read<OrderBloc>().add(NewOrdersFecthed());
-      });
+  Future<void> _goToEditOrder(BuildContext context, Orders orders) async {
+    // await context.push(RouteName.orderDetail, extra: orders).then((value) {
+    //   if (!context.mounted) return;
+    //   context.read<OrderBloc>().add(NewOrdersFecthed());
+    // });
 
-  void _handleDeleteOrder(BuildContext context, String idOrder) {
-    showCupertinoModalPopup<void>(
+    await showDialog(
         context: context,
-        builder: (BuildContext context) {
-          return CommonBottomSheet(
-              title: "Bạn có muốn xóa đơn này không?",
-              textConfirm: 'Xóa',
-              textCancel: "Hủy",
-              textConfirmColor: context.colorScheme.errorContainer,
-              onConfirm: () {
-                context.read<OrderBloc>().add(OrderDeleted(orderID: idOrder));
-                showDialog(
-                    context: context,
-                    builder: (context) =>
-                        BlocBuilder<OrderBloc, GenericBlocState<Orders>>(
-                            builder: (context, state) => switch (state.status) {
-                                  Status.loading => const ProgressDialog(
-                                      descriptrion: "Đang xóa...",
-                                      isProgressed: true),
-                                  Status.empty => const SizedBox(),
-                                  Status.failure => RetryDialog(
-                                      title: 'Lỗi',
-                                      onRetryPressed: () => context
-                                          .read<OrderBloc>()
-                                          .add(OrderDeleted(orderID: idOrder))),
-                                  Status.success => ProgressDialog(
-                                      descriptrion: "Xóa thành công!",
-                                      isProgressed: false,
-                                      onPressed: () => pop(context, 2))
-                                }));
-              });
+        builder: (context) => AlertDialog(
+            content: SizedBox(
+                width: 600, child: OrderDetailScreen(orders: orders))));
+  }
+
+  void _handleDeleteOrder(BuildContext context, Orders orders) async {
+    // showCupertinoModalPopup<void>(
+    //     context: context,
+    //     builder: (BuildContext context) {
+    //       return CommonBottomSheet(
+    //           title: "Bạn có muốn xóa đơn này không?",
+    //           textConfirm: 'Xóa',
+    //           textCancel: "Hủy",
+    //           textConfirmColor: context.colorScheme.errorContainer,
+    //           onConfirm: () {
+
+    //           });
+    //     });
+
+    await AppAlerts.warningDialog(context,
+        title: 'Xóa đơn "${orders.id}"?',
+        textOk: "Xóa",
+        textCancel: 'Hủy',
+        desc: 'Kiểm tra kĩ trước khi xóa!',
+        btnCancelOnPress: () => context.pop(),
+        btnOkOnPress: () {
+          showDialog(
+              context: context,
+              builder: (context) => BlocProvider(
+                  create: (context) =>
+                      OrderBloc()..add(OrderDeleted(orderID: orders.id ?? '')),
+                  child: BlocBuilder<OrderBloc, GenericBlocState<Orders>>(
+                      builder: (context, state) => switch (state.status) {
+                            Status.loading => const ProgressDialog(
+                                descriptrion: "Đang xóa...",
+                                isProgressed: true),
+                            Status.empty => const SizedBox(),
+                            Status.failure => RetryDialog(
+                                title: 'Lỗi',
+                                onRetryPressed: () => context
+                                    .read<OrderBloc>()
+                                    .add(OrderDeleted(
+                                        orderID: orders.id ?? ''))),
+                            Status.success => ProgressDialog(
+                                descriptrion: "Xóa thành công!",
+                                isProgressed: false,
+                                onPressed: () => pop(context, 1))
+                          })));
         });
   }
 

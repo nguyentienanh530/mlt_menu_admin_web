@@ -19,6 +19,7 @@ class PrintBloc extends Bloc<PrintEvent, GenericBlocState<PrintModel>>
     on<PrintsFetched>(_getPrints);
     on<PrintCreated>(_createPrint);
     on<PrintUpdated>(_updatePrint);
+    on<PrintDeleted>(_deletePrint);
   }
   final _printRepository = PrintRepo(
       printRepository:
@@ -36,5 +37,10 @@ class PrintBloc extends Bloc<PrintEvent, GenericBlocState<PrintModel>>
   FutureOr<void> _updatePrint(PrintUpdated event, Emit emit) async {
     await updateItem(
         _printRepository.updatePrint(printModel: event.printModel), emit);
+  }
+
+  FutureOr<void> _deletePrint(PrintDeleted event, Emit emit) async {
+    await deleteItem(
+        _printRepository.deletePrint(printModel: event.printModel), emit);
   }
 }

@@ -15,3 +15,9 @@ class PrintUpdated extends PrintEvent {
 
   PrintUpdated({required this.printModel});
 }
+
+class PrintDeleted extends PrintEvent {
+  final PrintModel printModel;
+
+  PrintDeleted({required this.printModel});
+}

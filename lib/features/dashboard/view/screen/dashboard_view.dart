@@ -1,13 +1,14 @@
 import 'package:mlt_menu_admin_web/common/bloc/generic_bloc_state.dart';
 import 'package:mlt_menu_admin_web/common/widget/common_refresh_indicator.dart';
 import 'package:mlt_menu_admin_web/common/widget/error_widget.dart';
-import 'package:mlt_menu_admin_web/config/router.dart';
+import 'package:mlt_menu_admin_web/common/widget/responsive.dart';
 import 'package:mlt_menu_admin_web/features/dashboard/cubit/daily_revenue_cubit.dart';
 import 'package:mlt_menu_admin_web/features/dashboard/cubit/data_chart_revenua.dart';
 import 'package:mlt_menu_admin_web/features/food/bloc/food_bloc.dart';
 import 'package:mlt_menu_admin_web/features/food/data/model/food_model.dart';
 import 'package:mlt_menu_admin_web/features/order/bloc/order_bloc.dart';
 import 'package:mlt_menu_admin_web/features/order/data/model/order_model.dart';
+import 'package:mlt_menu_admin_web/features/order/view/screen/order_on_table.dart';
 import 'package:mlt_menu_admin_web/features/table/bloc/table_bloc.dart';
 import 'package:mlt_menu_admin_web/features/table/data/model/table_model.dart';
 import 'package:mlt_menu_admin_web/features/user/bloc/user_bloc.dart';
@@ -18,7 +19,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
-import 'package:go_router/go_router.dart';
 import '../../../../common/widget/display_white_text.dart';
 import '../../../../common/widget/empty_widget.dart';
 import '../../../../core/utils/utils.dart';
@@ -55,19 +55,49 @@ class _MyWidgetState extends State<DashboardView>
         },
         child: SingleChildScrollView(
             physics: const AlwaysScrollableScrollPhysics(),
-            child: Column(children: [
-              Padding(
-                  padding: EdgeInsets.only(
-                      left: defaultPadding,
-                      right: defaultPadding,
-                      top: defaultPadding),
-                  child: const DailyRevenue()),
-              _buildHeader(context),
-              _buildTitle(context),
-              Padding(
-                  padding: EdgeInsets.all(defaultPadding),
-                  child: const _ListTable())
-            ])));
+            child: Responsive(
+                mobile: _buildMobileWidget(),
+                tablet: _buildMobileWidget(),
+                desktop: _buildWebWidget())));
+  }
+
+  Widget _buildMobileWidget() {
+    return Column(children: [
+      Padding(
+          padding: EdgeInsets.only(
+              left: defaultPadding, right: defaultPadding, top: defaultPadding),
+          child: const DailyRevenue()),
+      _buildHeader(context),
+      _buildTitle(context),
+      Padding(
+          padding: EdgeInsets.all(defaultPadding),
+          child: const _ListTable(isScroll: false))
+    ]);
+  }
+
+  Widget _buildWebWidget() {
+    return Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+      Expanded(
+          flex: 2,
+          child:
+              Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+            Padding(
+                padding: EdgeInsets.only(
+                    left: defaultPadding, right: defaultPadding),
+                child: const DailyRevenue()),
+            _buildHeader(context)
+          ])),
+      Expanded(
+          child: Column(
+              mainAxisAlignment: MainAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+            _buildTitle(context),
+            Padding(
+                padding: EdgeInsets.all(defaultPadding),
+                child: const _ListTable(isScroll: true))
+          ]))
+    ]);
   }
 
   Widget _buildTitle(BuildContext context) {
@@ -240,7 +270,7 @@ class DailyRevenue extends StatelessWidget {
     return Card(
         elevation: 10,
         child: Padding(
-            padding: const EdgeInsets.all(8.0),
+            padding: const EdgeInsets.all(16.0),
             child: SizedBox(
                 width: context.sizeDevice.width,
                 child: Column(
@@ -320,8 +350,8 @@ class ItemCirclePercent extends StatelessWidget {
 }
 
 class _ListTable extends StatelessWidget {
-  const _ListTable();
-
+  const _ListTable({required this.isScroll});
+  final bool isScroll;
   @override
   Widget build(BuildContext context) {
     var tableState = context.watch<TableBloc>().state;
@@ -336,13 +366,25 @@ class _ListTable extends StatelessWidget {
         var newTables = [...tableState.datas ?? <TableModel>[]];
         newTables.sort((a, b) => a.name.compareTo(b.name));
         return GridView.builder(
-            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 4),
-            physics: const NeverScrollableScrollPhysics(),
+            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: countGridView(context)),
+            physics: isScroll
+                ? const BouncingScrollPhysics()
+                : const NeverScrollableScrollPhysics(),
             shrinkWrap: true,
             itemCount: newTables.length,
             itemBuilder: (context, index) =>
                 _ItemTable(table: newTables[index]));
+    }
+  }
+
+  int countGridView(BuildContext context) {
+    if (Responsive.isDesktop(context)) {
+      return 3;
+    } else if (Responsive.isTablet(context)) {
+      return 6;
+    } else {
+      return 4;
     }
   }
 }
@@ -354,7 +396,14 @@ class _ItemTable extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-        onTap: () => context.push(RouteName.orderOnTable, extra: table),
+        onTap: () {
+          // context.push(RouteName.orderOnTable, extra: table)
+          showDialog(
+              context: context,
+              builder: (_) => AlertDialog(
+                  content: SizedBox(
+                      width: 600, child: OrderOnTable(tableModel: table))));
+        },
         child: Card(
             elevation: 10,
             color: table.isUse ? Colors.green.shade900.withOpacity(0.3) : null,

@@ -11,10 +11,9 @@ class PrintBottomSheet extends StatelessWidget {
   final void Function()? onPressedPrint;
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-        body: Column(children: [
+    return Column(children: [
       AppBar(
-          backgroundColor: context.colorScheme.primary.withOpacity(0.1),
+          backgroundColor: Colors.transparent,
           automaticallyImplyLeading: false,
           centerTitle: true,
           title: Text('Danh sách món ăn', style: context.titleStyleMedium),
@@ -33,8 +32,11 @@ class PrintBottomSheet extends StatelessWidget {
                   child: ListTile(
                       dense: true,
                       leading: FittedBox(child: Text('#${index + 1}')),
-                      subtitle: Text(
-                          'Số lượng: ${listFoodDto[index].quantity.toString()}'),
+                      subtitle: Row(children: [
+                        const Text('Số lượng: ',
+                            style: TextStyle(color: Colors.white60)),
+                        Text(listFoodDto[index].quantity.toString())
+                      ]),
                       title: Text(listFoodDto[index].foodName),
                       trailing: Text(
                           Ultils.currencyFormat(double.parse(
@@ -51,6 +53,6 @@ class PrintBottomSheet extends StatelessWidget {
               onPressed: onPressedPrint,
               icon: const Icon(Icons.print),
               label: const Text('In')))
-    ]));
+    ]);
   }
 }

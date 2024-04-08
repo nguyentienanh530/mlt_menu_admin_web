@@ -4,6 +4,7 @@ import 'package:mlt_menu_admin_web/common/dialog/progress_dialog.dart';
 import 'package:mlt_menu_admin_web/common/dialog/retry_dialog.dart';
 import 'package:mlt_menu_admin_web/common/widget/common_bottomsheet.dart';
 import 'package:mlt_menu_admin_web/common/widget/common_icon_button.dart';
+import 'package:mlt_menu_admin_web/common/widget/responsive.dart';
 import 'package:mlt_menu_admin_web/features/order/bloc/order_bloc.dart';
 import 'package:mlt_menu_admin_web/core/utils/utils.dart';
 import 'package:mlt_menu_admin_web/common/widget/empty_screen.dart';
@@ -32,7 +33,18 @@ class _OrderHistoryScreenState extends State<OrderHistoryScreen>
     super.build(context);
     return BlocProvider(
         create: (context) => OrderBloc(),
-        child: const Scaffold(body: OrderHistoryView()));
+        child: CustomScrollView(slivers: [
+          SliverAppBar(
+              title: Text('Lịch sử đơn',
+                  style: context.titleStyleMedium!
+                      .copyWith(fontWeight: FontWeight.bold)),
+              centerTitle: true,
+              pinned: true,
+              stretch: true,
+              automaticallyImplyLeading:
+                  Responsive.isDesktop(context) ? false : true),
+          const SliverToBoxAdapter(child: OrderHistoryView())
+        ]));
   }
 
   @override
@@ -75,62 +87,58 @@ class _OrderHistoryViewState extends State<OrderHistoryView> {
     final groupedOrders = groupOrdersByPayTime(orders);
     groupedOrders.sort((a, b) => b.payTime!.compareTo(a.payTime!));
 
-    return SizedBox(
-        height: double.infinity,
-        width: double.infinity,
-        child: GridView.builder(
-            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: countGridView(context),
-                crossAxisSpacing: 16,
-                mainAxisSpacing: 16),
-            itemCount: groupedOrders.length,
-            itemBuilder: (context, index) {
-              final group = groupedOrders[index];
-              var totalPrice = 0.0;
-              var totalOrder = 0;
-              for (var element in group.orders) {
-                totalPrice =
-                    totalPrice + double.parse(element.totalPrice.toString());
-                totalOrder++;
-              }
-              return Card(
-                  elevation: 10,
-                  child: Column(children: [
-                    _buildHeaderItem(group.orders, index),
-                    Expanded(
-                        child: Column(
-                            mainAxisAlignment: MainAxisAlignment.spaceAround,
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            children: [
-                          Expanded(
-                              flex: 2,
-                              child: _buildBodyItem(group, totalOrder)),
-                          Divider(
-                              color:
-                                  context.colorScheme.primary.withOpacity(0.3)),
-                          Expanded(
-                              child: Padding(
-                                  padding: const EdgeInsets.all(8.0),
-                                  child: _buildPrice(
-                                      Ultils.currencyFormat(totalPrice))))
-                        ]))
-                  ]));
-              // Column(
-              //     crossAxisAlignment: CrossAxisAlignment.start,
-              //     children: [
-              //      ,
-              //       // GridView.builder(
-              //       //     shrinkWrap: true,
-              //       //     physics: const NeverScrollableScrollPhysics(),
-              //       //     itemCount: group.orders.length,
-              //       //     itemBuilder: (context, idx) {
-              //       //       final order = group.orders[idx];
-              //       //       return _buildItemListView(context, order, idx);
-              //       //     },
-              //       //     gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-              //       //         crossAxisCount: countGridView(context)))
-              //     ]);
-            }));
+    return GridView.builder(
+        shrinkWrap: true,
+        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: countGridView(context),
+            crossAxisSpacing: 16,
+            mainAxisSpacing: 16),
+        itemCount: groupedOrders.length,
+        itemBuilder: (context, index) {
+          final group = groupedOrders[index];
+          var totalPrice = 0.0;
+          var totalOrder = 0;
+          for (var element in group.orders) {
+            totalPrice =
+                totalPrice + double.parse(element.totalPrice.toString());
+            totalOrder++;
+          }
+          return Card(
+              elevation: 10,
+              child: Column(children: [
+                _buildHeaderItem(group.orders, index),
+                Expanded(
+                    child: Column(
+                        mainAxisAlignment: MainAxisAlignment.spaceAround,
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                      Expanded(
+                          flex: 2, child: _buildBodyItem(group, totalOrder)),
+                      Divider(
+                          color: context.colorScheme.primary.withOpacity(0.3)),
+                      Expanded(
+                          child: Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: _buildPrice(
+                                  Ultils.currencyFormat(totalPrice))))
+                    ]))
+              ]));
+          // Column(
+          //     crossAxisAlignment: CrossAxisAlignment.start,
+          //     children: [
+          //      ,
+          //       // GridView.builder(
+          //       //     shrinkWrap: true,
+          //       //     physics: const NeverScrollableScrollPhysics(),
+          //       //     itemCount: group.orders.length,
+          //       //     itemBuilder: (context, idx) {
+          //       //       final order = group.orders[idx];
+          //       //       return _buildItemListView(context, order, idx);
+          //       //     },
+          //       //     gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+          //       //         crossAxisCount: countGridView(context)))
+          //     ]);
+        });
   }
 
   Widget _buildBodyItem(OrdersGroupByPayTime group, int totalOrder) {

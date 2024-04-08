@@ -26,9 +26,11 @@ class CommonLineText extends StatelessWidget {
             overflow: TextOverflow.ellipsis,
             text: TextSpan(
                 text: title ?? "",
-                style: titleStyle,
+                style: titleStyle ?? const TextStyle(color: Colors.white60),
                 children: <TextSpan>[
-                  TextSpan(text: value ?? '', style: valueStyle)
+                  TextSpan(
+                      text: value ?? '',
+                      style: valueStyle ?? const TextStyle(color: Colors.white))
                 ])));
   }
 }

@@ -6,7 +6,6 @@ import 'package:mlt_menu_admin_web/features/order/data/model/order_model.dart';
 import 'package:mlt_menu_admin_web/core/utils/utils.dart';
 import 'package:mlt_menu_admin_web/features/order/data/provider/remote/order_repo.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:fluttertoast/fluttertoast.dart';
@@ -14,9 +13,8 @@ import 'package:go_router/go_router.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:mlt_menu_admin_web/features/order/data/model/food_dto.dart';
 import 'package:mlt_menu_admin_web/common/dialog/app_alerts.dart';
+import 'package:mlt_menu_admin_web/features/order/view/screen/add_food_to_order_screen.dart';
 import 'package:order_repository/order_repository.dart';
-import '../../../../common/widget/common_bottomsheet.dart';
-import '../../../../config/router.dart';
 import '../../bloc/order_bloc.dart';
 import '../widgets/item_food.dart';
 
@@ -26,16 +24,24 @@ class OrderDetailScreen extends StatelessWidget {
   @override
   @override
   Widget build(BuildContext context) {
-    //  // ..add(NewOrdersFecthed())
-    //       BlocProvider(create: (context) => OrderBloc())
-    return Scaffold(
-        appBar: _buildAppbar(context), body: OrderDetailView(orders: orders));
+    return Column(children: [
+      _buildAppbar(context),
+      const SizedBox(height: 8),
+      Expanded(child: OrderDetailView(orders: orders))
+    ]);
   }
 
   _buildAppbar(BuildContext context) {
     return AppBar(
+        backgroundColor: Colors.transparent,
+        automaticallyImplyLeading: false,
         title: Text(orders.id!, style: context.titleStyleMedium),
-        centerTitle: true);
+        centerTitle: true,
+        actions: [
+          IconButton(
+              onPressed: () => context.pop(),
+              icon: const Icon(Icons.highlight_remove_rounded))
+        ]);
   }
 }
 
@@ -61,44 +67,29 @@ class _OrderDetailViewState extends State<OrderDetailView> {
 
   @override
   Widget build(BuildContext context) {
-    // _ordersState = context.watch<OrderBloc>().state;
-    return _buildBody(context, orders);
-  }
-
-  Widget _buildBody(BuildContext context, Orders order) {
     return Container(
         decoration: const BoxDecoration(
             borderRadius: BorderRadius.only(
                 topLeft: Radius.circular(15), topRight: Radius.circular(15))),
         child: Column(children: [
           Expanded(
-              child: Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: GridView.builder(
-                      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                          crossAxisCount: countGridView(context),
-                          mainAxisSpacing: 16,
-                          crossAxisSpacing: 16),
-                      physics: const BouncingScrollPhysics(),
-                      itemCount: orders.foods.length,
-                      itemBuilder: (context, index) =>
-                          _buildItem(orders.foods[index], index)
-                              .animate()
-                              .slideX(
-                                  begin: -0.1,
-                                  end: 0,
-                                  curve: Curves.easeInOutCubic,
-                                  duration: 500.ms)
-                              .fadeIn(
-                                  curve: Curves.easeInOutCubic,
-                                  duration: 500.ms)))),
+              child: ListView.builder(
+                  physics: const BouncingScrollPhysics(),
+                  itemCount: orders.foods.length,
+                  itemBuilder: (context, index) => _buildItem(
+                          orders.foods[index], index)
+                      .animate()
+                      .slideX(
+                          begin: -0.1,
+                          end: 0,
+                          curve: Curves.easeInOutCubic,
+                          duration: 500.ms)
+                      .fadeIn(curve: Curves.easeInOutCubic, duration: 500.ms))),
           _buildBottomAction()
         ]));
   }
 
   Widget _buildItem(FoodDto foodDto, int index) {
-    // final foodDtoo = ValueNotifier(foodDto);
-
     final quantity = ValueNotifier(foodDto.quantity);
     final totalPriceFood = ValueNotifier(foodDto.totalPrice);
     return ItemFood(
@@ -141,38 +132,30 @@ class _OrderDetailViewState extends State<OrderDetailView> {
             orderRepository:
                 OrderRepository(firebaseFirestore: FirebaseFirestore.instance))
         .updateOrder(orders: orders);
-    // context.read<OrderBloc>().add(OrderUpdated(orders: orders));
   }
 
-  void _handleDeleteItem(FoodDto foodDto) {
-    showCupertinoModalPopup<void>(
-        context: context,
-        builder: (BuildContext context) {
-          return SizedBox(
-              height: 200,
-              child: CommonBottomSheet(
-                  title: "Bạn có muốn xóa món ăn này không?",
-                  textConfirm: 'Xóa',
-                  textCancel: "Hủy",
-                  textConfirmColor: context.colorScheme.errorContainer,
-                  onConfirm: () {
-                    var foods = <FoodDto>[];
-                    foods.addAll(orders.foods);
-                    var totalPrice = 0.0;
-                    foods.removeWhere(
-                        (element) => element.foodID == foodDto.foodID);
+  void _handleDeleteItem(FoodDto foodDto) async {
+    await AppAlerts.warningDialog(context,
+        title: 'Xóa món "${foodDto.foodName}"?',
+        desc: 'Kiểm tra kĩ trước khi xóa!',
+        textOk: 'Xóa',
+        textCancel: 'Hủy',
+        btnCancelOnPress: () => context.pop(),
+        btnOkOnPress: () {
+          var foods = <FoodDto>[];
+          foods.addAll(orders.foods);
+          var totalPrice = 0.0;
+          foods.removeWhere((element) => element.foodID == foodDto.foodID);
 
-                    for (FoodDto foo in foods) {
-                      totalPrice += foo.totalPrice;
-                    }
-                    setState(() {
-                      orders =
-                          orders.copyWith(foods: foods, totalPrice: totalPrice);
-                    });
+          for (FoodDto foo in foods) {
+            totalPrice += foo.totalPrice;
+          }
+          setState(() {
+            orders = orders.copyWith(foods: foods, totalPrice: totalPrice);
+          });
 
-                    context.read<OrderBloc>().add(OrderUpdated(orders: orders));
-                    context.pop();
-                  }));
+          context.read<OrderBloc>().add(OrderUpdated(orders: orders));
+          // context.pop();
         }).then((value) => _totalPrice.value = orders.totalPrice!);
   }
 
@@ -217,17 +200,28 @@ class _OrderDetailViewState extends State<OrderDetailView> {
   }
 
   Future<void> _handleButtonAccepted(BuildContext context) async {
-    showCupertinoModalPopup<void>(
-        context: context,
-        builder: (BuildContext context) {
-          return CommonBottomSheet(
-              title: "Xác nhận thanh toán?",
-              textConfirm: 'Thanh toán',
-              textCancel: "Hủy",
-              onConfirm: () {
-                pop(context, 1);
-                handlePaymentSubmited();
-              });
+    // showCupertinoModalPopup<void>(
+    //     context: context,
+    //     builder: (BuildContext context) {
+    //       return CommonBottomSheet(
+    //           title: "Xác nhận thanh toán?",
+    //           textConfirm: 'Thanh toán',
+    //           textCancel: "Hủy",
+    //           onConfirm: () {
+    //             pop(context, 1);
+    //             handlePaymentSubmited();
+    //           });
+    //     });
+
+    await AppAlerts.warningDialog(context,
+        title: 'Thanh Toán',
+        desc: 'Kiểm tra kĩ trước khi thanh toán!',
+        textCancel: 'Hủy',
+        textOk: 'Thanh toán',
+        btnCancelOnPress: () => context.pop(),
+        btnOkOnPress: () {
+          pop(context, 1);
+          handlePaymentSubmited();
         });
   }
 
@@ -249,7 +243,7 @@ class _OrderDetailViewState extends State<OrderDetailView> {
                       descriptrion: 'Thanh toán thành công',
                       isProgressed: false,
                       onPressed: () {
-                        pop(context, 2);
+                        pop(context, 1);
                       })
                 }));
   }
@@ -264,13 +258,16 @@ class _OrderDetailViewState extends State<OrderDetailView> {
         label:
             FittedBox(child: Text('Thêm món', style: context.titleStyleMedium)),
         onPressed: () async {
-          await context.push(RouteName.addFood).then((result) {
-            if (result is FoodDto) {
-              if (!checkExistFood(food: result)) {
-                _handleAddFood(result);
-                // context
-                //     .read<FoodBloc>()
-                //     .add(GetFoodByID(foodID: result.foodID));
+          await showDialog(
+              context: context,
+              builder: (context) {
+                return const AlertDialog(
+                    content:
+                        SizedBox(width: 600, child: AddFoodToOrderScreen()));
+              }).then((value) {
+            if (value is FoodDto) {
+              if (!checkExistFood(food: value)) {
+                _handleAddFood(value);
               } else {
                 fToast.showToast(
                     child: AppAlerts.errorToast(msg: 'Món ăn đã có trong đơn'));
@@ -300,9 +297,6 @@ class _OrderDetailViewState extends State<OrderDetailView> {
       totalPrice += foo.totalPrice;
     }
     orders = orders.copyWith(foods: foods, totalPrice: totalPrice);
-
-    // logger.d(orders.toString());
-    // context.read<OrderBloc>().add(OrderUpdated(orders: orders));
     OrderRepo(
             orderRepository:
                 OrderRepository(firebaseFirestore: FirebaseFirestore.instance))

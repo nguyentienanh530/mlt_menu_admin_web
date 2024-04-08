@@ -1,3 +1,6 @@
+import 'package:flutter/foundation.dart';
+import 'package:flutter/widgets.dart';
+import 'package:go_router/go_router.dart';
 import 'package:mlt_menu_admin_web/common/bloc/generic_bloc_state.dart';
 import 'package:mlt_menu_admin_web/common/dialog/app_alerts.dart';
 import 'package:mlt_menu_admin_web/common/dialog/progress_dialog.dart';
@@ -26,9 +29,7 @@ class CreateOrUpdateCategory extends StatefulWidget {
 class _CreateOrUpdateCategoryState extends State<CreateOrUpdateCategory> {
   late Mode _mode;
   late CategoryModel _categoryModel;
-
-  // ignore: prefer_typing_uninitialized_variables
-  var _imageFile;
+  Uint8List? _imageFile;
   String _image = '';
   final TextEditingController _nameCtrl = TextEditingController();
   final TextEditingController _desCtrl = TextEditingController();
@@ -54,38 +55,38 @@ class _CreateOrUpdateCategoryState extends State<CreateOrUpdateCategory> {
 
   @override
   Widget build(BuildContext context) {
-    var buildWidget = Scaffold(
-        appBar: _buildAppbar(),
-        body: SafeArea(
-            child: Padding(
-                padding: const EdgeInsets.all(16),
-                child: Form(
-                    key: _formKey,
-                    child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        crossAxisAlignment: CrossAxisAlignment.center,
+    var buildWidget = SafeArea(
+        child: Form(
+            key: _formKey,
+            child: Column(children: [
+              _buildAppbar(),
+              Expanded(
+                  child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                    _buildImageCatagory(),
+                    Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          _buildImageCatagory(),
-                          Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                const SizedBox(height: 16),
-                                _buildTitle('Tên danh mục (*):'),
-                                const SizedBox(height: 8),
-                                _buildNameCatagory(),
-                                const SizedBox(height: 16),
-                                _buildTitle('Mô tả:'),
-                                const SizedBox(height: 8),
-                                _buildDescriptionCatagory()
-                              ]),
-                          const SizedBox(height: 32),
-                          _buildButton(),
+                          const SizedBox(height: 16),
+                          _buildTitle('Tên danh mục (*):'),
                           const SizedBox(height: 8),
-                          Text('(*) không được để trống',
-                              style: context.textStyleSmall!.copyWith(
-                                  fontStyle: FontStyle.italic,
-                                  color: context.colorScheme.error))
-                        ])))));
+                          _buildNameCatagory(),
+                          const SizedBox(height: 16),
+                          _buildTitle('Mô tả:'),
+                          const SizedBox(height: 8),
+                          _buildDescriptionCatagory()
+                        ]),
+                    const SizedBox(height: 32),
+                    _buildButton(),
+                    const SizedBox(height: 8),
+                    Text('(*) không được để trống',
+                        style: context.textStyleSmall!.copyWith(
+                            fontStyle: FontStyle.italic,
+                            color: context.colorScheme.error))
+                  ]))
+            ])));
 
     var uploadImageWidget = ValueListenableBuilder(
         valueListenable: _uploadImageProgress,
@@ -145,7 +146,9 @@ class _CreateOrUpdateCategoryState extends State<CreateOrUpdateCategory> {
       } else {
         _isUploadImage.value = true;
         _image = await uploadImage(
-            path: 'category', file: _imageFile, progress: _uploadImageProgress);
+            path: 'category',
+            file: _imageFile!,
+            progress: _uploadImageProgress);
         _isUploadImage.value = false;
         var newCategory = CategoryModel(
             name: _nameCtrl.text, description: _desCtrl.text, image: _image);
@@ -216,7 +219,9 @@ class _CreateOrUpdateCategoryState extends State<CreateOrUpdateCategory> {
       } else {
         _isUploadImage.value = true;
         _image = await uploadImage(
-            path: 'category', file: _imageFile, progress: _uploadImageProgress);
+            path: 'category',
+            file: _imageFile!,
+            progress: _uploadImageProgress);
         _isUploadImage.value = false;
         _categoryModel = _categoryModel.copyWith(
             image: _image, name: _nameCtrl.text, description: _desCtrl.text);
@@ -245,7 +250,7 @@ class _CreateOrUpdateCategoryState extends State<CreateOrUpdateCategory> {
               decoration: BoxDecoration(
                   border: Border.all(color: context.colorScheme.primary),
                   shape: BoxShape.circle),
-              child: Image.file(_imageFile!)),
+              child: Image.memory(_imageFile!)),
       Positioned(
           top: context.sizeDevice.width * 0.3 - 25,
           left: (context.sizeDevice.width * 0.3 - 20) / 2,
@@ -262,7 +267,15 @@ class _CreateOrUpdateCategoryState extends State<CreateOrUpdateCategory> {
   }
 
   _buildAppbar() => AppBar(
-      centerTitle: true,
-      title: Text(_mode == Mode.create ? 'Thêm danh mục' : "Chỉnh sửa danh mục",
-          style: context.titleStyleMedium));
+          centerTitle: true,
+          automaticallyImplyLeading: false,
+          backgroundColor: Colors.transparent,
+          title: Text(
+              _mode == Mode.create ? 'Thêm danh mục' : "Chỉnh sửa danh mục",
+              style: context.titleStyleMedium),
+          actions: [
+            IconButton(
+                onPressed: () => context.pop(),
+                icon: const Icon(Icons.highlight_remove_rounded))
+          ]);
 }

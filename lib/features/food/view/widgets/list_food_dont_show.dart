@@ -1,3 +1,4 @@
+import 'package:flutter/widgets.dart';
 import 'package:mlt_menu_admin_web/common/widget/common_refresh_indicator.dart';
 import 'package:mlt_menu_admin_web/core/utils/utils.dart';
 import 'package:flutter/material.dart';
@@ -80,7 +81,21 @@ class _ListFoodIsShowViewState extends State<ListFoodIsShowView>
             Status.loading => const LoadingScreen(),
             Status.empty => const EmptyScreen(),
             Status.failure => ErrorScreen(errorMsg: foodIsShow.error),
-            Status.success => _buildWidget(foodIsShow.datas ?? <Food>[])
+            Status.success => CustomScrollView(
+                  physics: const BouncingScrollPhysics(),
+                  slivers: [
+                    SliverAppBar(
+                        pinned: true,
+                        stretch: true,
+                        centerTitle: true,
+                        title: Text('Danh sách món đang ẩn',
+                            style: context.titleStyleMedium!
+                                .copyWith(fontWeight: FontWeight.bold)),
+                        automaticallyImplyLeading:
+                            Responsive.isDesktop(context) ? false : true),
+                    SliverToBoxAdapter(
+                        child: _buildWidget(foodIsShow.datas ?? <Food>[]))
+                  ])
           }),
           onRefresh: () async {
             await Future.delayed(const Duration(milliseconds: 500));
@@ -120,11 +135,7 @@ class _ListFoodIsShowViewState extends State<ListFoodIsShowView>
       ]);
 
   _buildHeaderWeb() => Row(children: [
-        Expanded(
-            flex: 4,
-            child: Text('Danh Sách Món Ăn',
-                style: context.titleStyleLarge!
-                    .copyWith(fontWeight: FontWeight.bold))),
+        const Expanded(flex: 4, child: SizedBox()),
         Expanded(
             flex: 4,
             child: CommonTextField(
@@ -157,47 +168,46 @@ class _ListFoodIsShowViewState extends State<ListFoodIsShowView>
   Widget _buildWidget(List<Food> listFood) {
     _list = listFood;
 
-    return Scaffold(
-        body: Column(children: [
+    return Column(children: [
       Responsive(
           mobile: _buildHeaderMobile(),
           tablet: _buildHeaderMobile(),
           desktop: _buildHeaderWeb()),
       // const SizedBox(height: 16),
-      Expanded(
-          child: ValueListenableBuilder(
-              valueListenable: _searchText,
-              builder: (context, value, child) {
-                _buildSreachList(value);
-                return Padding(
-                    padding: const EdgeInsets.all(16.0),
-                    child: GridView.builder(
-                        physics: const BouncingScrollPhysics(),
-                        itemCount: _searchList.length,
-                        itemBuilder: (context, i) {
-                          return ItemFood(
-                              onTapEditFood: () async =>
-                                  await _goToEditFood(context, _searchList[i]),
-                              onTapDeleteFood: () =>
-                                  _buildDeleteFood(context, _searchList[i]),
-                              index: i,
-                              food: _searchList[i],
-                              onTapView: () {
-                                showDialog(
-                                    context: context,
-                                    builder: (context) => Dialog(
-                                        child: SizedBox(
-                                            width: 600,
-                                            child: FoodDetailScreen(
-                                                food: _searchList[i]))));
-                              });
-                        },
-                        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                            mainAxisSpacing: 16,
-                            crossAxisSpacing: 16,
-                            crossAxisCount: countGridView(context))));
-              }))
-    ]));
+      ValueListenableBuilder(
+          valueListenable: _searchText,
+          builder: (context, value, child) {
+            _buildSreachList(value);
+            return Padding(
+                padding: const EdgeInsets.only(top: 16.0),
+                child: GridView.builder(
+                    shrinkWrap: true,
+                    physics: const BouncingScrollPhysics(),
+                    itemCount: _searchList.length,
+                    itemBuilder: (context, i) {
+                      return ItemFood(
+                          onTapEditFood: () async =>
+                              await _goToEditFood(context, _searchList[i]),
+                          onTapDeleteFood: () =>
+                              _buildDeleteFood(context, _searchList[i]),
+                          index: i,
+                          food: _searchList[i],
+                          onTapView: () {
+                            showDialog(
+                                context: context,
+                                builder: (context) => Dialog(
+                                    child: SizedBox(
+                                        width: 600,
+                                        child: FoodDetailScreen(
+                                            food: _searchList[i]))));
+                          });
+                    },
+                    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                        mainAxisSpacing: 16,
+                        crossAxisSpacing: 16,
+                        crossAxisCount: countGridView(context))));
+          })
+    ]);
   }
 
   _buildSreachList(String textSearch) {

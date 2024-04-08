@@ -3,6 +3,7 @@ import 'package:mlt_menu_admin_web/common/dialog/app_alerts.dart';
 import 'package:mlt_menu_admin_web/common/widget/_print_bottom_sheet.dart';
 import 'package:mlt_menu_admin_web/features/order/bloc/order_bloc.dart';
 import 'package:mlt_menu_admin_web/features/order/data/model/food_dto.dart';
+import 'package:mlt_menu_admin_web/features/order/view/screen/order_detail_screen.dart';
 import 'package:mlt_menu_admin_web/features/print/cubit/is_use_print_cubit.dart';
 import 'package:mlt_menu_admin_web/features/print/cubit/print_cubit.dart';
 import 'package:mlt_menu_admin_web/features/print/data/model/print_model.dart';
@@ -10,16 +11,13 @@ import 'package:mlt_menu_admin_web/features/table/data/model/table_model.dart';
 import 'package:mlt_menu_admin_web/common/widget/error_screen.dart';
 import 'package:mlt_menu_admin_web/common/widget/loading_screen.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:mlt_menu_admin_web/config/router.dart';
 import 'package:mlt_menu_admin_web/common/widget/empty_screen.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../common/dialog/progress_dialog.dart';
 import '../../../../common/dialog/retry_dialog.dart';
-import '../../../../common/widget/common_bottomsheet.dart';
 import '../../../../common/widget/common_icon_button.dart';
 import '../../../../common/widget/common_line_text.dart';
 import '../../data/model/order_model.dart';
@@ -109,11 +107,16 @@ class _OrderViewState extends State<OrderView> {
   Widget build(BuildContext context) {
     _isUsePrint = context.watch<IsUsePrintCubit>().state;
     _print = context.watch<PrintCubit>().state;
-    return Scaffold(appBar: _buildAppbar(context), body: _buildBody(context));
+    return Column(children: [
+      _buildAppbar(context),
+      Expanded(child: _buildBody(context))
+    ]);
   }
 
   _buildAppbar(BuildContext context) {
     return AppBar(
+        backgroundColor: Colors.transparent,
+        automaticallyImplyLeading: false,
         title: Text(' ${AppString.titleOrder} - ${_tableModel.name}',
             style: context.titleStyleMedium),
         centerTitle: true,
@@ -121,20 +124,24 @@ class _OrderViewState extends State<OrderView> {
           _isUsePrint
               ? CommonIconButton(
                   onTap: () {
-                    showModalBottomSheet(
-                        isScrollControlled: true,
+                    showDialog(
                         context: context,
-                        builder: (context) => SizedBox(
-                            height: context.sizeDevice.height * 0.9,
-                            child: PrintBottomSheet(
-                                listFoodDto: _handlePrintFood(),
-                                onPressedPrint: () {
-                                  _handlePrint(_handlePrintFood());
-                                })));
+                        builder: (context) => AlertDialog(
+                            content: SizedBox(
+                                // height: context.sizeDevice.height * 0.9
+                                width: 600,
+                                child: PrintBottomSheet(
+                                    listFoodDto: _handlePrintFood(),
+                                    onPressedPrint: () {
+                                      _handlePrint(_handlePrintFood());
+                                    }))));
                   },
                   icon: Icons.print)
               : const SizedBox(),
-          const SizedBox(width: 8)
+          const SizedBox(width: 8),
+          IconButton(
+              onPressed: () => context.pop(),
+              icon: const Icon(Icons.highlight_remove_sharp))
         ]);
   }
 
@@ -150,13 +157,11 @@ class _OrderViewState extends State<OrderView> {
           totalPrice: uniqueFoods[food.foodID]!.totalPrice + food.foodPrice,
         );
       } else {
-        // Nếu mặt hàng chưa tồn tại, thêm vào uniqueFoods
         uniqueFoods[food.foodID] =
             food.copyWith(quantity: 1, totalPrice: food.foodPrice);
       }
     }
 
-    // Chuyển đổi map thành danh sách và trả về
     return uniqueFoods.values.toList();
   }
 
@@ -185,7 +190,6 @@ class _OrderViewState extends State<OrderView> {
   Widget _buildItemListView(
       BuildContext context, Orders orderModel, int index) {
     return Card(
-        margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         elevation: 10,
         child: Column(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -219,17 +223,17 @@ class _OrderViewState extends State<OrderView> {
                       _isUsePrint
                           ? CommonIconButton(
                               onTap: () {
-                                showModalBottomSheet(
-                                    isScrollControlled: true,
+                                showDialog(
                                     context: context,
-                                    builder: (context) => SizedBox(
-                                        height: context.sizeDevice.height * 0.9,
-                                        child: PrintBottomSheet(
-                                            listFoodDto: orders.foods,
-                                            onPressedPrint: () {
-                                              context.pop();
-                                              _handlePrint(orders.foods);
-                                            })));
+                                    builder: (context) => AlertDialog(
+                                        content: SizedBox(
+                                            width: 600,
+                                            child: PrintBottomSheet(
+                                                listFoodDto: orders.foods,
+                                                onPressedPrint: () {
+                                                  context.pop();
+                                                  _handlePrint(orders.foods);
+                                                }))));
                               },
                               icon: Icons.print,
                               color: Colors.blueAccent)
@@ -250,44 +254,40 @@ class _OrderViewState extends State<OrderView> {
                     ])
                   ])));
 
-  void _handleDeleteOrder(BuildContext context, Orders order) {
-    showCupertinoModalPopup<void>(
-        context: context,
-        builder: (BuildContext context) {
-          return CommonBottomSheet(
-              title: "Bạn có muốn xóa đơn này không?",
-              textConfirm: 'Xóa',
-              textCancel: "Hủy",
-              textConfirmColor: context.colorScheme.errorContainer,
-              onConfirm: () {
-                context
-                    .read<OrderBloc>()
-                    .add(OrderDeleted(orderID: order.id ?? ''));
-                showDialog(
-                    context: context,
-                    builder: (context) =>
-                        BlocBuilder<OrderBloc, GenericBlocState<Orders>>(
-                            builder: (context, state) => switch (state.status) {
-                                  Status.loading => const ProgressDialog(
-                                      descriptrion: "Đang xóa...",
-                                      isProgressed: true),
-                                  Status.empty => const SizedBox(),
-                                  Status.failure => RetryDialog(
-                                      title: 'Lỗi',
-                                      onRetryPressed: () => context
-                                          .read<OrderBloc>()
-                                          .add(OrderDeleted(
-                                              orderID: order.id ?? ''))),
-                                  Status.success => ProgressDialog(
-                                      descriptrion: "Xóa thành công!",
-                                      isProgressed: false,
-                                      onPressed: () {
-                                        _getData();
-                                        _updateTable();
-                                        pop(context, 2);
-                                      })
-                                }));
-              });
+  void _handleDeleteOrder(BuildContext context, Orders order) async {
+    AppAlerts.warningDialog(context,
+        title: 'Xóa đơn "${order.id}"?',
+        desc: 'Kiểm tra kĩ trước khi xóa!',
+        textCancel: 'Hủy',
+        textOk: 'Xóa',
+        btnCancelOnPress: () => context.pop(),
+        btnOkOnPress: () async {
+          await showDialog(
+              context: context,
+              builder: (context) => BlocProvider(
+                  create: (context) =>
+                      OrderBloc()..add(OrderDeleted(orderID: order.id ?? '')),
+                  child: BlocBuilder<OrderBloc, GenericBlocState<Orders>>(
+                      builder: (context, state) => switch (state.status) {
+                            Status.loading => const ProgressDialog(
+                                descriptrion: "Đang xóa...",
+                                isProgressed: true),
+                            Status.empty => const SizedBox(),
+                            Status.failure => RetryDialog(
+                                title: 'Lỗi',
+                                onRetryPressed: () => context
+                                    .read<OrderBloc>()
+                                    .add(
+                                        OrderDeleted(orderID: order.id ?? ''))),
+                            Status.success => ProgressDialog(
+                                descriptrion: "Xóa thành công!",
+                                isProgressed: false,
+                                onPressed: () {
+                                  _getData();
+                                  _updateTable();
+                                  pop(context, 1);
+                                })
+                          })));
         });
   }
 
@@ -308,8 +308,18 @@ class _OrderViewState extends State<OrderView> {
           ]));
 
   _goToEditOrder(BuildContext context, Orders orders) async {
-    await context.push(RouteName.orderDetail, extra: orders).then((value) {
-      // context.read<OrderBloc>().add(OrdersFecthed(tableID: orders.tableID!));
+    // await context.push(RouteName.orderDetail, extra: orders).then((value) {
+
+    // });
+
+    await showDialog(
+        context: context,
+        builder: (_) {
+          return AlertDialog(
+              content: SizedBox(
+                  width: 600, child: OrderDetailScreen(orders: orders)));
+        }).then((value) {
+      //   // context.read<OrderBloc>().add(OrdersFecthed(tableID: orders.tableID!));
       _getData();
       _updateTable();
     });

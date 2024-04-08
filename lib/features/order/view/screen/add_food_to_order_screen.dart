@@ -19,18 +19,24 @@ class AddFoodToOrderScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-        // backgroundColor: context.colorScheme.background,
-        appBar: _buildAppbar(context),
-        body: BlocProvider(
-            create: (context) => TextSearchCubit(), child: AddFoodView()));
+    return BlocProvider(
+        create: (context) => TextSearchCubit(),
+        child: Column(
+            children: [_buildAppbar(context), Expanded(child: AddFoodView())]));
   }
 }
 
 _buildAppbar(BuildContext context) {
   return AppBar(
-      title: Text(AppString.searchFood, style: context.titleStyleMedium),
-      centerTitle: true);
+      backgroundColor: Colors.transparent,
+      automaticallyImplyLeading: false,
+      title: Text('Danh sách món ăn', style: context.titleStyleMedium),
+      centerTitle: true,
+      actions: [
+        IconButton(
+            onPressed: () => context.pop(),
+            icon: const Icon(Icons.highlight_remove_rounded))
+      ]);
 }
 
 class AddFoodView extends StatelessWidget {
@@ -41,7 +47,7 @@ class AddFoodView extends StatelessWidget {
     return Column(
         children: [
       Padding(
-          padding: EdgeInsets.all(defaultPadding),
+          padding: EdgeInsets.symmetric(vertical: defaultPadding),
           child: _buildSearch(context)),
       Expanded(child:
           BlocBuilder<TextSearchCubit, String>(builder: (context, state) {
@@ -162,35 +168,31 @@ class AfterSearchUI extends StatelessWidget {
                   discount: food.discount));
           context.pop<FoodDto>(foodDto);
         },
-        child: Padding(
-            padding:
-                EdgeInsets.symmetric(horizontal: defaultPadding, vertical: 1),
-            child: Card(
-                borderOnForeground: false,
-                child: SizedBox(
-                    height: 45,
-                    child: Row(
-                        crossAxisAlignment: CrossAxisAlignment.stretch,
-                        children: [
-                          _buildImage(food),
-                          Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              mainAxisAlignment: MainAxisAlignment.spaceAround,
-                              children: [
-                                _buildTitle(context, food),
-                                // _buildCategory(context, food),
-                                _buildPrice(context, food)
-                              ])
-                        ]
-                            .animate(interval: 50.ms)
-                            .slideX(
-                                begin: -0.1,
-                                end: 0,
-                                curve: Curves.easeInOutCubic,
-                                duration: 500.ms)
-                            .fadeIn(
-                                curve: Curves.easeInOutCubic,
-                                duration: 500.ms))))));
+        child: Card(
+            borderOnForeground: false,
+            child: SizedBox(
+                height: 60,
+                child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      _buildImage(food),
+                      Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisAlignment: MainAxisAlignment.spaceAround,
+                          children: [
+                            _buildTitle(context, food),
+                            // _buildCategory(context, food),
+                            _buildPrice(context, food)
+                          ])
+                    ]
+                        .animate(interval: 50.ms)
+                        .slideX(
+                            begin: -0.1,
+                            end: 0,
+                            curve: Curves.easeInOutCubic,
+                            duration: 500.ms)
+                        .fadeIn(
+                            curve: Curves.easeInOutCubic, duration: 500.ms)))));
   }
 
   Widget _buildImage(Food food) {

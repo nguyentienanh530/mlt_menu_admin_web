@@ -1,3 +1,5 @@
+import 'package:mlt_menu_admin_web/common/widget/responsive.dart';
+import 'package:mlt_menu_admin_web/core/utils/extensions.dart';
 import 'package:mlt_menu_admin_web/features/dashboard/cubit/daily_revenue_cubit.dart';
 import 'package:mlt_menu_admin_web/features/dashboard/cubit/data_chart_revenua.dart';
 import 'package:mlt_menu_admin_web/features/order/bloc/order_bloc.dart';
@@ -12,11 +14,24 @@ class DashboardScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MultiBlocProvider(providers: [
-      BlocProvider(create: (context) => OrderBloc()),
-      BlocProvider(create: (context) => TableBloc()),
-      BlocProvider(create: (context) => DailyRevenueCubit()),
-      BlocProvider(create: (context) => DataChartRevenueCubit())
-    ], child: const Scaffold(body: DashboardView()));
+    return MultiBlocProvider(
+        providers: [
+          BlocProvider(create: (context) => OrderBloc()),
+          BlocProvider(create: (context) => TableBloc()),
+          BlocProvider(create: (context) => DailyRevenueCubit()),
+          BlocProvider(create: (context) => DataChartRevenueCubit())
+        ],
+        child: CustomScrollView(slivers: [
+          SliverAppBar(
+              pinned: true,
+              stretch: true,
+              automaticallyImplyLeading:
+                  Responsive.isDesktop(context) ? false : true,
+              centerTitle: true,
+              title: Text('Quản lý',
+                  style: context.titleStyleMedium!
+                      .copyWith(fontWeight: FontWeight.bold))),
+          const SliverToBoxAdapter(child: DashboardView())
+        ]));
   }
 }

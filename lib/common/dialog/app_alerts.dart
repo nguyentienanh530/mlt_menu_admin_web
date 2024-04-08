@@ -91,14 +91,14 @@ class AppAlerts {
     ).show();
   }
 
-  static warningDialog(BuildContext context,
+  static Future<dynamic> warningDialog(BuildContext context,
       {String? title,
       String? desc,
       String? textCancel,
       String? textOk,
       Function()? btnCancelOnPress,
-      Function()? btnOkOnPress}) {
-    AwesomeDialog(
+      Function()? btnOkOnPress}) async {
+    await AwesomeDialog(
       width: 500,
       dismissOnTouchOutside: false,
       btnCancelText: textCancel ?? 'Cancel',
@@ -111,7 +111,7 @@ class AppAlerts {
       animType: AnimType.rightSlide,
       title: title ?? 'Thông báo',
       desc: desc ?? '',
-      btnCancelOnPress: () => context.pop(),
+      btnCancelOnPress: () => btnCancelOnPress ?? context.pop(),
       btnOkOnPress: btnOkOnPress,
     ).show();
   }
