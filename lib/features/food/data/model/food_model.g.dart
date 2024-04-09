@@ -16,6 +16,7 @@ _$FoodImpl _$$FoodImplFromJson(Map<String, dynamic> json) => _$FoodImpl(
       discount: json['discount'] as int? ?? 0,
       price: json['price'] as num? ?? 0,
       name: json['name'] as String? ?? '',
+      count: json['count'] as int? ?? 0,
       photoGallery: json['photoGallery'] as List<dynamic>? ?? const <dynamic>[],
       createAt: json['createAt'] as String?,
     );
@@ -31,6 +32,7 @@ Map<String, dynamic> _$$FoodImplToJson(_$FoodImpl instance) =>
       'discount': instance.discount,
       'price': instance.price,
       'name': instance.name,
+      'count': instance.count,
       'photoGallery': instance.photoGallery,
       'createAt': instance.createAt,
     };

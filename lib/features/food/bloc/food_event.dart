@@ -13,6 +13,12 @@ final class FoodsFetched extends FoodEvent {
   const FoodsFetched({required this.isShowFood});
 }
 
+final class FoodsPopulerFetched extends FoodEvent {
+  final bool isShowFood;
+
+  const FoodsPopulerFetched({required this.isShowFood});
+}
+
 final class GetFoodByID extends FoodEvent {
   final String foodID;
 

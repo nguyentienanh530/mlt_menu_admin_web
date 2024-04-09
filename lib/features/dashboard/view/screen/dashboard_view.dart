@@ -1,9 +1,11 @@
+import 'package:flutter_svg/svg.dart';
 import 'package:mlt_menu_admin_web/common/bloc/generic_bloc_state.dart';
 import 'package:mlt_menu_admin_web/common/widget/common_refresh_indicator.dart';
 import 'package:mlt_menu_admin_web/common/widget/error_widget.dart';
 import 'package:mlt_menu_admin_web/common/widget/responsive.dart';
 import 'package:mlt_menu_admin_web/features/dashboard/cubit/daily_revenue_cubit.dart';
 import 'package:mlt_menu_admin_web/features/dashboard/cubit/data_chart_revenua.dart';
+import 'package:mlt_menu_admin_web/features/dashboard/view/widgets/best_seller_view.dart';
 import 'package:mlt_menu_admin_web/features/food/bloc/food_bloc.dart';
 import 'package:mlt_menu_admin_web/features/food/data/model/food_model.dart';
 import 'package:mlt_menu_admin_web/features/order/bloc/order_bloc.dart';
@@ -16,10 +18,7 @@ import 'package:mlt_menu_admin_web/features/user/data/model/user_model.dart';
 import 'package:mlt_menu_admin_web/common/widget/loading_screen.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_spinkit/flutter_spinkit.dart';
-import '../../../../common/widget/display_white_text.dart';
 import '../../../../common/widget/empty_widget.dart';
 import '../../../../core/utils/utils.dart';
 import '../widgets/chart_revenua.dart';
@@ -62,247 +61,137 @@ class _MyWidgetState extends State<DashboardView>
   }
 
   Widget _buildMobileWidget() {
-    return Column(children: [
-      Padding(
-          padding: EdgeInsets.only(
-              left: defaultPadding, right: defaultPadding, top: defaultPadding),
-          child: const DailyRevenue()),
-      _buildHeader(context),
-      _buildTitle(context),
-      Padding(
-          padding: EdgeInsets.all(defaultPadding),
-          child: const _ListTable(isScroll: false))
-    ]);
-  }
-
-  Widget _buildWebWidget() {
-    return Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-      Expanded(
-          flex: 2,
-          child:
-              Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-            Padding(
-                padding: EdgeInsets.only(
-                    left: defaultPadding, right: defaultPadding),
-                child: const DailyRevenue()),
-            _buildHeader(context)
-          ])),
-      Expanded(
-          child: Column(
-              mainAxisAlignment: MainAxisAlignment.start,
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-            _buildTitle(context),
-            Padding(
-                padding: EdgeInsets.all(defaultPadding),
-                child: const _ListTable(isScroll: true))
-          ]))
-    ]);
-  }
-
-  Widget _buildTitle(BuildContext context) {
-    return Container(
-        padding: EdgeInsets.all(defaultPadding / 2),
-        margin: EdgeInsets.symmetric(horizontal: defaultPadding),
-        decoration: BoxDecoration(
-            color: context.colorScheme.secondary,
-            borderRadius: BorderRadius.circular(10)),
-        child: const Center(
-            child: DisplayWhiteText(
-                text: 'Danh sách bàn ăn',
-                size: 14,
-                fontWeight: FontWeight.bold)));
-  }
-
-  Widget _buildHeader(BuildContext context) {
-    return SizedBox(
-        height: context.sizeDevice.height * 0.2,
-        child: Padding(
-            padding: EdgeInsets.all(defaultPadding),
-            child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Expanded(child: _buildUserAccount()),
-                  SizedBox(width: defaultPadding / 2),
-                  Expanded(child: _buildFoods()),
-                  SizedBox(width: defaultPadding / 2),
-                  Expanded(child: _buildTableNumber())
-                ])));
-  }
-
-  Widget _buildUserAccount() {
-    var loadingOrInitState = Center(
-        child: SpinKitCircle(color: context.colorScheme.primary, size: 30));
-    return BlocProvider(
-        create: (context) => UserBloc()..add(UsersFetched()),
-        child: BlocBuilder<UserBloc, GenericBlocState<UserModel>>(
-            builder: (context, state) => switch (state.status) {
-                  Status.loading => loadingOrInitState,
-                  Status.empty => Text('Empty', style: context.textStyleSmall),
-                  Status.failure =>
-                    Text('Failure', style: context.textStyleSmall),
-                  Status.success => _buidItemDashBoard(context,
-                      title: "Người dùng",
-                      title2: "Tài khoản",
-                      value: state.datas!.length,
-                      onTap: () {})
-                }));
-  }
-
-  Widget _buildFoods() {
-    var loadingOrInitState = Center(
-        child: SpinKitCircle(color: context.colorScheme.primary, size: 30));
-    return BlocProvider(
-        create: (context) =>
-            FoodBloc()..add(const FoodsFetched(isShowFood: true)),
-        child: BlocBuilder<FoodBloc, GenericBlocState<Food>>(
-            builder: (context, state) {
-          return (switch (state.status) {
-            Status.loading => loadingOrInitState,
-            Status.empty => loadingOrInitState,
-            Status.failure => Center(child: Text(state.error!)),
-            Status.success => _buidItemDashBoard(context,
-                  title: "Số lượng món",
-                  title2: "Món",
-                  value: state.datas!.length, onTap: () {
-                // context.push(RouteName.searchFood);
-              })
-          });
-        }));
-  }
-
-  Widget _buildTableNumber() {
-    var tableState = context.watch<TableBloc>().state;
-    return (switch (tableState.status) {
-      Status.loading => Center(
-          child: SpinKitCircle(color: context.colorScheme.primary, size: 30)),
-      Status.failure => Center(child: Text(tableState.error ?? '')),
-      Status.success => _buidItemDashBoard(context,
-          title: "Tổng bàn",
-          title2: "Tất cả",
-          value: tableState.datas == null ? 0 : tableState.datas!.length,
-          onTap: () {}),
-      Status.empty => _buidItemDashBoard(context,
-          title: "Tổng đơn", title2: "Đang chờ", value: 0, onTap: () {})
-    });
-  }
-
-  Widget _buidItemDashBoard(BuildContext context,
-      {String? title, String? title2, Function()? onTap, int? value}) {
-    return GestureDetector(
-        onTap: onTap,
-        child: Card(
-            elevation: 10,
-            child: Container(
-                padding: EdgeInsets.all(defaultPadding / 2),
-                child: Column(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      FittedBox(child: Text(title!)),
-                      FittedBox(
-                          child: Text(
-                              value == null || value == 0
-                                  ? "0"
-                                  : value.toString(),
-                              style: context.textTheme.titleLarge!.copyWith(
-                                  color: context.colorScheme.secondary,
-                                  fontWeight: FontWeight.bold),
-                              textAlign: TextAlign.center)),
-                      FittedBox(
-                          child: Text(title2!,
-                              style: context.textStyleSmall!.copyWith(
-                                  color: Colors.white.withOpacity(0.5))))
-                    ]
-                        .animate(interval: 50.ms)
-                        .slideX(
-                            begin: -0.1,
-                            end: 0,
-                            curve: Curves.easeInOutCubic,
-                            duration: 500.ms)
-                        .fadeIn(
-                            curve: Curves.easeInOutCubic, duration: 500.ms)))));
-  }
-
-  @override
-  bool get wantKeepAlive => true;
-}
-
-class DailyRevenue extends StatelessWidget {
-  const DailyRevenue({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    var newOrder = context.watch<OrderBloc>().state;
-    var tableState = context.watch<TableBloc>().state.datas;
-    var dailyRevenue = context.watch<DailyRevenueCubit>().state;
-    // final dataChartRevenue = context.watch<DataChartRevenueCubit>().state;
     var tableIsUseNumber = 0;
-
+    var tableState = context.watch<TableBloc>().state.datas;
     for (var element in tableState ?? <TableModel>[]) {
       if (element.isUse) {
         tableIsUseNumber++;
       }
     }
+    return Column(children: [
+      const DailyRevenue(),
+      const SizedBox(height: 16),
+      _buildInfo(context, tableIsUseNumber),
+      const SizedBox(height: 16),
+      _buildTable(),
+      const SizedBox(height: 16),
+      _buildTitle(title: 'Món đặt nhiều'),
+      const SizedBox(height: 16),
+      const FoodBestSeller(),
+    ]);
+  }
 
-    price() => Text(Ultils.currencyFormat(dailyRevenue),
-        style: context.titleStyleMedium!.copyWith(
-            fontWeight: FontWeight.bold, color: context.colorScheme.secondary));
-    title() =>
-        Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-          Text('Doanh thu ngày'.toUpperCase()),
-        ]);
-
-    status() =>
-        Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-          switch (newOrder.status) {
-            Status.loading => const SizedBox(),
-            Status.empty => childStatus(context, 'Đơn hàng mới', '0'),
-            Status.failure =>
-              Text(newOrder.error ?? '', style: context.textStyleSmall),
-            Status.success => childStatus(
-                context, 'Đơn hàng mới', newOrder.datas!.length.toString())
-          },
-          _buildOrderOnDay(context),
-          childStatus(context, 'Bàn sử dụng', tableIsUseNumber.toString())
-        ]);
-
-    return Card(
-        elevation: 10,
-        child: Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: SizedBox(
-                width: context.sizeDevice.width,
-                child: Column(
-                    mainAxisAlignment: MainAxisAlignment.spaceAround,
-                    crossAxisAlignment: CrossAxisAlignment.start,
+  Widget _buildItem(
+      {required String svg, required String title, required String value}) {
+    return Expanded(
+        child: Card(
+            elevation: 10,
+            child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20),
+                child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      title(),
-                      const SizedBox(height: 8),
-                      price(),
-                      SizedBox(
-                          height: context.sizeDevice.height * 0.2,
-                          child: const ChartRevenue()),
-                      Divider(color: context.colorScheme.primary),
-                      status()
+                      Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            SvgPicture.asset(svg,
+                                colorFilter: ColorFilter.mode(
+                                    context.colorScheme.secondary,
+                                    BlendMode.srcIn)),
+                            const SizedBox(height: 8),
+                            Text(title,
+                                style: context.textStyleSmall!.copyWith(
+                                    color: Colors.white.withOpacity(0.5)))
+                          ]),
+                      Text(value,
+                          style: context.titleStyleMedium!
+                              .copyWith(fontWeight: FontWeight.bold))
                     ]))));
   }
 
-  Widget childStatus(BuildContext context, String title, String value) =>
-      Column(children: [
-        Text(title, style: TextStyle(color: Colors.white.withOpacity(0.5))),
-        const SizedBox(height: 8),
-        Text(value, style: const TextStyle(fontWeight: FontWeight.bold))
-      ]);
+  Widget _buildWebWidget() {
+    return Builder(builder: (context) {
+      var tableState = context.watch<TableBloc>().state.datas;
+      var tableIsUseNumber = 0;
 
-  Widget _buildOrderOnDay(BuildContext context) {
+      for (var element in tableState ?? <TableModel>[]) {
+        if (element.isUse) {
+          tableIsUseNumber++;
+        }
+      }
+      return Column(children: [
+        SizedBox(
+            height: 100,
+            child: Row(children: [
+              _buildNewOrder(),
+              _buildOrderOnDay(),
+              _buildItem(
+                  svg: 'assets/icon/dinner_table.svg',
+                  title: 'Bàn sử dụng',
+                  value: tableIsUseNumber.toString()),
+              _buildUserAccount(),
+              _buildFoods(),
+              _buildTableNumber()
+            ])),
+        const SizedBox(height: 16),
+        Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+          Expanded(
+              flex: 2,
+              child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    const DailyRevenue(),
+                    const SizedBox(height: 16),
+                    // _buildTitle1(
+                    //   title: 'Danh mục',
+                    //   onPressed: () {},
+                    // ),
+                    // const SizedBox(height: 16),
+                    // SizedBox(
+                    //     height: context.sizeDevice.height * 0.15,
+                    //     child: const CategoryView()),
+                    // const SizedBox(height: 16),
+                    _buildTitle(title: 'Món đặt nhiều'),
+                    const SizedBox(height: 16),
+                    const FoodBestSeller(),
+                    const SizedBox(height: 16),
+                  ])),
+          Expanded(child: _buildTable())
+        ])
+      ]);
+    });
+  }
+
+  Widget _buildTitle({required String title}) {
+    return Text(title,
+        style: context.titleStyleMedium!.copyWith(fontWeight: FontWeight.bold));
+  }
+
+  Widget _buildLoadingItem() => const Expanded(child: LoadingScreen());
+
+  Widget _buildNewOrder() {
+    var newOrder = context.watch<OrderBloc>().state;
+    return switch (newOrder.status) {
+      Status.loading => _buildLoadingItem(),
+      Status.empty => _buildItem(
+          svg: 'assets/icon/cart.svg', title: 'Đơn hàng mới', value: '0'),
+      Status.failure =>
+        Text(newOrder.error ?? '', style: context.textStyleSmall),
+      Status.success => _buildItem(
+          svg: 'assets/icon/cart.svg',
+          title: 'Đơn hàng mới',
+          value: newOrder.datas!.length.toString())
+    };
+  }
+
+  Widget _buildOrderOnDay() {
     return BlocProvider(
         create: (context) => OrderBloc()..add(OrdersOnDayFecthed()),
         child: BlocBuilder<OrderBloc, GenericBlocState<Orders>>(
             builder: (context, state) {
           switch (state.status) {
             case Status.loading:
-              return const LoadingScreen();
+              return _buildLoadingItem();
             case Status.empty:
               return const EmptyWidget();
             case Status.failure:
@@ -331,13 +220,159 @@ class DailyRevenue extends StatelessWidget {
                   .read<DailyRevenueCubit>()
                   .onDailyRevenueChanged(totalPrice);
 
-              return childStatus(
-                  context, 'Tổng đơn/Ngày', ordersNumber.toString());
+              return _buildItem(
+                  svg: 'assets/icon/ordered.svg',
+                  title: 'Tổng đơn/ngày',
+                  value: ordersNumber.toString());
             default:
               return const LoadingScreen();
           }
         }));
   }
+
+  Widget _buildTable() => Card(
+          child: Column(
+              mainAxisAlignment: MainAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+            SizedBox(
+                height: 50,
+                child: Center(child: _buildTitle(title: 'Danh sách bàn ăn'))),
+            Divider(color: context.colorScheme.primary, height: 0.1),
+            Padding(
+                padding: EdgeInsets.all(defaultPadding),
+                child: const _ListTable(isScroll: true))
+          ]));
+
+  Widget _buildInfo(BuildContext context, int tableIsUseNumber) {
+    return SizedBox(
+        height: Responsive.isMobile(context)
+            ? context.sizeDevice.height * 0.2
+            : context.sizeDevice.height * 0.3,
+        child: Column(children: [
+          Expanded(
+              child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                _buildNewOrder(),
+                SizedBox(width: defaultPadding / 2),
+                _buildOrderOnDay(),
+                SizedBox(width: defaultPadding / 2),
+                _buildItem(
+                    svg: 'assets/icon/dinner_table.svg',
+                    title: 'Bàn sử dụng',
+                    value: tableIsUseNumber.toString())
+              ])),
+          Expanded(
+              child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                _buildUserAccount(),
+                SizedBox(width: defaultPadding / 2),
+                _buildFoods(),
+                SizedBox(width: defaultPadding / 2),
+                _buildTableNumber()
+              ]))
+        ]));
+  }
+
+  Widget _buildUserAccount() {
+    return BlocProvider(
+        create: (context) => UserBloc()..add(UsersFetched()),
+        child: BlocBuilder<UserBloc, GenericBlocState<UserModel>>(
+            builder: (context, state) => switch (state.status) {
+                  Status.loading => _buildLoadingItem(),
+                  Status.empty => Text('Empty', style: context.textStyleSmall),
+                  Status.failure =>
+                    Text('Failure', style: context.textStyleSmall),
+                  Status.success => _buildItem(
+                      svg: 'assets/icon/user.svg',
+                      title: "Người dùng",
+                      value: state.datas!.length.toString(),
+                    )
+                }));
+  }
+
+  Widget _buildFoods() {
+    return BlocProvider(
+        create: (context) =>
+            FoodBloc()..add(const FoodsFetched(isShowFood: true)),
+        child: BlocBuilder<FoodBloc, GenericBlocState<Food>>(
+            builder: (context, state) {
+          return (switch (state.status) {
+            Status.loading => _buildLoadingItem(),
+            Status.empty => _buildItem(
+                title: "Số lượng món", value: '0', svg: 'assets/icon/food.svg'),
+            Status.failure => Center(child: Text(state.error!)),
+            Status.success => _buildItem(
+                title: "Số lượng món",
+                value: state.datas!.length.toString(),
+                svg: 'assets/icon/food.svg')
+          });
+        }));
+  }
+
+  Widget _buildTableNumber() {
+    var tableState = context.watch<TableBloc>().state;
+    return (switch (tableState.status) {
+      Status.loading => _buildLoadingItem(),
+      Status.failure => Center(child: Text(tableState.error ?? '')),
+      Status.success => _buildItem(
+          title: "Tổng bàn",
+          value: tableState.datas == null
+              ? '0'
+              : tableState.datas!.length.toString(),
+          svg: 'assets/icon/dinner_table.svg'),
+      Status.empty => _buildItem(
+          title: "Tổng đơn", value: '0', svg: 'assets/icon/dinner_table.svg')
+    });
+  }
+
+  @override
+  bool get wantKeepAlive => true;
+}
+
+class DailyRevenue extends StatelessWidget {
+  const DailyRevenue({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    var dailyRevenue = context.watch<DailyRevenueCubit>().state;
+    // final dataChartRevenue = context.watch<DataChartRevenueCubit>().state;
+
+    price() => Text(Ultils.currencyFormat(dailyRevenue),
+        style: context.titleStyleMedium!.copyWith(
+            fontWeight: FontWeight.bold, color: context.colorScheme.secondary));
+    title() =>
+        Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
+          Text('Doanh thu ngày'.toUpperCase()),
+        ]);
+
+    return Card(
+        elevation: 10,
+        child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: SizedBox(
+                width: context.sizeDevice.width,
+                child: Column(
+                    mainAxisAlignment: MainAxisAlignment.spaceAround,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      title(),
+                      const SizedBox(height: 8),
+                      price(),
+                      SizedBox(
+                          height: context.sizeDevice.height * 0.2,
+                          child: const ChartRevenue()),
+                    ]))));
+  }
+
+  Widget childStatus(BuildContext context, String title, String value) =>
+      Column(children: [
+        Text(title, style: TextStyle(color: Colors.white.withOpacity(0.5))),
+        const SizedBox(height: 8),
+        Text(value, style: const TextStyle(fontWeight: FontWeight.bold))
+      ]);
 }
 
 class ItemCirclePercent extends StatelessWidget {

@@ -29,6 +29,7 @@ mixin _$Food {
   int get discount => throw _privateConstructorUsedError;
   num get price => throw _privateConstructorUsedError;
   String get name => throw _privateConstructorUsedError;
+  int get count => throw _privateConstructorUsedError;
   List<dynamic> get photoGallery => throw _privateConstructorUsedError;
   String? get createAt => throw _privateConstructorUsedError;
 
@@ -52,6 +53,7 @@ abstract class $FoodCopyWith<$Res> {
       int discount,
       num price,
       String name,
+      int count,
       List<dynamic> photoGallery,
       String? createAt});
 }
@@ -78,6 +80,7 @@ class _$FoodCopyWithImpl<$Res, $Val extends Food>
     Object? discount = null,
     Object? price = null,
     Object? name = null,
+    Object? count = null,
     Object? photoGallery = null,
     Object? createAt = freezed,
   }) {
@@ -118,6 +121,10 @@ class _$FoodCopyWithImpl<$Res, $Val extends Food>
           ? _value.name
           : name // ignore: cast_nullable_to_non_nullable
               as String,
+      count: null == count
+          ? _value.count
+          : count // ignore: cast_nullable_to_non_nullable
+              as int,
       photoGallery: null == photoGallery
           ? _value.photoGallery
           : photoGallery // ignore: cast_nullable_to_non_nullable
@@ -147,6 +154,7 @@ abstract class _$$FoodImplCopyWith<$Res> implements $FoodCopyWith<$Res> {
       int discount,
       num price,
       String name,
+      int count,
       List<dynamic> photoGallery,
       String? createAt});
 }
@@ -170,6 +178,7 @@ class __$$FoodImplCopyWithImpl<$Res>
     Object? discount = null,
     Object? price = null,
     Object? name = null,
+    Object? count = null,
     Object? photoGallery = null,
     Object? createAt = freezed,
   }) {
@@ -210,6 +219,10 @@ class __$$FoodImplCopyWithImpl<$Res>
           ? _value.name
           : name // ignore: cast_nullable_to_non_nullable
               as String,
+      count: null == count
+          ? _value.count
+          : count // ignore: cast_nullable_to_non_nullable
+              as int,
       photoGallery: null == photoGallery
           ? _value._photoGallery
           : photoGallery // ignore: cast_nullable_to_non_nullable
@@ -235,6 +248,7 @@ class _$FoodImpl implements _Food {
       this.discount = 0,
       this.price = 0,
       this.name = '',
+      this.count = 0,
       final List<dynamic> photoGallery = const <dynamic>[],
       this.createAt})
       : _photoGallery = photoGallery;
@@ -269,6 +283,9 @@ class _$FoodImpl implements _Food {
   @override
   @JsonKey()
   final String name;
+  @override
+  @JsonKey()
+  final int count;
   final List<dynamic> _photoGallery;
   @override
   @JsonKey()
@@ -283,7 +300,7 @@ class _$FoodImpl implements _Food {
 
   @override
   String toString() {
-    return 'Food(id: $id, image: $image, isDiscount: $isDiscount, isShowFood: $isShowFood, description: $description, categoryID: $categoryID, discount: $discount, price: $price, name: $name, photoGallery: $photoGallery, createAt: $createAt)';
+    return 'Food(id: $id, image: $image, isDiscount: $isDiscount, isShowFood: $isShowFood, description: $description, categoryID: $categoryID, discount: $discount, price: $price, name: $name, count: $count, photoGallery: $photoGallery, createAt: $createAt)';
   }
 
   @override
@@ -305,6 +322,7 @@ class _$FoodImpl implements _Food {
                 other.discount == discount) &&
             (identical(other.price, price) || other.price == price) &&
             (identical(other.name, name) || other.name == name) &&
+            (identical(other.count, count) || other.count == count) &&
             const DeepCollectionEquality()
                 .equals(other._photoGallery, _photoGallery) &&
             (identical(other.createAt, createAt) ||
@@ -324,6 +342,7 @@ class _$FoodImpl implements _Food {
       discount,
       price,
       name,
+      count,
       const DeepCollectionEquality().hash(_photoGallery),
       createAt);
 
@@ -352,6 +371,7 @@ abstract class _Food implements Food {
       final int discount,
       final num price,
       final String name,
+      final int count,
       final List<dynamic> photoGallery,
       final String? createAt}) = _$FoodImpl;
 
@@ -375,6 +395,8 @@ abstract class _Food implements Food {
   num get price;
   @override
   String get name;
+  @override
+  int get count;
   @override
   List<dynamic> get photoGallery;
   @override

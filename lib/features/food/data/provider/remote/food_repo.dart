@@ -20,6 +20,17 @@ class FoodRepo extends FirebaseBase<Food> {
     }
   }
 
+  Future<FirebaseResult<List<Food>>> getFoodsPopuler(
+      {required bool isShowFood}) async {
+    try {
+      return await getItems(
+          await _foodRepository.getFoodsPopuler(isShowFood: isShowFood),
+          Food.fromJson);
+    } catch (e) {
+      throw '$e';
+    }
+  }
+
   Future<FirebaseResult<Food>> getFoodByID({required String foodID}) async {
     return await getItem(await _foodRepository.getFoodByID(foodID: foodID),
         (json) => Food.fromJson(json));

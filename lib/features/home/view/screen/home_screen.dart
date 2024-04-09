@@ -233,25 +233,12 @@ class SideMenu extends StatelessWidget {
           onTap: () {
             onPageSelected(const CategoriesScreen());
           }),
-      // DrawerListTile(
-      //     title: "Hồ sơ",
-      //     svgSrc: "assets/icon/user.svg",
-      //     onTap: () {
-      //       onPageSelected(const ProfileScreen());
-      //     }),
       DrawerListTile(
           title: "Cài Đặt",
           svgSrc: "assets/icon/setting.svg",
           onTap: () {
             onPageSelected(const ProfileScreen());
-            // context.pushReplacement(RouteName.profile);
-          }),
-      // DrawerListTile(
-      //     title: 'Đăng Xuất',
-      //     svgSrc: 'assets/icon/logout.svg',
-      //     onTap: () {
-      //       onPageSelected(const DashboardScreen());
-      //     })
+          })
     ]));
   }
 }
@@ -268,14 +255,24 @@ class DrawerListTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ListTile(
-        onTap: onTap,
-        horizontalTitleGap: 0.0,
-        leading: SvgPicture.asset(svgSrc,
-            colorFilter:
-                const ColorFilter.mode(Colors.white70, BlendMode.srcIn),
-            height: 16),
-        title: Text(title));
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      child: ListTile(
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+          //  hoverColor: ,
+          mouseCursor: SystemMouseCursors.click,
+          onTap: onTap,
+          horizontalTitleGap: 0.0,
+          leading: SvgPicture.asset(svgSrc,
+              colorFilter:
+                  const ColorFilter.mode(Colors.white, BlendMode.srcIn),
+              height: 20),
+          title: Padding(
+            padding: const EdgeInsets.only(left: 16),
+            child: Text(title),
+          )),
+    );
   }
 }
 
@@ -294,29 +291,34 @@ class DrawerExpansionTile extends StatelessWidget {
   final void Function()? onTap2;
   @override
   Widget build(BuildContext context) {
-    return ExpansionTile(
-        leading: SvgPicture.asset(svgSrc,
-            colorFilter:
-                const ColorFilter.mode(Colors.white70, BlendMode.srcIn),
-            height: 16),
-        title: Text(title),
-        children: [
-          ListTile(
-              onTap: onTap1,
-              horizontalTitleGap: 0.0,
-              title: Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Text(title1,
-                      style: context.textStyleSmall!
-                          .copyWith(color: Colors.white70)))),
-          ListTile(
-              onTap: onTap2,
-              horizontalTitleGap: 0.0,
-              title: Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Text(title2,
-                      style: context.textStyleSmall!
-                          .copyWith(color: Colors.white70))))
-        ]);
+    return Card(
+        margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+        elevation: 0,
+        color: Colors.transparent,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+        child: ExpansionTile(
+            leading: SvgPicture.asset(svgSrc,
+                colorFilter:
+                    const ColorFilter.mode(Colors.white, BlendMode.srcIn),
+                height: 20),
+            title: Text(title),
+            children: [
+              ListTile(
+                  onTap: onTap1,
+                  horizontalTitleGap: 0.0,
+                  title: Padding(
+                      padding: const EdgeInsets.only(left: 16),
+                      child: Text(title1,
+                          style: context.textStyleSmall!
+                              .copyWith(color: Colors.white70)))),
+              ListTile(
+                  onTap: onTap2,
+                  horizontalTitleGap: 0.0,
+                  title: Padding(
+                      padding: const EdgeInsets.only(left: 16),
+                      child: Text(title2,
+                          style: context.textStyleSmall!
+                              .copyWith(color: Colors.white70))))
+            ]));
   }
 }

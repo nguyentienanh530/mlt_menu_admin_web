@@ -20,6 +20,21 @@ class FoodRepository {
     }
   }
 
+  Future<QuerySnapshot<Map<String, dynamic>>> getFoodsPopuler(
+      {required bool isShowFood}) async {
+    try {
+      return await _firebaseFirestore
+          .collection('food')
+          .where('isShowFood', isEqualTo: isShowFood)
+          .orderBy('count', descending: true)
+          .get();
+    } on FirebaseException catch (e) {
+      throw '$e';
+    } catch (e) {
+      throw '$e';
+    }
+  }
+
   Future<DocumentSnapshot<Map<String, dynamic>>> getFoodByID(
       {required String foodID}) {
     try {

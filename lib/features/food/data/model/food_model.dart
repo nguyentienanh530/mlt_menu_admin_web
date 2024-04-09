@@ -21,6 +21,7 @@ class Food with _$Food {
       @Default(0) int discount,
       @Default(0) num price,
       @Default('') String name,
+      @Default(0) int count,
       @Default(<dynamic>[]) List photoGallery,
       String? createAt}) = _Food;
 

@@ -15,6 +15,7 @@ class FoodBloc extends Bloc<FoodEvent, GenericBlocState<Food>>
     with BlocHelper<Food> {
   FoodBloc() : super(GenericBlocState.loading()) {
     on<FoodsFetched>(_fetchFoods);
+    on<FoodsPopulerFetched>(_fetchFoodsPopuler);
     on<FoodCreated>(_createFood);
     on<ResetData>(_resetData);
     on<DeleteFood>(_deleteFood);
@@ -48,5 +49,11 @@ class FoodBloc extends Bloc<FoodEvent, GenericBlocState<Food>>
 
   FutureOr<void> _getFoodByID(GetFoodByID event, Emit emit) async {
     await getItem(_foodRepository.getFoodByID(foodID: event.foodID), emit);
+  }
+
+  FutureOr<void> _fetchFoodsPopuler(
+      FoodsPopulerFetched event, Emit emit) async {
+    await getItems(
+        _foodRepository.getFoodsPopuler(isShowFood: event.isShowFood), emit);
   }
 }
