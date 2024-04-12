@@ -1,5 +1,4 @@
 import 'package:flutter/foundation.dart';
-import 'package:flutter/widgets.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mlt_menu_admin_web/common/bloc/generic_bloc_state.dart';
 import 'package:mlt_menu_admin_web/common/dialog/app_alerts.dart';
@@ -234,8 +233,8 @@ class _CreateOrUpdateCategoryState extends State<CreateOrUpdateCategory> {
     return Stack(children: [
       _imageFile == null
           ? Container(
-              height: context.sizeDevice.width * 0.3,
-              width: context.sizeDevice.width * 0.3,
+              height: context.sizeDevice.width * 0.1,
+              width: context.sizeDevice.width * 0.1,
               clipBehavior: Clip.hardEdge,
               padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
@@ -243,8 +242,8 @@ class _CreateOrUpdateCategoryState extends State<CreateOrUpdateCategory> {
                   shape: BoxShape.circle),
               child: Image.network(_image.isEmpty ? noImage : _image))
           : Container(
-              height: context.sizeDevice.width * 0.3,
-              width: context.sizeDevice.width * 0.3,
+              height: context.sizeDevice.width * 0.1,
+              width: context.sizeDevice.width * 0.1,
               clipBehavior: Clip.hardEdge,
               padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
@@ -252,8 +251,8 @@ class _CreateOrUpdateCategoryState extends State<CreateOrUpdateCategory> {
                   shape: BoxShape.circle),
               child: Image.memory(_imageFile!)),
       Positioned(
-          top: context.sizeDevice.width * 0.3 - 25,
-          left: (context.sizeDevice.width * 0.3 - 20) / 2,
+          top: context.sizeDevice.width * 0.1 - 25,
+          left: (context.sizeDevice.width * 0.1 - 20) / 2,
           child: GestureDetector(
               onTap: () async {
                 await pickImage().then((value) {

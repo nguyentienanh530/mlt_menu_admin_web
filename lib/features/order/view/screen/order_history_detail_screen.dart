@@ -1,3 +1,4 @@
+import 'package:go_router/go_router.dart';
 import 'package:mlt_menu_admin_web/common/widget/common_icon_button.dart';
 import 'package:mlt_menu_admin_web/common/widget/loading_screen.dart';
 import 'package:mlt_menu_admin_web/features/order/data/model/food_dto.dart';
@@ -36,6 +37,7 @@ class OrderHistoryDetailScreen extends StatelessWidget {
 
   _buildAppbar(BuildContext context) {
     return AppBar(
+        backgroundColor: Colors.transparent,
         automaticallyImplyLeading: false,
         title: Text('Chi tiết đơn hàng', style: context.titleStyleMedium),
         centerTitle: true,
@@ -47,7 +49,10 @@ class OrderHistoryDetailScreen extends StatelessWidget {
                   },
                   icon: Icons.print)
               : const SizedBox(),
-          const SizedBox(width: 8)
+          const SizedBox(width: 8),
+          IconButton(
+              onPressed: () => context.pop(),
+              icon: const Icon(Icons.highlight_remove_rounded))
         ]);
   }
 

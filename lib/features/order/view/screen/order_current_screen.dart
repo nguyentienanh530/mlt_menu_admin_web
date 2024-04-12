@@ -93,18 +93,14 @@ class OrderHistoryView extends StatelessWidget {
                         borderRadius: BorderRadius.circular(16)),
                     child: Text('Bàn ăn: ${group.tableName ?? 'Unknown'}',
                         style: const TextStyle(fontWeight: FontWeight.bold))),
-                GridView.builder(
+                ListView.builder(
                     shrinkWrap: true,
                     physics: const NeverScrollableScrollPhysics(),
                     itemCount: group.orders.length,
                     itemBuilder: (context, idx) {
                       final order = group.orders[idx];
                       return _buildItemListView(context, order, idx);
-                    },
-                    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                        crossAxisCount: countGridView(context),
-                        crossAxisSpacing: 16,
-                        mainAxisSpacing: 16))
+                    })
               ]);
         });
   }
@@ -113,13 +109,16 @@ class OrderHistoryView extends StatelessWidget {
       BuildContext context, Orders orderModel, int index) {
     return Card(
         elevation: 10,
-        child: Column(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            // crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              _buildHeaderItem(context, index, orderModel),
-              Expanded(child: _buildBodyItem(context, orderModel))
-            ]));
+        child: SizedBox(
+          height: 120,
+          child: Column(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              // crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                _buildHeaderItem(context, index, orderModel),
+                Expanded(child: _buildBodyItem(context, orderModel))
+              ]),
+        ));
   }
 
   Widget _buildHeaderItem(BuildContext context, int index, Orders orders) =>
@@ -131,7 +130,7 @@ class OrderHistoryView extends StatelessWidget {
               child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text('#${index + 1} - ',
+                    Text('#${index + 1} - ${orders.id}',
                         style: const TextStyle(fontWeight: FontWeight.bold)),
                     Row(children: [
                       const SizedBox(width: 8),
@@ -208,55 +207,49 @@ class OrderHistoryView extends StatelessWidget {
 
   _buildBodyItem(BuildContext context, Orders orderModel) => Padding(
       padding: const EdgeInsets.all(8.0),
-      child: Column(children: [
-        Expanded(
-            flex: 3,
-            child: Column(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  _buildColumnValueItem(
-                      title: 'ID', value: orderModel.id ?? ''),
-                  _buildColumnValueItem(
-                      title: 'Bàn', value: orderModel.tableName),
-                  _buildColumnValueItem(
-                      title: 'Đặt lúc',
-                      value: Ultils.formatDateTime(
-                          orderModel.orderTime ?? DateTime.now().toString()))
-                ])),
-        Divider(color: context.colorScheme.primary.withOpacity(0.3)),
-        Expanded(
-            child: Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: _buildPrice(
-                    context,
-                    Ultils.currencyFormat(double.parse(
-                        orderModel.totalPrice?.toString() ?? '0')))))
+      child: Row(children: [
+        // _buildColumnValueItem(title: 'ID', value: orderModel.id ?? ''),
+        _buildColumnValueItem(title: 'Bàn', value: orderModel.tableName),
+        _buildColumnValueItem(
+            title: 'Đặt lúc',
+            value: Ultils.formatDateTime(
+                orderModel.orderTime ?? DateTime.now().toString())),
+        _buildPrice(
+            context,
+            Ultils.currencyFormat(
+                double.parse(orderModel.totalPrice?.toString() ?? '0')))
       ]));
 
   Widget _buildPrice(BuildContext context, String price) {
-    return Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-      Text('Tổng tiền:',
-          style: TextStyle(color: Colors.white.withOpacity(0.3))),
-      Text(price,
-          style: context.textStyleLarge!.copyWith(
-              color: context.colorScheme.secondary,
-              fontWeight: FontWeight.bold))
-    ]);
+    return Expanded(
+        child: FittedBox(
+            fit: BoxFit.scaleDown,
+            child: Column(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text('Tổng tiền',
+                      style: TextStyle(color: Colors.white.withOpacity(0.3))),
+                  Text(price,
+                      style: context.textStyleLarge!.copyWith(
+                          color: context.colorScheme.secondary,
+                          fontWeight: FontWeight.bold))
+                ])));
   }
 
   Widget _buildColumnValueItem({required String title, required String value}) {
     return Expanded(
         child: FittedBox(
+            fit: BoxFit.scaleDown,
             child: Column(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-          Text(title, style: TextStyle(color: Colors.white.withOpacity(0.3))),
-          Text(value,
-              maxLines: 1,
-              overflow: TextOverflow.clip,
-              style: const TextStyle(
-                  color: Colors.white, fontWeight: FontWeight.bold))
-        ])));
+                  Text(title,
+                      style: TextStyle(color: Colors.white.withOpacity(0.3))),
+                  Text(value,
+                      maxLines: 1,
+                      overflow: TextOverflow.clip,
+                      style: const TextStyle(
+                          color: Colors.white, fontWeight: FontWeight.bold))
+                ])));
   }
 }

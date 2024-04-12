@@ -76,31 +76,29 @@ class _ListFoodIsShowViewState extends State<ListFoodIsShowView>
     super.build(context);
     return Builder(builder: (context) {
       var foodIsShow = context.watch<FoodBloc>().state;
-      return CommonRefreshIndicator(
-          child: (switch (foodIsShow.status) {
-            Status.loading => const LoadingScreen(),
-            Status.empty => const EmptyScreen(),
-            Status.failure => ErrorScreen(errorMsg: foodIsShow.error),
-            Status.success => CustomScrollView(
-                  physics: const BouncingScrollPhysics(),
-                  slivers: [
-                    SliverAppBar(
-                        pinned: true,
-                        stretch: true,
-                        centerTitle: true,
-                        title: Text('Danh sách món đang ẩn',
-                            style: context.titleStyleMedium!
-                                .copyWith(fontWeight: FontWeight.bold)),
-                        automaticallyImplyLeading:
-                            Responsive.isDesktop(context) ? false : true),
-                    SliverToBoxAdapter(
-                        child: _buildWidget(foodIsShow.datas ?? <Food>[]))
-                  ])
-          }),
-          onRefresh: () async {
-            await Future.delayed(const Duration(milliseconds: 500));
-            _getData();
-          });
+      return CustomScrollView(physics: const BouncingScrollPhysics(), slivers: [
+        SliverAppBar(
+            pinned: true,
+            stretch: true,
+            centerTitle: true,
+            title: Text('Danh sách món đang ẩn',
+                style: context.titleStyleMedium!
+                    .copyWith(fontWeight: FontWeight.bold)),
+            automaticallyImplyLeading:
+                Responsive.isDesktop(context) ? false : true),
+        SliverToBoxAdapter(
+            child: CommonRefreshIndicator(
+                child: (switch (foodIsShow.status) {
+                  Status.loading => const LoadingScreen(),
+                  Status.empty => const EmptyScreen(),
+                  Status.failure => ErrorScreen(errorMsg: foodIsShow.error),
+                  Status.success => _buildWidget(foodIsShow.datas ?? <Food>[])
+                }),
+                onRefresh: () async {
+                  await Future.delayed(const Duration(milliseconds: 500));
+                  _getData();
+                }))
+      ]);
     });
   }
 

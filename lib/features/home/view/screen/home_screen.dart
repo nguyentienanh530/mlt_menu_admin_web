@@ -220,7 +220,8 @@ class SideMenu extends StatelessWidget {
           title2: 'Lịch sử đơn hàng',
           svgSrc: "assets/icon/ordered.svg",
           onTap1: () => onPageSelected(const CurrentOrder()),
-          onTap2: () => onPageSelected(const OrderHistoryScreen())),
+          onTap2: () => onPageSelected(OrderHistoryScreen(
+              onPressed: () => scafoldKey.currentState!.openDrawer()))),
       DrawerListTile(
           title: "Bàn ăn",
           svgSrc: "assets/icon/chair.svg",

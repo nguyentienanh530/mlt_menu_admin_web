@@ -15,7 +15,7 @@ class _OrderScreenState extends State<OrderScreen> {
   var pageCtrl = PageController();
   final List<Widget> _widgetOptions = [
     const CurrentOrder(),
-    const OrderHistoryScreen()
+    // const OrderHistoryScreen()
   ];
   @override
   Widget build(BuildContext context) {
