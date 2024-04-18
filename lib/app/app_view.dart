@@ -11,7 +11,7 @@ class AppView extends StatelessWidget {
     return MaterialApp.router(
         title: 'Minh Long Menu',
         debugShowCheckedModeBanner: false,
-        scrollBehavior: MyCustomScrollBehavior(),
+        // scrollBehavior: MyCustomScrollBehavior(),
         theme: AppTheme.dark,
         darkTheme: AppTheme.dark,
         themeMode: ThemeMode.system,

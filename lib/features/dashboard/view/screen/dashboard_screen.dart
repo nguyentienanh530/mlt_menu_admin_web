@@ -2,6 +2,7 @@ import 'package:mlt_menu_admin_web/common/widget/responsive.dart';
 import 'package:mlt_menu_admin_web/core/utils/extensions.dart';
 import 'package:mlt_menu_admin_web/features/dashboard/cubit/daily_revenue_cubit.dart';
 import 'package:mlt_menu_admin_web/features/dashboard/cubit/data_chart_revenua.dart';
+import 'package:mlt_menu_admin_web/features/dashboard/cubit/total_price_yesterday_cubit.dart';
 import 'package:mlt_menu_admin_web/features/order/bloc/order_bloc.dart';
 import 'package:mlt_menu_admin_web/features/table/bloc/table_bloc.dart';
 import 'package:flutter/material.dart';
@@ -19,6 +20,7 @@ class DashboardScreen extends StatelessWidget {
           BlocProvider(create: (context) => OrderBloc()),
           BlocProvider(create: (context) => TableBloc()),
           BlocProvider(create: (context) => DailyRevenueCubit()),
+          BlocProvider(create: (context) => TotalPriceYesterday()),
           BlocProvider(create: (context) => DataChartRevenueCubit())
         ],
         child: CustomScrollView(slivers: [

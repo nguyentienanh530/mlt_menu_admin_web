@@ -4,7 +4,7 @@ import 'package:mlt_menu_admin_web/common/bloc/generic_bloc_state.dart';
 import 'package:mlt_menu_admin_web/common/widget/empty_widget.dart';
 import 'package:mlt_menu_admin_web/common/widget/error_widget.dart';
 import 'package:mlt_menu_admin_web/common/widget/loading_screen.dart';
-import 'package:mlt_menu_admin_web/common/widget/responsive.dart';
+import 'package:mlt_menu_admin_web/core/utils/extensions.dart';
 import 'package:mlt_menu_admin_web/features/food/bloc/food_bloc.dart';
 
 import '../../../food/data/model/food_model.dart';
@@ -31,58 +31,52 @@ class FoodBestSeller extends StatelessWidget {
   }
 
   Widget _buildFoods(BuildContext context, Food food) {
-    return Card(
-        elevation: 10,
-        child: Column(children: [
-          Expanded(
-              flex: 3,
-              child: Container(
-                margin: const EdgeInsets.all(8),
-                width: double.infinity,
-                height: double.infinity,
-                clipBehavior: Clip.hardEdge,
-                decoration:
-                    BoxDecoration(borderRadius: BorderRadius.circular(10)),
-                child: Image.network(food.image,
-                    fit: BoxFit.cover,
-                    loadingBuilder: (context, child, loadingProgress) =>
-                        loadingProgress != null
-                            ? const LoadingScreen()
-                            : child),
-              )),
-          const SizedBox(height: 8),
-          Expanded(
-              child: FittedBox(
-                  fit: BoxFit.scaleDown,
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                    child: Text(food.name, textAlign: TextAlign.center),
-                  ))),
-          Expanded(
-              child: FittedBox(
-                  fit: BoxFit.scaleDown,
-                  child: Text('Lần đặt: ${food.count.toString()}',
-                      textAlign: TextAlign.center)))
-        ]));
+    return Column(children: [
+      SizedBox(
+          height: context.sizeDevice.height * 0.1,
+          child: Row(children: [
+            Expanded(
+                child: Container(
+                    margin: const EdgeInsets.all(8),
+                    clipBehavior: Clip.hardEdge,
+                    decoration: const BoxDecoration(shape: BoxShape.circle),
+                    child: Image.network(food.image,
+                        fit: BoxFit.cover,
+                        loadingBuilder: (context, child, loadingProgress) =>
+                            loadingProgress != null
+                                ? const LoadingScreen()
+                                : child))),
+            const SizedBox(height: 8),
+            Expanded(
+                flex: 2,
+                child: Column(
+                    mainAxisAlignment: MainAxisAlignment.spaceAround,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      FittedBox(
+                          fit: BoxFit.scaleDown,
+                          child: Text(food.name, textAlign: TextAlign.center)),
+                      FittedBox(
+                          fit: BoxFit.scaleDown,
+                          child: Text('Lần đặt: ${food.count.toString()}',
+                              textAlign: TextAlign.center))
+                    ])),
+            const SizedBox(height: 8)
+          ])),
+      Divider(color: context.colorScheme.primary.withOpacity(0.3))
+    ]);
   }
 
   _buildSuccessWidget(BuildContext context, List<Food> foods) {
-    return GridView.builder(
-        physics: const NeverScrollableScrollPhysics(),
-        shrinkWrap: true,
-        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: _countGrid(context)),
-        itemCount: foods.length >= 12 ? 12 : foods.length,
-        itemBuilder: (context, index) => _buildFoods(context, foods[index]));
-  }
-
-  int _countGrid(BuildContext context) {
-    if (Responsive.isMobile(context)) {
-      return 2;
-    } else if (Responsive.isTablet(context)) {
-      return 3;
-    } else {
-      return 4;
-    }
+    return Card(
+        elevation: 10,
+        child: Padding(
+            padding: const EdgeInsets.all(16),
+            child: ListView.builder(
+                physics: const NeverScrollableScrollPhysics(),
+                shrinkWrap: true,
+                itemCount: foods.length >= 20 ? 20 : foods.length,
+                itemBuilder: (context, index) =>
+                    _buildFoods(context, foods[index]))));
   }
 }

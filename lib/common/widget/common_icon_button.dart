@@ -10,7 +10,7 @@ class CommonIconButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return FittedBox(
-      child: GestureDetector(
+      child: InkWell(
           onTap: onTap,
           child: Container(
               margin: const EdgeInsets.symmetric(vertical: 5),
