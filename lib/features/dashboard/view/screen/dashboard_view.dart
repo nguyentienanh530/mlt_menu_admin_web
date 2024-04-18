@@ -201,9 +201,15 @@ class _MyWidgetState extends State<DashboardView>
             case Status.loading:
               return _buildLoadingItem();
             case Status.empty:
-              return const EmptyWidget();
+              return _buildItem(
+                  svg: 'assets/icon/ordered.svg',
+                  title: 'Tổng đơn/ngày',
+                  value: '0');
             case Status.failure:
-              return const Text('error');
+              return _buildItem(
+                  svg: 'assets/icon/ordered.svg',
+                  title: 'Tổng đơn/ngày',
+                  value: state.error ?? '');
             case Status.success:
               var ordersNumber = 0;
               var totalPrice = 0.0;
@@ -295,13 +301,18 @@ class _MyWidgetState extends State<DashboardView>
         child: BlocBuilder<UserBloc, GenericBlocState<UserModel>>(
             builder: (context, state) => switch (state.status) {
                   Status.loading => const LoadingScreen(),
-                  Status.empty => Text('Empty', style: context.textStyleSmall),
+                  Status.empty => _buildItemChildOrderInfo(
+                      svgPath: 'assets/icon/user.svg',
+                      title: 'Tổng người dùng',
+                      value: '0'),
                   Status.failure =>
                     Text('Failure', style: context.textStyleSmall),
                   Status.success => _buildItemChildOrderInfo(
                       svgPath: 'assets/icon/user.svg',
                       title: 'Tổng người dùng',
-                      value: state.datas!.length.toString())
+                      value: state.datas!.isEmpty
+                          ? '0'
+                          : state.datas!.length.toString())
                 }));
   }
 
@@ -313,13 +324,16 @@ class _MyWidgetState extends State<DashboardView>
             builder: (context, state) {
           return (switch (state.status) {
             Status.loading => const LoadingScreen(),
-            Status.empty => _buildItem(
-                title: "Số lượng món", value: '0', svg: 'assets/icon/food.svg'),
+            Status.empty => _buildItemChildOrderInfo(
+                svgPath: 'assets/icon/food.svg',
+                title: 'Số lượng món ăn',
+                value: '0'),
             Status.failure => Center(child: Text(state.error!)),
             Status.success => _buildItemChildOrderInfo(
                 svgPath: 'assets/icon/food.svg',
                 title: 'Số lượng món ăn',
-                value: state.datas!.length.toString())
+                value:
+                    state.datas!.isEmpty ? '0' : state.datas!.length.toString())
           });
         }));
   }
@@ -332,7 +346,9 @@ class _MyWidgetState extends State<DashboardView>
       Status.success => _buildItemChildOrderInfo(
           svgPath: 'assets/icon/dinner_table.svg',
           title: 'Số lượng bàn ăn',
-          value: tableState.datas!.length.toString()),
+          value: tableState.datas!.isEmpty
+              ? '0'
+              : tableState.datas!.length.toString()),
       Status.empty => _buildItemChildOrderInfo(
           svgPath: 'assets/icon/dinner_table.svg',
           title: 'Số lượng bàn ăn',
@@ -346,13 +362,18 @@ class _MyWidgetState extends State<DashboardView>
         child: BlocBuilder<OrderBloc, GenericBlocState<Orders>>(
             builder: (context, state) => switch (state.status) {
                   Status.loading => const LoadingScreen(),
-                  Status.empty => Text('Empty', style: context.textStyleSmall),
+                  Status.empty => _buildItemChildOrderInfo(
+                      svgPath: 'assets/icon/ordered.svg',
+                      title: 'Tổng đơn hoàn thành',
+                      value: '0'),
                   Status.failure =>
                     Text('Failure', style: context.textStyleSmall),
                   Status.success => _buildItemChildOrderInfo(
                       svgPath: 'assets/icon/ordered.svg',
                       title: 'Tổng đơn hoàn thành',
-                      value: state.datas!.length.toString())
+                      value: state.datas!.isEmpty
+                          ? '0'
+                          : state.datas!.length.toString())
                 }));
   }
 
