@@ -96,15 +96,6 @@ class _HomeViewState extends State<HomeView> {
   //   context.read<UserBloc>().add(UpdateToken(userID: userID, token: token));
   // }
 
-  _buildAppbar() => AppBar(
-      title: Text('Quản lý', style: context.titleStyleMedium),
-      centerTitle: true,
-      leading: Responsive.isDesktop(context)
-          ? const SizedBox()
-          : IconButton(
-              icon: const Icon(Icons.menu),
-              onPressed: () => _key.currentState!.openDrawer()));
-
   @override
   Widget build(BuildContext context) {
     var userState = context.watch<UserBloc>().state;

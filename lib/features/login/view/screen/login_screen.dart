@@ -35,8 +35,10 @@ class LoginView extends StatefulWidget {
 }
 
 class _LoginViewState extends State<LoginView> {
-  final TextEditingController _emailCtrl = TextEditingController();
-  final TextEditingController _passwordCtrl = TextEditingController();
+  final TextEditingController _emailCtrl =
+      TextEditingController(text: 'minhlong@gmail.com');
+  final TextEditingController _passwordCtrl =
+      TextEditingController(text: 'Minhlong@123');
   final _formKey = GlobalKey<FormState>();
   final _oneUpperCase = ValueNotifier(false);
   final _oneLowerCase = ValueNotifier(false);
