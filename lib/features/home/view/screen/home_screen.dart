@@ -194,10 +194,7 @@ class SideMenu extends StatelessWidget {
       DrawerListTile(
           title: "Dashboard",
           svgSrc: "assets/icon/home.svg",
-          onTap: () {
-            // context.pushReplacement(RouteName.dashboard);
-            onPageSelected(const DashboardScreen());
-          }),
+          onTap: () => onPageSelected(DashboardScreen())),
       DrawerExpansionTile(
           title: "Món Ăn",
           title1: 'Đang hiển thị',
@@ -211,8 +208,7 @@ class SideMenu extends StatelessWidget {
           title2: 'Lịch sử đơn hàng',
           svgSrc: "assets/icon/ordered.svg",
           onTap1: () => onPageSelected(const CurrentOrder()),
-          onTap2: () => onPageSelected(OrderHistoryScreen(
-              onPressed: () => scafoldKey.currentState!.openDrawer()))),
+          onTap2: () => onPageSelected(const OrderHistoryScreen())),
       DrawerListTile(
           title: "Bàn ăn",
           svgSrc: "assets/icon/chair.svg",

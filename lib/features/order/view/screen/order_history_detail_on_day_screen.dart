@@ -79,7 +79,7 @@ class OrderHistoryDetailOnDayScreen extends StatelessWidget {
   }
 
   _buildAppbar(BuildContext context) => AppBar(
-      automaticallyImplyLeading: false,
+      // automaticallyImplyLeading: false,
       centerTitle: true,
       title: Text(
           'Tổng đơn ngày: ${Ultils.reverseDate(orders.first.payTime ?? '')}',
@@ -89,6 +89,7 @@ class OrderHistoryDetailOnDayScreen extends StatelessWidget {
     await showDialog(
         context: context,
         builder: (_) => AlertDialog(
+            contentPadding: const EdgeInsets.all(0),
             content: ScrollConfiguration(
                 behavior:
                     ScrollConfiguration.of(context).copyWith(scrollbars: false),

@@ -16,7 +16,7 @@ extension on DashboardViewState {
       const SizedBox(height: 16),
       buildInfo(context, tableIsUseNumber),
       const SizedBox(height: 16),
-      _leftInfo,
+      SizedBox(height: context.sizeDevice.height * 0.35, child: _leftInfo),
       const SizedBox(height: 16),
       listTable,
       const SizedBox(height: 16),

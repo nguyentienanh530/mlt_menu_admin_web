@@ -13,6 +13,8 @@ import '../../../../common/dialog/retry_dialog.dart';
 import '../../../../common/widget/common_icon_button.dart';
 import '../../../../common/widget/common_line_text.dart';
 import '../../../../common/widget/responsive.dart';
+import '../../../home/cubit/home_cubit.dart';
+import '../../../home/view/screen/home_screen.dart';
 import '../../data/model/table_model.dart';
 import '../../../../common/widget/empty_screen.dart';
 import '../../../../common/widget/error_screen.dart';
@@ -27,50 +29,37 @@ class TableScreen extends StatefulWidget {
 
 class _TableScreenState extends State<TableScreen>
     with AutomaticKeepAliveClientMixin {
+  final GlobalKey<ScaffoldState> _key = GlobalKey<ScaffoldState>();
   @override
   void initState() {
-    getData();
+    _getData();
     super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
     super.build(context);
-    return SafeArea(
-        child: CustomScrollView(slivers: [
-      SliverAppBar(
-          title: Text('Danh sách bàn ăn',
-              style: context.titleStyleMedium!
-                  .copyWith(fontWeight: FontWeight.bold)),
-          centerTitle: true,
-          pinned: true,
-          stretch: true,
-          automaticallyImplyLeading:
-              Responsive.isDesktop(context) ? false : true,
-          actions: [
-            FilledButton.icon(
-                onPressed: () async {
-                  await showDialog(
-                          context: context,
-                          builder: (context) => const AlertDialog(
-                              content: SizedBox(
-                                  width: 600,
-                                  child:
-                                      CreateOrUpdateTable(mode: Mode.create))))
-                      .then((value) {
-                    if (value != null && value) {
-                      getData();
-                    }
-                  });
+    return Scaffold(
+        key: _key,
+        drawer: SideMenu(
+            scafoldKey: _key,
+            onPageSelected: (page) {
+              _key.currentState!.closeDrawer();
+              context.read<PageHomeCubit>().pageChanged(page);
+            }),
+        appBar: _buildAppbar(context),
+        body: SafeArea(
+            child: CommonRefreshIndicator(
+                onRefresh: () async {
+                  await Future.delayed(const Duration(milliseconds: 500));
+                  _getData();
                 },
-                icon: const Icon(Icons.add),
-                label: const Text('Thêm bàn'))
-          ]),
-      const SliverToBoxAdapter(child: TableView())
-    ]));
+                child: const SingleChildScrollView(
+                    physics: AlwaysScrollableScrollPhysics(),
+                    child: TableView()))));
   }
 
-  getData() async {
+  _getData() async {
     if (!mounted) return;
     context.read<TableBloc>().add(TablesFetched());
   }
@@ -88,7 +77,7 @@ class _TableScreenState extends State<TableScreen>
                           child: CreateOrUpdateTable(mode: Mode.create))))
               .then((value) {
             if (value != null && value) {
-              getData();
+              _getData();
             }
           });
         },
@@ -96,8 +85,36 @@ class _TableScreenState extends State<TableScreen>
   }
 
   _buildAppbar(BuildContext context) => AppBar(
-      centerTitle: true,
-      title: Text("Bàn ăn", style: context.titleStyleMedium));
+          title: Text('Danh sách bàn ăn',
+              style: context.titleStyleMedium!
+                  .copyWith(fontWeight: FontWeight.bold)),
+          centerTitle: true,
+          // leading: Responsive.isDesktop(context)
+          //     ? const SizedBox()
+          //     : IconButton(
+          //         icon: const Icon(Icons.menu),
+          //         onPressed: () => _key.currentState!.openDrawer()),
+          automaticallyImplyLeading:
+              Responsive.isDesktop(context) ? false : true,
+          actions: [
+            FilledButton.icon(
+                onPressed: () async {
+                  await showDialog(
+                          context: context,
+                          builder: (context) => const AlertDialog(
+                              content: SizedBox(
+                                  width: 600,
+                                  child:
+                                      CreateOrUpdateTable(mode: Mode.create))))
+                      .then((value) {
+                    if (value != null && value) {
+                      _getData();
+                    }
+                  });
+                },
+                icon: const Icon(Icons.add),
+                label: const Text('Thêm bàn'))
+          ]);
 
   @override
   bool get wantKeepAlive => true;
@@ -108,43 +125,40 @@ class TableView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return CommonRefreshIndicator(
-        onRefresh: () async {
-          await Future.delayed(const Duration(milliseconds: 500));
-          if (!context.mounted) return;
-          context.read<TableBloc>().add(TablesFetched());
-        },
-        child: BlocBuilder<TableBloc, GenericBlocState<TableModel>>(
-            buildWhen: (previous, current) =>
-                context.read<TableBloc>().operation == ApiOperation.select,
-            builder: (context, state) {
-              switch (state.status) {
-                case Status.loading:
-                  return const LoadingScreen();
-                case Status.failure:
-                  return ErrorScreen(errorMsg: state.error);
-                case Status.empty:
-                  return const EmptyScreen();
-                case Status.success:
-                  var newTables = [...state.datas ?? <TableModel>[]];
-                  newTables.sort((a, b) => a.name.compareTo(b.name));
-                  return _buildBody(context, newTables);
-              }
-            }));
+    return BlocBuilder<TableBloc, GenericBlocState<TableModel>>(
+        buildWhen: (previous, current) =>
+            context.read<TableBloc>().operation == ApiOperation.select,
+        builder: (context, state) {
+          switch (state.status) {
+            case Status.loading:
+              return const LoadingScreen();
+            case Status.failure:
+              return ErrorScreen(errorMsg: state.error);
+            case Status.empty:
+              return const EmptyScreen();
+            case Status.success:
+              var newTables = [...state.datas ?? <TableModel>[]];
+              newTables.sort((a, b) => a.name.compareTo(b.name));
+              return _buildBody(context, newTables);
+          }
+        });
   }
 
   Widget _buildBody(BuildContext context, List<TableModel> tables) {
-    return GridView.builder(
-        shrinkWrap: true,
-        physics: const AlwaysScrollableScrollPhysics(),
-        itemCount: tables.length,
-        itemBuilder: (context, index) =>
-            _buildItem(context, tables[index], index),
-        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: countGridView(context),
-            // childAspectRatio: 1.5,
-            mainAxisSpacing: 16,
-            crossAxisSpacing: 16));
+    return Padding(
+      padding: const EdgeInsets.only(top: 8),
+      child: GridView.builder(
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          itemCount: tables.length,
+          itemBuilder: (context, index) =>
+              _buildItem(context, tables[index], index),
+          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: countGridView(context),
+              // childAspectRatio: 1.5,
+              mainAxisSpacing: 16,
+              crossAxisSpacing: 16)),
+    );
   }
 
   void _dialogDeleted(BuildContext context, TableModel table) async {

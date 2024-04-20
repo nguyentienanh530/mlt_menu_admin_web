@@ -1,3 +1,4 @@
+import 'package:mlt_menu_admin_web/common/widget/common_refresh_indicator.dart';
 import 'package:mlt_menu_admin_web/common/widget/common_text_field.dart';
 import 'package:mlt_menu_admin_web/common/widget/loading_screen.dart';
 import 'package:flutter/material.dart';
@@ -15,6 +16,8 @@ import '../../../../common/dialog/retry_dialog.dart';
 import '../../../../common/widget/empty_screen.dart';
 import '../../../../common/widget/error_screen.dart';
 import '../../../../core/utils/utils.dart';
+import '../../../home/cubit/home_cubit.dart';
+import '../../../home/view/screen/home_screen.dart';
 import '../../bloc/food_bloc.dart';
 import '../../data/model/food_model.dart';
 import 'item_food.dart';
@@ -48,7 +51,7 @@ class _ListFoodIsShowViewState extends State<ListFoodIsShowView>
   var _list = <Food>[];
   final _searchCtrl = TextEditingController();
   final _searchText = ValueNotifier('');
-
+  final GlobalKey<ScaffoldState> _key = GlobalKey<ScaffoldState>();
   @override
   void initState() {
     _getData();
@@ -73,105 +76,75 @@ class _ListFoodIsShowViewState extends State<ListFoodIsShowView>
   @override
   Widget build(BuildContext context) {
     super.build(context);
-    return Builder(builder: (context) {
-      var foodIsShow = context.watch<FoodBloc>().state;
-      return (switch (foodIsShow.status) {
-        Status.loading => const LoadingScreen(),
-        Status.empty => const EmptyScreen(),
-        Status.failure => ErrorScreen(errorMsg: foodIsShow.error),
-        Status.success =>
-          CustomScrollView(physics: const BouncingScrollPhysics(), slivers: [
-            SliverAppBar(
-                stretch: true,
-                pinned: true,
-                centerTitle: true,
-                automaticallyImplyLeading:
-                    Responsive.isDesktop(context) ? false : true,
-                title: Text('Danh sách món đang hiện thị',
-                    style: context.titleStyleMedium!
-                        .copyWith(fontWeight: FontWeight.bold))),
-            SliverToBoxAdapter(
-                child: _buildWidget(foodIsShow.datas ?? <Food>[])),
-          ])
-      });
-    });
+    return Scaffold(
+        key: _key,
+        drawer: SideMenu(
+            scafoldKey: _key,
+            onPageSelected: (page) {
+              _key.currentState!.closeDrawer();
+              context.read<PageHomeCubit>().pageChanged(page);
+            }),
+        appBar: _buildAppbar(),
+        body: SafeArea(child: Builder(builder: (context) {
+          var foodIsShow = context.watch<FoodBloc>().state;
+          return (switch (foodIsShow.status) {
+            Status.loading => const LoadingScreen(),
+            Status.empty => const EmptyScreen(),
+            Status.failure => ErrorScreen(errorMsg: foodIsShow.error),
+            Status.success => Column(children: [
+                _buildSearch(),
+                Expanded(
+                    child: CommonRefreshIndicator(
+                        onRefresh: () async {
+                          await Future.delayed(
+                              const Duration(milliseconds: 500));
+                          _getData();
+                        },
+                        child: _buildWidget(foodIsShow.datas ?? <Food>[])))
+              ])
+          });
+        })));
   }
 
-  _buildHeaderMobile() => Row(children: [
-        Expanded(
-            flex: 2,
-            child: CommonTextField(
-                controller: _searchCtrl,
-                onChanged: (value) {
-                  _searchText.value = value;
-                },
-                prefixIcon: const Icon(Icons.search),
-                hintText: 'Tìm kiếm món ăn')),
-        Expanded(
-            flex: 1,
-            child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                child: FilledButton(
-                    onPressed: () {
-                      _showDialogCreateOrUpdateFood();
-                    },
-                    style: ButtonStyle(
-                        backgroundColor: MaterialStatePropertyAll(
-                            context.colorScheme.secondary)),
-                    child: const FittedBox(
-                        child: Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                          Icon(Icons.add),
-                          FittedBox(child: Text('Thêm Mới'))
-                        ])))))
-      ]);
+  _buildAppbar() => AppBar(
+      centerTitle: true,
+      automaticallyImplyLeading: Responsive.isDesktop(context) ? false : true,
+      actions: [
+        FilledButton(
+            onPressed: () {
+              _showDialogCreateOrUpdateFood();
+            },
+            style: ButtonStyle(
+                backgroundColor:
+                    MaterialStatePropertyAll(context.colorScheme.secondary)),
+            child: const FittedBox(
+                child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                  Icon(Icons.add),
+                  FittedBox(child: Text('Thêm Mới'))
+                ])))
+      ],
+      title: Text('Danh sách món đang hiện thị',
+          style:
+              context.titleStyleMedium!.copyWith(fontWeight: FontWeight.bold)));
 
-  _buildHeaderWeb() => Row(children: [
-        const Expanded(flex: 4, child: SizedBox()),
-        Expanded(
-            flex: 4,
-            child: CommonTextField(
-                controller: _searchCtrl,
-                onChanged: (value) {
-                  _searchText.value = value;
-                },
-                prefixIcon: const Icon(Icons.search),
-                hintText: 'Tìm kiếm món ăn')),
-        Expanded(
-            flex: 2,
-            child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                child: FilledButton(
-                    onPressed: () {
-                      _showDialogCreateOrUpdateFood();
-                    },
-                    style: ButtonStyle(
-                        backgroundColor: MaterialStatePropertyAll(
-                            context.colorScheme.secondary)),
-                    child: const FittedBox(
-                        child: Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                          Icon(Icons.add),
-                          FittedBox(child: Text('Thêm Mới'))
-                        ])))))
-      ]);
+  _buildSearch() => CommonTextField(
+      controller: _searchCtrl,
+      onChanged: (value) {
+        _searchText.value = value;
+      },
+      prefixIcon: const Icon(Icons.search),
+      hintText: 'Tìm kiếm món ăn');
 
   Widget _buildWidget(List<Food> listFood) {
     _list = listFood;
 
-    return Column(children: [
-      Responsive(
-          mobile: _buildHeaderMobile(),
-          tablet: _buildHeaderMobile(),
-          desktop: _buildHeaderWeb()),
-      const SizedBox(height: 16),
-      ValueListenableBuilder(
-          valueListenable: _searchText,
-          builder: (context, value, child) {
-            _buildSreachList(value);
-            return Padding(
+    return ValueListenableBuilder(
+        valueListenable: _searchText,
+        builder: (context, value, child) {
+          _buildSreachList(value);
+          return Padding(
               padding: const EdgeInsets.only(top: 16.0),
               child: GridView.builder(
                   shrinkWrap: true,
@@ -198,10 +171,8 @@ class _ListFoodIsShowViewState extends State<ListFoodIsShowView>
                   gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                       mainAxisSpacing: 16,
                       crossAxisSpacing: 16,
-                      crossAxisCount: countGridView(context))),
-            );
-          })
-    ]);
+                      crossAxisCount: countGridView(context))));
+        });
   }
 
   _buildSreachList(String textSearch) {
@@ -227,6 +198,7 @@ class _ListFoodIsShowViewState extends State<ListFoodIsShowView>
         context: context,
         builder: (BuildContext context) {
           return AlertDialog(
+              contentPadding: const EdgeInsets.all(0),
               content: ScrollConfiguration(
                   behavior: ScrollConfiguration.of(context)
                       .copyWith(scrollbars: false),

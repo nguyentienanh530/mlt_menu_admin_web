@@ -14,12 +14,11 @@ class CommonRefreshIndicator extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return RefreshIndicator(
-      displacement: 20,
-      color: context.colorScheme.secondary,
-      backgroundColor: context.colorScheme.primaryContainer,
-      triggerMode: RefreshIndicatorTriggerMode.onEdge,
-      onRefresh: onRefresh,
-      child: child,
-    );
+        displacement: 10,
+        color: context.colorScheme.secondary,
+        backgroundColor: context.colorScheme.primaryContainer,
+        // triggerMode: RefreshIndicatorTriggerMode.onEdge,
+        onRefresh: onRefresh,
+        child: child);
   }
 }

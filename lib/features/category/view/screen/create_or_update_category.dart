@@ -233,8 +233,8 @@ class _CreateOrUpdateCategoryState extends State<CreateOrUpdateCategory> {
     return Stack(children: [
       _imageFile == null
           ? Container(
-              height: context.sizeDevice.width * 0.1,
-              width: context.sizeDevice.width * 0.1,
+              height: context.sizeDevice.width * 0.3,
+              width: context.sizeDevice.width * 0.3,
               clipBehavior: Clip.hardEdge,
               padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
@@ -242,8 +242,8 @@ class _CreateOrUpdateCategoryState extends State<CreateOrUpdateCategory> {
                   shape: BoxShape.circle),
               child: Image.network(_image.isEmpty ? noImage : _image))
           : Container(
-              height: context.sizeDevice.width * 0.1,
-              width: context.sizeDevice.width * 0.1,
+              height: context.sizeDevice.width * 0.3,
+              width: context.sizeDevice.width * 0.3,
               clipBehavior: Clip.hardEdge,
               padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
@@ -251,16 +251,14 @@ class _CreateOrUpdateCategoryState extends State<CreateOrUpdateCategory> {
                   shape: BoxShape.circle),
               child: Image.memory(_imageFile!)),
       Positioned(
-          top: context.sizeDevice.width * 0.1 - 25,
-          left: (context.sizeDevice.width * 0.1 - 20) / 2,
+          top: context.sizeDevice.width * 0.3 - 25,
+          left: (context.sizeDevice.width * 0.3 - 20) / 2,
           child: GestureDetector(
-              onTap: () async {
-                await pickImage().then((value) {
-                  setState(() {
-                    _imageFile = value;
-                  });
-                });
-              },
+              onTap: () async => await pickAndResizeImage().then((value) {
+                    setState(() {
+                      _imageFile = value;
+                    });
+                  }),
               child: const Icon(Icons.camera_alt_rounded, color: Colors.white)))
     ]);
   }

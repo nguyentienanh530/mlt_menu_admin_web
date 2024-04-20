@@ -1,4 +1,5 @@
 import 'package:flutter/foundation.dart';
+import 'package:flutter/widgets.dart';
 import 'package:mlt_menu_admin_web/common/bloc/generic_bloc_state.dart';
 import 'package:mlt_menu_admin_web/common/widget/empty_widget.dart';
 import 'package:mlt_menu_admin_web/common/widget/error_widget.dart';
@@ -104,11 +105,17 @@ class _UpdateFoodViewState extends State<UpdateFoodView> {
     super.dispose();
   }
 
-  _buildAppbar() {
-    return Container(
-        alignment: Alignment.center,
-        height: 60,
-        child: Text(
+  AppBar _buildAppbar() {
+    return AppBar(
+        backgroundColor: Colors.transparent,
+        automaticallyImplyLeading: false,
+        centerTitle: true,
+        actions: [
+          IconButton(
+              onPressed: () => context.pop(),
+              icon: const Icon(Icons.highlight_remove_rounded))
+        ],
+        title: Text(
             widget.mode == Mode.update
                 ? 'Cập nhật món ăn'.toUpperCase()
                 : "Thêm món ăn".toUpperCase(),
@@ -120,106 +127,120 @@ class _UpdateFoodViewState extends State<UpdateFoodView> {
     return Container(
       padding: const EdgeInsets.all(16),
       width: double.infinity,
-      child: SingleChildScrollView(
-          physics: const BouncingScrollPhysics(),
-          child: Form(
-              key: _formKey,
-              child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      child: Column(
+        children: [
+          _buildAppbar(),
+          Expanded(
+            child: SingleChildScrollView(
+                physics: const BouncingScrollPhysics(),
+                child: Form(
+                    key: _formKey,
+                    child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          _buildAppbar(),
-                          _buttonCreateOrUpdateFood()
-                        ]),
-                    SizedBox(height: defaultPadding / 2),
-                    Text("Hình ảnh: (*)", style: context.titleStyleMedium),
-                    SizedBox(height: defaultPadding / 2),
-                    _ImageFood(
-                        image: _image,
-                        imageFile: _imageFile,
-                        onTap: () async =>
-                            pickImage().then((value) => setState(() {
-                                  _imageFile = value;
-                                }))),
-                    SizedBox(height: defaultPadding / 2),
-                    Text("Tên món ăn: (*)", style: context.titleStyleMedium),
-                    SizedBox(height: defaultPadding / 2),
-                    _NameFood(nameController: _nameController),
-                    SizedBox(height: defaultPadding / 2),
-                    Text("Gía bán: (*)", style: context.titleStyleMedium),
-                    SizedBox(height: defaultPadding / 2),
-                    _PriceFood(priceCtrl: _priceCtrl),
-                    SizedBox(height: defaultPadding / 2),
-                    _buildStatusFood(),
-                    SizedBox(height: defaultPadding / 2),
-                    Text("Danh mục: (*)", style: context.titleStyleMedium),
-                    SizedBox(height: defaultPadding / 2),
-                    _categories(),
-                    SizedBox(height: defaultPadding / 2),
-                    Text("Mô tả chi tiết:", style: context.titleStyleMedium),
-                    SizedBox(height: defaultPadding / 2),
-                    _Description(_disController),
-                    SizedBox(height: defaultPadding / 2),
-                    Text("Album hình ảnh: (*)",
-                        style: context.titleStyleMedium),
-                    SizedBox(height: defaultPadding / 2),
-                    _PhotoGallery(
-                        image1: _imageGallery1,
-                        image2: _imageGallery2,
-                        image3: _imageGallery3,
-                        imageGallery1: _imageFile1,
-                        imageGallery2: _imageFile2,
-                        imageGallery3: _imageFile3,
-                        onTapImage1: () async =>
-                            pickImage().then((value) => setState(() {
-                                  _imageFile1 = value;
-                                })),
-                        onTapImage2: () async =>
-                            pickImage().then((value) => setState(() {
-                                  _imageFile2 = value;
-                                })),
-                        onTapImage3: () async =>
-                            pickImage().then((value) => setState(() {
-                                  _imageFile3 = value;
-                                }))),
-                    SizedBox(height: defaultPadding / 2),
-                    Text("Áp dụng khuyến mãi ? (*)",
-                        style: context.titleStyleMedium),
-                    SizedBox(height: defaultPadding / 2),
-                    _Discount(
-                        discountController: _discountController,
-                        isDiscount: _isDiscount,
-                        onChanged: (value) {
-                          setState(() {
-                            _isDiscount = value ?? false;
-                          });
-                        }),
-                    SizedBox(height: defaultPadding / 2),
-                    Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-                      Text("(*): thông tin không được để trống.",
-                          style: context.textStyleSmall!.copyWith(
-                              fontStyle: FontStyle.italic,
-                              color: context.colorScheme.error))
-                    ]),
-                    SizedBox(height: defaultPadding / 2)
-                  ]
-                      .animate(interval: 50.ms)
-                      .slideX(
-                          begin: -0.1,
-                          end: 0,
-                          curve: Curves.easeInOutCubic,
-                          duration: 500.ms)
-                      .fadeIn(
-                          curve: Curves.easeInOutCubic, duration: 500.ms)))),
+                          SizedBox(height: defaultPadding / 2),
+                          Text("Hình ảnh: (*)",
+                              style: context.titleStyleMedium),
+                          SizedBox(height: defaultPadding / 2),
+                          _ImageFood(
+                              image: _image,
+                              imageFile: _imageFile,
+                              onTap: () async => await pickAndResizeImage()
+                                  .then((value) => setState(() {
+                                        _imageFile = value;
+                                      }))),
+                          SizedBox(height: defaultPadding / 2),
+                          Text("Tên món ăn: (*)",
+                              style: context.titleStyleMedium),
+                          SizedBox(height: defaultPadding / 2),
+                          _NameFood(nameController: _nameController),
+                          SizedBox(height: defaultPadding / 2),
+                          Text("Gía bán: (*)", style: context.titleStyleMedium),
+                          SizedBox(height: defaultPadding / 2),
+                          _PriceFood(priceCtrl: _priceCtrl),
+                          SizedBox(height: defaultPadding / 2),
+                          _buildStatusFood(),
+                          SizedBox(height: defaultPadding / 2),
+                          Text("Danh mục: (*)",
+                              style: context.titleStyleMedium),
+                          SizedBox(height: defaultPadding / 2),
+                          _categories(),
+                          SizedBox(height: defaultPadding / 2),
+                          Text("Mô tả chi tiết:",
+                              style: context.titleStyleMedium),
+                          SizedBox(height: defaultPadding / 2),
+                          _Description(_disController),
+                          SizedBox(height: defaultPadding / 2),
+                          Text("Album hình ảnh: (*)",
+                              style: context.titleStyleMedium),
+                          SizedBox(height: defaultPadding / 2),
+                          _PhotoGallery(
+                              image1: _imageGallery1,
+                              image2: _imageGallery2,
+                              image3: _imageGallery3,
+                              imageGallery1: _imageFile1,
+                              imageGallery2: _imageFile2,
+                              imageGallery3: _imageFile3,
+                              onTapImage1: () async =>
+                                  await pickAndResizeImage()
+                                      .then((value) => setState(() {
+                                            _imageFile1 = value;
+                                          })),
+                              onTapImage2: () async =>
+                                  await pickAndResizeImage()
+                                      .then((value) => setState(() {
+                                            _imageFile2 = value;
+                                          })),
+                              onTapImage3: () async =>
+                                  await pickAndResizeImage()
+                                      .then((value) => setState(() {
+                                            _imageFile3 = value;
+                                          }))),
+                          SizedBox(height: defaultPadding / 2),
+                          Text("Áp dụng khuyến mãi ? (*)",
+                              style: context.titleStyleMedium),
+                          SizedBox(height: defaultPadding / 2),
+                          _Discount(
+                              discountController: _discountController,
+                              isDiscount: _isDiscount,
+                              onChanged: (value) {
+                                setState(() {
+                                  _isDiscount = value ?? false;
+                                });
+                              }),
+                          SizedBox(height: defaultPadding / 2),
+                          Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Text("(*): thông tin không được để trống.",
+                                    style: context.textStyleSmall!.copyWith(
+                                        fontStyle: FontStyle.italic,
+                                        color: context.colorScheme.error))
+                              ]),
+                          SizedBox(height: defaultPadding),
+                          _buttonCreateOrUpdateFood(),
+                          SizedBox(height: defaultPadding / 2)
+                        ]
+                            .animate(interval: 50.ms)
+                            .slideX(
+                                begin: -0.1,
+                                end: 0,
+                                curve: Curves.easeInOutCubic,
+                                duration: 500.ms)
+                            .fadeIn(
+                                curve: Curves.easeInOutCubic,
+                                duration: 500.ms)))),
+          ),
+        ],
+      ),
     );
   }
 
   Widget _buildStatusFood() {
     return ValueListenableBuilder(
         valueListenable: _isShowFood,
-        builder: (context, value, child) => Row(children: [
+        builder: (context, value, child) =>
+            Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
               Text('Trạng thái: ', style: context.titleStyleMedium),
               Row(children: [
                 Radio<bool>(

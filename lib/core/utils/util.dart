@@ -6,9 +6,11 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 import '../../common/widget/responsive.dart';
 import 'utils.dart';
+import 'package:image/image.dart' as img;
 
 class Ultils {
   static bool validatePhone(String? phone) {
@@ -140,35 +142,100 @@ Future<String> uploadImage(
       .ref()
       .child('$path/${DateTime.now().millisecondsSinceEpoch.toString()}');
 
-  if (kIsWeb) {
-    final uploadTask = storageReference.putData(
-        file, SettableMetadata(contentType: 'image/jpeg'));
-    uploadTask.snapshotEvents.listen((TaskSnapshot taskSnapshot) {
-      progress.value =
-          100.0 * (taskSnapshot.bytesTransferred / taskSnapshot.totalBytes);
-    });
+  final uploadTask = storageReference.putData(
+      file, SettableMetadata(contentType: 'image/jpeg'));
+  uploadTask.snapshotEvents.listen((TaskSnapshot taskSnapshot) {
+    progress.value =
+        100.0 * (taskSnapshot.bytesTransferred / taskSnapshot.totalBytes);
+  });
 
-    await uploadTask.then((snap) async {
-      var url = await snap.ref.getDownloadURL();
-      image = url.toString();
-    });
-  }
+  await uploadTask.then((snap) async {
+    var url = await snap.ref.getDownloadURL();
+    image = url.toString();
+  });
 
   return image;
 }
 
-Future<dynamic> pickImage() async {
+// Future<dynamic> pickImage() async {
+//   // ignore: prefer_typing_uninitialized_variables
+//   var imageFile;
+//   FilePickerResult? filePickerResult =
+//       await FilePicker.platform.pickFiles(type: FileType.image);
+//   if (filePickerResult != null) {
+//     imageFile = filePickerResult.files.single.bytes;
+//   } else {
+//     logger.d('No image selected!');
+//   }
+
+//   return imageFile;
+// }
+
+// Future<Uint8List?> pickAndResizeImage(
+//     {int width = 500, int height = 500}) async {
+//   FilePickerResult? filePickerResult =
+//       await FilePicker.platform.pickFiles(type: FileType.image);
+//   if (filePickerResult != null) {
+//     // Lấy dữ liệu ảnh
+//     Uint8List bytes = filePickerResult.files.single.bytes!;
+
+//     // Decode ảnh từ dữ liệu bytes
+//     img.Image? image = img.decodeImage(bytes);
+//     if (image != null) {
+//       // Resize ảnh
+//       img.Image resizedImage =
+//           img.copyResize(image, width: width, height: height);
+
+//       // Encode ảnh lại thành bytes
+//       Uint8List resizedBytes = img.encodePng(resizedImage);
+
+//       return resizedBytes;
+//     } else {
+//       print('Failed to decode image!');
+//       return null;
+//     }
+//   } else {
+//     print('No image selected!');
+//     return null;
+//   }
+// }
+
+Future<Uint8List?> pickAndResizeImage(
+    {int width = 500, int height = 500}) async {
   // ignore: prefer_typing_uninitialized_variables
-  var imageFile;
-  FilePickerResult? filePickerResult =
-      await FilePicker.platform.pickFiles(type: FileType.image);
-  if (filePickerResult != null) {
-    imageFile = filePickerResult.files.single.bytes;
+  var pickedFile;
+  Uint8List? bytes;
+  if (kIsWeb) {
+    pickedFile = await FilePicker.platform.pickFiles(type: FileType.image);
   } else {
-    logger.d('No image selected!');
+    pickedFile = await ImagePicker().pickImage(source: ImageSource.gallery);
   }
 
-  return imageFile;
+  if (pickedFile != null) {
+    if (kIsWeb) {
+      bytes = pickedFile.files.single.bytes!;
+    } else {
+      bytes = await pickedFile.readAsBytes();
+    }
+    if (bytes != null) {
+      img.Image? image = img.decodeImage(bytes);
+      if (image != null) {
+        img.Image resizedImage =
+            img.copyResize(image, width: width, height: height);
+        Uint8List resizedBytes = img.encodePng(resizedImage);
+        return resizedBytes;
+      } else {
+        print('Failed to decode image!');
+        return null;
+      }
+    } else {
+      print('No image bytes received!');
+      return null;
+    }
+  } else {
+    print('No image selected!');
+    return null;
+  }
 }
 
 int countGridView(BuildContext context) {

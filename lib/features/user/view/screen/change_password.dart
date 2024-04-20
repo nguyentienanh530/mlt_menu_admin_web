@@ -1,4 +1,3 @@
-import 'package:flutter/cupertino.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mlt_menu_admin_web/common/bloc/generic_bloc_state.dart';
 import 'package:mlt_menu_admin_web/features/user/bloc/user_bloc.dart';
@@ -32,6 +31,12 @@ class ChangePassword extends StatelessWidget {
                 _CurrentPassword(currentCtrl: currentCtrl),
                 const SizedBox(height: 16),
                 _NewPassword(newCtrl: newCtrl),
+                const SizedBox(height: 16),
+                Text(
+                    'Chú ý: Mật khẩu bao gồm 1 ký tự hoa, 1 ký tự số, 1 ký tự đặc biệt và độ dài phải bằng 8 ký tự!',
+                    style: context.textStyleSmall!.copyWith(
+                        fontStyle: FontStyle.italic,
+                        color: context.colorScheme.error)),
                 const SizedBox(height: 32),
                 _buildButtonSubmit(context)
               ]))

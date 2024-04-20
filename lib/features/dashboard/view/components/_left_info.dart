@@ -5,16 +5,17 @@ extension on DashboardViewState {
       elevation: 10,
       child: Container(
           margin: const EdgeInsets.all(16),
-          width: double.infinity,
-          child: Column(children: [
-            _buildOrderHistory(),
-            const SizedBox(height: 16),
-            _buildUserAccount(),
-            const SizedBox(height: 16),
-            _buildFoods(),
-            const SizedBox(height: 16),
-            _buildTableNumber(),
-          ])));
+          child: Column(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                _buildOrderHistory(),
+                const SizedBox(height: 16),
+                _buildUserAccount(),
+                const SizedBox(height: 16),
+                _buildFoods(),
+                const SizedBox(height: 16),
+                _buildTableNumber(),
+              ])));
 
   Widget _buildUserAccount() {
     return BlocProvider(

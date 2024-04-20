@@ -87,7 +87,7 @@ final router = GoRouter(
           builder: (context, state) => const ProfileScreen()),
       GoRoute(
           path: RouteName.dashboard,
-          builder: (context, state) => const DashboardScreen()),
+          builder: (context, state) => DashboardScreen()),
       GoRoute(
           path: RouteName.register,
           builder: (context, state) => const SignUpScreen()),

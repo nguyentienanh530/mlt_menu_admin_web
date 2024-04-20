@@ -8,10 +8,13 @@ import 'package:mlt_menu_admin_web/features/table/bloc/table_bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../../../home/cubit/home_cubit.dart';
+import '../../../home/view/screen/home_screen.dart';
 import 'dashboard_view.dart';
 
 class DashboardScreen extends StatelessWidget {
-  const DashboardScreen({super.key});
+  DashboardScreen({super.key});
+  final _key = GlobalKey<ScaffoldState>();
 
   @override
   Widget build(BuildContext context) {
@@ -23,26 +26,20 @@ class DashboardScreen extends StatelessWidget {
           BlocProvider(create: (context) => TotalPriceYesterday()),
           BlocProvider(create: (context) => DataChartRevenueCubit())
         ],
-        child: CustomScrollView(slivers: [
-          SliverAppBar(
-              pinned: true,
-              stretch: true,
-              automaticallyImplyLeading:
-                  Responsive.isDesktop(context) ? false : true,
-              centerTitle: true,
-              title: Text('Quản lý',
-                  style: context.titleStyleMedium!
-                      .copyWith(fontWeight: FontWeight.bold))),
-          const SliverToBoxAdapter(child: DashboardView())
-        ]));
+        child: Scaffold(
+            drawer: SideMenu(
+                scafoldKey: _key,
+                onPageSelected: (page) {
+                  _key.currentState!.closeDrawer();
+                  context.read<PageHomeCubit>().pageChanged(page);
+                }),
+            key: _key,
+            appBar: _buildAppbar(context),
+            body: const SafeArea(child: DashboardView())));
   }
 
-  // _buildAppbar(BuildContext context) => AppBar(
-  //     title: Text('Quản lý', style: context.titleStyleMedium),
-  //     centerTitle: true,
-  //     leading: Responsive.isDesktop(context)
-  //         ? const SizedBox()
-  //         : IconButton(
-  //             icon: const Icon(Icons.menu),
-  //             onPressed: () => _key.currentState!.openDrawer()));
+  _buildAppbar(BuildContext context) => AppBar(
+      title: Text('Quản lý', style: context.titleStyleMedium),
+      centerTitle: true,
+      automaticallyImplyLeading: Responsive.isDesktop(context) ? false : true);
 }

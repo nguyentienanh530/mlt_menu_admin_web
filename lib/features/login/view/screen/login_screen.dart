@@ -5,6 +5,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:formz/formz.dart';
 import 'package:go_router/go_router.dart';
+import 'package:mlt_menu_admin_web/features/home/view/screen/home_screen.dart';
 import '../../../../common/dialog/app_alerts.dart';
 import '../../../../common/widget/common_button.dart';
 import '../../../../common/widget/common_line_text.dart';
@@ -91,7 +92,12 @@ class _LoginViewState extends State<LoginView> {
                         });
                         break;
                       case FormzSubmissionStatus.success:
-                        context.go(RouteName.home);
+                        Navigator.of(context).pushReplacement(MaterialPageRoute(
+                            builder: (BuildContext context) =>
+                                const HomeScreen()));
+                        // context.replace(RouteName.home);
+                        // context.pushReplacement(RouteName.home);
+
                         break;
                       default:
                     }

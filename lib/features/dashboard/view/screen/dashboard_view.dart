@@ -1,5 +1,3 @@
-import 'package:flutter/cupertino.dart';
-import 'package:flutter/widgets.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:mlt_menu_admin_web/common/bloc/generic_bloc_state.dart';
 import 'package:mlt_menu_admin_web/common/widget/common_refresh_indicator.dart';
@@ -65,6 +63,7 @@ class DashboardViewState extends State<DashboardView>
           getData();
         },
         child: SingleChildScrollView(
+            primary: true,
             physics: const AlwaysScrollableScrollPhysics(),
             child: Responsive(mobile: mobile, tablet: mobile, desktop: web)));
   }
@@ -75,35 +74,32 @@ class DashboardViewState extends State<DashboardView>
         child: Card(
             elevation: 10,
             child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20),
+                padding: const EdgeInsets.symmetric(horizontal: 8),
                 child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Expanded(
-                        flex: 2,
-                        child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              SvgPicture.asset(svg,
-                                  colorFilter: ColorFilter.mode(
-                                      context.colorScheme.secondary,
-                                      BlendMode.srcIn)),
-                              const SizedBox(height: 8),
-                              FittedBox(
-                                fit: BoxFit.scaleDown,
-                                child: Text(title,
-                                    style: context.textStyleSmall!.copyWith(
-                                        color: Colors.white.withOpacity(0.5))),
-                              )
-                            ]),
-                      ),
+                          flex: 2,
+                          child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                SvgPicture.asset(svg,
+                                    colorFilter: ColorFilter.mode(
+                                        context.colorScheme.secondary,
+                                        BlendMode.srcIn)),
+                                const SizedBox(height: 8),
+                                FittedBox(
+                                    fit: BoxFit.scaleDown,
+                                    child: Text(title,
+                                        style: context.textStyleSmall!.copyWith(
+                                            color:
+                                                Colors.white.withOpacity(0.5))))
+                              ])),
                       Expanded(
-                        child: Center(
-                          child: Text(value,
-                              style: context.titleStyleMedium!
-                                  .copyWith(fontWeight: FontWeight.bold)),
-                        ),
-                      )
+                          child: Center(
+                              child: Text(value,
+                                  style: context.titleStyleMedium!
+                                      .copyWith(fontWeight: FontWeight.bold))))
                     ]))));
   }
 

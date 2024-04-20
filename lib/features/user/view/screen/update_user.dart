@@ -114,9 +114,10 @@ class _UpdateUserDialogState extends State<UpdateUser> {
         top: context.sizeDevice.width * 0.3 - 25,
         left: (context.sizeDevice.width * 0.3 - 20) / 2,
         child: GestureDetector(
-            onTap: () => pickImage().then((value) => setState(() {
-                  _imageFile = value;
-                })),
+            onTap: () async =>
+                await pickAndResizeImage().then((value) => setState(() {
+                      _imageFile = value;
+                    })),
             child: const Icon(Icons.camera_alt_rounded)));
   }
 

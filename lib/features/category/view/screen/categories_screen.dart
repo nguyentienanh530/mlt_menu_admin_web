@@ -15,6 +15,8 @@ import 'package:mlt_menu_admin_web/features/category/view/screen/create_or_updat
 import '../../../../common/dialog/progress_dialog.dart';
 import '../../../../common/widget/common_icon_button.dart';
 import '../../../../common/widget/responsive.dart';
+import '../../../home/cubit/home_cubit.dart';
+import '../../../home/view/screen/home_screen.dart';
 
 class CategoriesScreen extends StatelessWidget {
   const CategoriesScreen({super.key});
@@ -34,6 +36,7 @@ class CategoriesView extends StatefulWidget {
 
 class _CategoriesViewState extends State<CategoriesView>
     with AutomaticKeepAliveClientMixin {
+  final _key = GlobalKey<ScaffoldState>();
   @override
   void initState() {
     _getData();
@@ -48,16 +51,30 @@ class _CategoriesViewState extends State<CategoriesView>
   @override
   Widget build(BuildContext context) {
     super.build(context);
-    return CustomScrollView(slivers: [
-      SliverAppBar(
+    return Scaffold(
+        key: _key,
+        drawer: SideMenu(
+            scafoldKey: _key,
+            onPageSelected: (page) {
+              _key.currentState!.closeDrawer();
+              context.read<PageHomeCubit>().pageChanged(page);
+            }),
+        appBar: _buildAppbar(),
+        body: _buildBody());
+  }
+
+  _buildAppbar() => AppBar(
           title: Text('Danh mục',
               style: context.titleStyleMedium!
                   .copyWith(fontWeight: FontWeight.bold)),
           centerTitle: true,
-          pinned: true,
-          stretch: true,
           automaticallyImplyLeading:
               Responsive.isDesktop(context) ? false : true,
+          leading: Responsive.isDesktop(context)
+              ? const SizedBox()
+              : IconButton(
+                  icon: const Icon(Icons.menu),
+                  onPressed: () => _key.currentState!.openDrawer()),
           actions: [
             FilledButton.icon(
                 onPressed: () async {
@@ -76,10 +93,7 @@ class _CategoriesViewState extends State<CategoriesView>
                 },
                 icon: const Icon(Icons.add),
                 label: const Text('Thêm'))
-          ]),
-      SliverToBoxAdapter(child: _buildBody())
-    ]);
-  }
+          ]);
 
   Widget _buildBody() {
     return Builder(builder: (_) {
@@ -212,14 +226,10 @@ class _CategoriesViewState extends State<CategoriesView>
 
   Widget _buildItemBody(CategoryModel categoryModel) {
     return Column(crossAxisAlignment: CrossAxisAlignment.center, children: [
-      Expanded(flex: 2, child: _buildImage(categoryModel)),
+      Expanded(child: _buildImage(categoryModel)),
       Expanded(child: _buildInfo(categoryModel))
     ]);
   }
-
-  _buildAppbar() => AppBar(
-      title: Text('Danh mục', style: context.titleStyleMedium),
-      centerTitle: true);
 
   Widget _buildImage(CategoryModel categoryModel) => Container(
       margin: const EdgeInsets.all(8),
@@ -239,30 +249,21 @@ class _CategoriesViewState extends State<CategoriesView>
           children: [
             Expanded(
                 child: FittedBox(
+                    fit: BoxFit.scaleDown,
                     child: Text(categoryModel.name ?? '',
                         textAlign: TextAlign.center))),
             Expanded(
                 child: Padding(
                     padding: const EdgeInsets.all(8.0),
-                    child: Row(
-                        crossAxisAlignment: CrossAxisAlignment.stretch,
-                        children: [
-                          Expanded(
-                              child: Text('Mô tả: ',
-                                  style: context.textStyleSmall!.copyWith(
-                                      color: Colors.white.withOpacity(0.5)))),
-                          Expanded(
-                              flex: 5,
-                              child: Text(
-                                  categoryModel.description!.isEmpty
-                                      ? '_'
-                                      : categoryModel.description!,
-                                  overflow: TextOverflow.ellipsis,
-                                  textAlign: TextAlign.start,
-                                  maxLines: 1,
-                                  style: context.textStyleSmall!.copyWith(
-                                      color: Colors.white.withOpacity(0.5))))
-                        ])))
+                    child: Text(
+                        categoryModel.description!.isEmpty
+                            ? '_'
+                            : categoryModel.description!,
+                        overflow: TextOverflow.clip,
+                        textAlign: TextAlign.start,
+                        maxLines: 1,
+                        style: context.textStyleSmall!
+                            .copyWith(color: Colors.white.withOpacity(0.5)))))
           ]);
 
   _buildFloadtingButton() => FloatingActionButton(

@@ -1,5 +1,6 @@
 import 'package:mlt_menu_admin_web/common/bloc/generic_bloc_state.dart';
 import 'package:mlt_menu_admin_web/common/widget/responsive.dart';
+import 'package:mlt_menu_admin_web/features/home/cubit/home_cubit.dart';
 import 'package:mlt_menu_admin_web/features/order/bloc/order_bloc.dart';
 import 'package:mlt_menu_admin_web/core/utils/utils.dart';
 import 'package:mlt_menu_admin_web/common/widget/empty_screen.dart';
@@ -10,11 +11,11 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:mlt_menu_admin_web/config/config.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mlt_menu_admin_web/features/order/data/model/order_group.dart';
+import '../../../home/view/screen/home_screen.dart';
 import '../../data/model/order_model.dart';
 
 class OrderHistoryScreen extends StatefulWidget {
-  const OrderHistoryScreen({super.key, required this.onPressed});
-  final void Function()? onPressed;
+  const OrderHistoryScreen({super.key});
 
   @override
   State<OrderHistoryScreen> createState() => _OrderHistoryScreenState();
@@ -22,22 +23,25 @@ class OrderHistoryScreen extends StatefulWidget {
 
 class _OrderHistoryScreenState extends State<OrderHistoryScreen>
     with AutomaticKeepAliveClientMixin {
+  final _key = GlobalKey<ScaffoldState>();
   @override
   Widget build(BuildContext context) {
     super.build(context);
     return BlocProvider(
         create: (context) => OrderBloc(),
         child: Scaffold(
+            key: _key,
+            drawer: SideMenu(
+                scafoldKey: _key,
+                onPageSelected: (page) {
+                  _key.currentState!.closeDrawer();
+                  context.read<PageHomeCubit>().pageChanged(page);
+                }),
             appBar: AppBar(
                 title: Text('Lịch sử đơn',
                     style: context.titleStyleMedium!
                         .copyWith(fontWeight: FontWeight.bold)),
                 centerTitle: true,
-                leading: Responsive.isDesktop(context)
-                    ? const SizedBox()
-                    : IconButton(
-                        onPressed: widget.onPressed,
-                        icon: const Icon(Icons.menu)),
                 automaticallyImplyLeading:
                     Responsive.isDesktop(context) ? false : true),
             body: const OrderHistoryView()));
