@@ -60,6 +60,7 @@ dependencies:
   device_preview: ^1.1.0
   image: ^4.1.7
   image_picker: ^1.1.0
+  url_strategy: ^0.2.0
  
   
 

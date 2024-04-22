@@ -234,27 +234,17 @@ class _ProfileViewState extends State<ProfileView>
   }
 
   _handleLogout() async {
-    // showCupertinoModalPopup<void>(
-    //     context: context,
-    //     builder: (context) => CommonBottomSheet(
-    //         title: 'Chắc chắn muốn đăng xuất?',
-    //         textCancel: 'Hủy',
-    //         textConfirm: 'Đăng xuất',
-    //         textConfirmColor: context.colorScheme.errorContainer,
-    //         onConfirm: () {
-    //           context.read<AuthBloc>().add(const AuthLogoutRequested());
-    //           context.go(RouteName.login);
-    //         }));
-
-    await AppAlerts.warningDialog(context,
+    final result = await AppAlerts.warningDialog(context,
         title: 'Chắc chắn muốn đăng xuất?',
         textCancel: 'Hủy',
         textOk: 'Đăng xuất',
         btnCancelOnPress: () => context.pop(),
         btnOkOnPress: () {
-          context.read<AuthBloc>().add(const AuthLogoutRequested());
           context.go(RouteName.login);
+          context.read<AuthBloc>().add(const AuthLogoutRequested());
         });
+
+    if (result == true) {}
   }
 }
 

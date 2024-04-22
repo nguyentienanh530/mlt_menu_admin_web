@@ -21,7 +21,7 @@ class ItemTable extends StatelessWidget {
                       width: 600, child: OrderOnTable(tableModel: table))));
         },
         child: Card(
-
+            elevation: 10,
             // color: table.isUse ? Colors.green.shade900.withOpacity(0.3) : null,
             child: Container(
                 padding: const EdgeInsets.all(8),

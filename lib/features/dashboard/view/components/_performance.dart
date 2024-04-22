@@ -72,27 +72,28 @@ extension on DashboardViewState {
       FittedBox(
           fit: BoxFit.scaleDown,
           child: CircularPercentIndicator(
-              radius: context.sizeDevice.height * 0.09,
+              backgroundColor: context.colorScheme.primary.withOpacity(0.3),
+              radius: context.sizeDevice.height * 0.08,
               lineWidth: 13.0,
               animation: true,
               percent: _handlePercent(percentInCome),
               center: FittedBox(
                   fit: BoxFit.scaleDown,
-                  child: Row(
+                  child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        percentInCome < 0
-                            ? const Icon(Icons.arrow_circle_down_rounded,
-                                color: Colors.red)
-                            : const Icon(Icons.arrow_circle_up_rounded,
-                                color: Colors.green),
-                        const SizedBox(width: 8),
                         Text('$percentInCome%',
                             style: context.titleStyleLarge!.copyWith(
                                 fontWeight: FontWeight.bold,
                                 color: percentInCome < 0
                                     ? Colors.red
-                                    : Colors.green))
+                                    : Colors.green)),
+                        const SizedBox(width: 8),
+                        percentInCome < 0
+                            ? const Icon(Icons.arrow_circle_down_rounded,
+                                color: Colors.red)
+                            : const Icon(Icons.arrow_circle_up_rounded,
+                                color: Colors.green),
                       ])),
               footer: FittedBox(
                   fit: BoxFit.scaleDown,

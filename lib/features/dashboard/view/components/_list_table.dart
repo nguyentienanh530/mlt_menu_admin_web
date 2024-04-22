@@ -1,20 +1,16 @@
 part of '../screen/dashboard_view.dart';
 
 extension on DashboardViewState {
-  Widget get listTable => Card(
-      elevation: 10,
-      child: Column(
+  Widget get listTable => Column(
           mainAxisAlignment: MainAxisAlignment.start,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             SizedBox(
                 height: 50,
                 child: Center(child: _buildTitle(title: 'Danh sách bàn ăn'))),
-            Padding(
-                padding: EdgeInsets.symmetric(horizontal: defaultPadding),
-                child: const _ListTable(isScroll: true)),
+            const _ListTable(isScroll: true),
             SizedBox(height: defaultPadding)
-          ]));
+          ]);
 }
 
 class _ListTable extends StatelessWidget {

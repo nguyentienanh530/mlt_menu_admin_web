@@ -10,6 +10,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../home/cubit/home_cubit.dart';
 import '../../../home/view/screen/home_screen.dart';
+import '../../cubit/data_chart_yesterday.dart';
 import 'dashboard_view.dart';
 
 class DashboardScreen extends StatelessWidget {
@@ -24,7 +25,8 @@ class DashboardScreen extends StatelessWidget {
           BlocProvider(create: (context) => TableBloc()),
           BlocProvider(create: (context) => DailyRevenueCubit()),
           BlocProvider(create: (context) => TotalPriceYesterday()),
-          BlocProvider(create: (context) => DataChartRevenueCubit())
+          BlocProvider(create: (context) => DataChartRevenueCubit()),
+          BlocProvider(create: (context) => DataChartYesterdayCubit())
         ],
         child: Scaffold(
             drawer: SideMenu(

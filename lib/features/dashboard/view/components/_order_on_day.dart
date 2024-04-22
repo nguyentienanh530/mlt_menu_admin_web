@@ -21,9 +21,11 @@ extension on DashboardViewState {
                   value: state.error ?? '');
             case Status.success:
               var ordersNumber = 0;
+              var ordersNumberYes = 0;
               var totalPrice = 0.0;
               var totalPriceYesterday = 0.0;
-              final listDataChart = <FlSpot>[];
+              final listCurentDataChart = <FlSpot>[];
+              final listYesterdayDataChart = <FlSpot>[];
 
               final today = DateTime.now();
               final yesterday = today.subtract(const Duration(days: 1));
@@ -33,19 +35,27 @@ extension on DashboardViewState {
                 if (orderDate == Ultils.formatToDate(today.toString())) {
                   ordersNumber++;
                   totalPrice += double.parse(element.totalPrice.toString());
-                  listDataChart.add(FlSpot(
+                  listCurentDataChart.add(FlSpot(
                       double.parse(ordersNumber.toString()),
                       double.parse(element.totalPrice.toString())));
                 } else if (orderDate ==
                     Ultils.formatToDate(yesterday.toString())) {
+                  ordersNumberYes++;
                   totalPriceYesterday +=
                       double.parse(element.totalPrice.toString());
+                  listYesterdayDataChart.add(FlSpot(
+                      double.parse(ordersNumberYes.toString()),
+                      double.parse(element.totalPrice.toString())));
                 }
               }
 
               context
                   .read<DataChartRevenueCubit>()
-                  .onDataChartRevenueChanged(listDataChart);
+                  .onDataChartRevenueChanged(listCurentDataChart);
+
+              context
+                  .read<DataChartYesterdayCubit>()
+                  .onDataChartYesterdayChanged(listYesterdayDataChart);
 
               context
                   .read<TotalPriceYesterday>()

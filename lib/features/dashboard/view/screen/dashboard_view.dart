@@ -22,6 +22,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:percent_indicator/percent_indicator.dart';
 import '../../../../common/widget/empty_widget.dart';
 import '../../../../core/utils/utils.dart';
+import '../../cubit/data_chart_yesterday.dart';
 import '../widgets/chart_revenua.dart';
 import '../widgets/item_child_of_order_info.dart';
 import '../widgets/item_table.dart';

@@ -92,11 +92,7 @@ class _LoginViewState extends State<LoginView> {
                         });
                         break;
                       case FormzSubmissionStatus.success:
-                        Navigator.of(context).pushReplacement(MaterialPageRoute(
-                            builder: (BuildContext context) =>
-                                const HomeScreen()));
-                        // context.replace(RouteName.home);
-                        // context.pushReplacement(RouteName.home);
+                        context.go(RouteName.home);
 
                         break;
                       default:

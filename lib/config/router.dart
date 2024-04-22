@@ -30,7 +30,7 @@ import '../core/utils/utils.dart';
 import '../features/print/view/screen/print_screen.dart';
 
 class RouteName {
-  static const String home = '/';
+  static const String home = '/home';
   static const String dashboard = '/dashboard';
   static const String login = '/login';
   static const String postDetail = '/post/:id';
@@ -66,6 +66,21 @@ final router = GoRouter(
         return null;
       }
       return RouteName.login;
+      // final bool isLoggedIn =
+      //     context.watch<AuthBloc>().state.status == AuthStatus.authenticated;
+      // final bool isPublicRoute =
+      //     RouteName.publicRoutes.contains(state.fullPath);
+      // print('Login: $isLoggedIn');
+
+      // if (isLoggedIn && isPublicRoute) {
+      //   return RouteName.home;
+      // }
+
+      // if (!isLoggedIn && !isPublicRoute) {
+      //   return RouteName.login;
+      // }
+
+      // return null;
     },
     routes: [
       GoRoute(
