@@ -1,13 +1,13 @@
-import 'package:mlt_menu_admin_web/common/widget/common_refresh_indicator.dart';
-import 'package:mlt_menu_admin_web/common/widget/common_text_field.dart';
-import 'package:mlt_menu_admin_web/common/widget/loading_screen.dart';
+import 'package:mlt_menu_admin/common/widget/common_refresh_indicator.dart';
+import 'package:mlt_menu_admin/common/widget/common_text_field.dart';
+import 'package:mlt_menu_admin/common/widget/loading_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:fluttertoast/fluttertoast.dart';
-import 'package:mlt_menu_admin_web/common/widget/responsive.dart';
-import 'package:mlt_menu_admin_web/features/food/view/screen/create_or_update_food_screen.dart';
-import 'package:mlt_menu_admin_web/features/food/view/screen/food_detail_screen.dart';
+import 'package:mlt_menu_admin/common/widget/responsive.dart';
+import 'package:mlt_menu_admin/features/food/view/screen/create_or_update_food_screen.dart';
+import 'package:mlt_menu_admin/features/food/view/screen/food_detail_screen.dart';
 import 'package:tiengviet/tiengviet.dart';
 import '../../../../common/bloc/generic_bloc_state.dart';
 import '../../../../common/dialog/app_alerts.dart';
@@ -16,11 +16,11 @@ import '../../../../common/dialog/retry_dialog.dart';
 import '../../../../common/widget/empty_screen.dart';
 import '../../../../common/widget/error_screen.dart';
 import '../../../../core/utils/utils.dart';
-import '../../../home/cubit/home_cubit.dart';
-import '../../../home/view/screen/home_screen.dart';
 import '../../bloc/food_bloc.dart';
 import '../../data/model/food_model.dart';
 import 'item_food.dart';
+part '../components/_mobile_page.dart';
+part '../components/_web_page.dart';
 
 class ListFoodIsShow extends StatelessWidget {
   const ListFoodIsShow({super.key, required this.isShowFood});
@@ -42,10 +42,10 @@ class ListFoodIsShowView extends StatefulWidget {
   const ListFoodIsShowView({super.key, required this.isShowFood});
   final bool isShowFood;
   @override
-  State<ListFoodIsShowView> createState() => _ListFoodIsShowViewState();
+  State<ListFoodIsShowView> createState() => ListFoodIsShowViewState();
 }
 
-class _ListFoodIsShowViewState extends State<ListFoodIsShowView>
+class ListFoodIsShowViewState extends State<ListFoodIsShowView>
     with AutomaticKeepAliveClientMixin {
   var _searchList = <Food>[];
   var _list = <Food>[];
@@ -78,56 +78,20 @@ class _ListFoodIsShowViewState extends State<ListFoodIsShowView>
     super.build(context);
     return Scaffold(
         key: _key,
-        drawer: SideMenu(
-            scafoldKey: _key,
-            onPageSelected: (page) {
-              _key.currentState!.closeDrawer();
-              context.read<PageHomeCubit>().pageChanged(page);
-            }),
-        appBar: _buildAppbar(),
-        body: SafeArea(child: Builder(builder: (context) {
-          var foodIsShow = context.watch<FoodBloc>().state;
-          return (switch (foodIsShow.status) {
-            Status.loading => const LoadingScreen(),
-            Status.empty => const EmptyScreen(),
-            Status.failure => ErrorScreen(errorMsg: foodIsShow.error),
-            Status.success => Column(children: [
-                _buildSearch(),
-                Expanded(
-                    child: CommonRefreshIndicator(
-                        onRefresh: () async {
-                          await Future.delayed(
-                              const Duration(milliseconds: 500));
-                          _getData();
-                        },
-                        child: _buildWidget(foodIsShow.datas ?? <Food>[])))
-              ])
-          });
-        })));
+        floatingActionButton: _buildAddFood(),
+        body: SafeArea(
+            child:
+                Responsive(mobile: _mobile, desktop: _web, tablet: _mobile)));
   }
 
-  _buildAppbar() => AppBar(
-      centerTitle: true,
-      automaticallyImplyLeading: Responsive.isDesktop(context) ? false : true,
-      actions: [
-        FilledButton(
-            onPressed: () {
-              _showDialogCreateOrUpdateFood();
-            },
-            style: ButtonStyle(
-                backgroundColor:
-                    MaterialStatePropertyAll(context.colorScheme.secondary)),
-            child: const FittedBox(
-                child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                  Icon(Icons.add),
-                  FittedBox(child: Text('Thêm Mới'))
-                ])))
-      ],
-      title: Text('Danh sách món đang hiện thị',
-          style:
-              context.titleStyleMedium!.copyWith(fontWeight: FontWeight.bold)));
+  Widget _buildAddFood() {
+    return FloatingActionButton(
+        mouseCursor: MaterialStateMouseCursor.clickable,
+        tooltip: 'Thêm món ăn',
+        backgroundColor: context.colorScheme.secondary,
+        onPressed: () => _showDialogCreateOrUpdateFood(),
+        child: const Icon(Icons.add));
+  }
 
   _buildSearch() => CommonTextField(
       controller: _searchCtrl,
@@ -144,34 +108,32 @@ class _ListFoodIsShowViewState extends State<ListFoodIsShowView>
         valueListenable: _searchText,
         builder: (context, value, child) {
           _buildSreachList(value);
-          return Padding(
-              padding: const EdgeInsets.only(top: 16.0),
-              child: GridView.builder(
-                  shrinkWrap: true,
-                  physics: const BouncingScrollPhysics(),
-                  itemCount: _searchList.length,
-                  itemBuilder: (context, i) {
-                    return ItemFood(
-                        onTapEditFood: () async =>
-                            await _goToEditFood(context, _searchList[i]),
-                        onTapDeleteFood: () =>
-                            _buildDeleteFood(context, _searchList[i]),
-                        index: i,
-                        food: _searchList[i],
-                        onTapView: () {
-                          showDialog(
-                              context: context,
-                              builder: (context) => Dialog(
-                                  child: SizedBox(
-                                      width: 600,
-                                      child: FoodDetailScreen(
-                                          food: _searchList[i]))));
-                        });
-                  },
-                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                      mainAxisSpacing: 16,
-                      crossAxisSpacing: 16,
-                      crossAxisCount: countGridView(context))));
+          return GridView.builder(
+              shrinkWrap: true,
+              physics: const BouncingScrollPhysics(),
+              itemCount: _searchList.length,
+              itemBuilder: (context, i) {
+                return ItemFood(
+                    onTapEditFood: () async =>
+                        await _goToEditFood(context, _searchList[i]),
+                    onTapDeleteFood: () =>
+                        _buildDeleteFood(context, _searchList[i]),
+                    index: i,
+                    food: _searchList[i],
+                    onTapView: () {
+                      showDialog(
+                          context: context,
+                          builder: (context) => Dialog(
+                              child: SizedBox(
+                                  width: 600,
+                                  child:
+                                      FoodDetailScreen(food: _searchList[i]))));
+                    });
+              },
+              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                  mainAxisSpacing: 16,
+                  crossAxisSpacing: 16,
+                  crossAxisCount: countGridView(context)));
         });
   }
 

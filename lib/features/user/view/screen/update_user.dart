@@ -1,9 +1,9 @@
 import 'dart:typed_data';
 import 'package:go_router/go_router.dart';
-import 'package:mlt_menu_admin_web/common/bloc/generic_bloc_state.dart';
-import 'package:mlt_menu_admin_web/features/user/data/model/user_model.dart';
-import 'package:mlt_menu_admin_web/common/dialog/app_alerts.dart';
-import 'package:mlt_menu_admin_web/common/widget/common_text_field.dart';
+import 'package:mlt_menu_admin/common/bloc/generic_bloc_state.dart';
+import 'package:mlt_menu_admin/features/user/data/model/user_model.dart';
+import 'package:mlt_menu_admin/common/dialog/app_alerts.dart';
+import 'package:mlt_menu_admin/common/widget/common_text_field.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:fluttertoast/fluttertoast.dart';

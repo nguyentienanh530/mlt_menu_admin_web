@@ -1,9 +1,9 @@
 import 'package:go_router/go_router.dart';
-import 'package:mlt_menu_admin_web/common/widget/common_icon_button.dart';
-import 'package:mlt_menu_admin_web/common/widget/loading_screen.dart';
-import 'package:mlt_menu_admin_web/features/order/data/model/food_dto.dart';
-import 'package:mlt_menu_admin_web/features/order/data/model/order_model.dart';
-import 'package:mlt_menu_admin_web/core/utils/utils.dart';
+import 'package:mlt_menu_admin/common/widget/common_icon_button.dart';
+import 'package:mlt_menu_admin/common/widget/loading_screen.dart';
+import 'package:mlt_menu_admin/features/order/data/model/food_dto.dart';
+import 'package:mlt_menu_admin/features/order/data/model/order_model.dart';
+import 'package:mlt_menu_admin/core/utils/utils.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:fluttertoast/fluttertoast.dart';

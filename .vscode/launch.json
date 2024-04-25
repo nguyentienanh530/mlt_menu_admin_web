@@ -14,21 +14,22 @@
                 "chrome",
                 "--web-renderer",
                 "html",
+                // "canvaskit",
             ]
         },
         {
-            "name": "mlt_menu_admin_web",
+            "name": "mlt_menu_admin",
             "request": "launch",
             "type": "dart"
         },
         {
-            "name": "mlt_menu_admin_web (profile mode)",
+            "name": "mlt_menu_admin (profile mode)",
             "request": "launch",
             "type": "dart",
             "flutterMode": "profile"
         },
         {
-            "name": "mlt_menu_admin_web (release mode)",
+            "name": "mlt_menu_admin (release mode)",
             "request": "launch",
             "type": "dart",
             "flutterMode": "release"

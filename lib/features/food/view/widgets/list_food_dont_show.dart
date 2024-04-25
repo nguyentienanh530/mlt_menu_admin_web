@@ -1,11 +1,10 @@
-import 'package:mlt_menu_admin_web/common/widget/common_refresh_indicator.dart';
-import 'package:mlt_menu_admin_web/core/utils/utils.dart';
+import 'package:mlt_menu_admin/common/widget/common_refresh_indicator.dart';
+import 'package:mlt_menu_admin/core/utils/utils.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:fluttertoast/fluttertoast.dart';
-import 'package:mlt_menu_admin_web/features/food/view/screen/food_detail_screen.dart';
-import 'package:mlt_menu_admin_web/features/home/cubit/home_cubit.dart';
+import 'package:mlt_menu_admin/features/food/view/screen/food_detail_screen.dart';
 import 'package:tiengviet/tiengviet.dart';
 
 import '../../../../common/bloc/generic_bloc_state.dart';
@@ -17,7 +16,6 @@ import '../../../../common/widget/empty_screen.dart';
 import '../../../../common/widget/error_screen.dart';
 import '../../../../common/widget/loading_screen.dart';
 import '../../../../common/widget/responsive.dart';
-import '../../../home/view/screen/home_screen.dart';
 import '../../bloc/food_bloc.dart';
 import '../../data/model/food_model.dart';
 import '../screen/create_or_update_food_screen.dart';
@@ -50,7 +48,6 @@ class _ListFoodIsShowViewState extends State<ListFoodIsShowView>
   var _list = <Food>[];
   final _searchCtrl = TextEditingController();
   final _searchText = ValueNotifier('');
-  final GlobalKey<ScaffoldState> _key = GlobalKey<ScaffoldState>();
   @override
   void initState() {
     _getData();
@@ -75,23 +72,47 @@ class _ListFoodIsShowViewState extends State<ListFoodIsShowView>
   @override
   Widget build(BuildContext context) {
     super.build(context);
-    return Scaffold(
-        key: _key,
-        drawer: SideMenu(
-            scafoldKey: _key,
-            onPageSelected: (page) {
-              _key.currentState!.closeDrawer();
-              context.read<PageHomeCubit>().pageChanged(page);
-            }),
-        appBar: _buildAppbar(),
-        body: SafeArea(child: Builder(builder: (context) {
-          var foodIsShow = context.watch<FoodBloc>().state;
-          return (switch (foodIsShow.status) {
-            Status.loading => const LoadingScreen(),
-            Status.empty => const EmptyScreen(),
-            Status.failure => ErrorScreen(errorMsg: foodIsShow.error),
-            Status.success => Column(children: [
-                _buildSearch(),
+    return SafeArea(child: Builder(builder: (context) {
+      var foodIsShow = context.watch<FoodBloc>().state;
+      return (switch (foodIsShow.status) {
+        Status.loading => const LoadingScreen(),
+        Status.empty => const EmptyScreen(),
+        Status.failure => ErrorScreen(errorMsg: foodIsShow.error),
+        Status.success => Responsive(
+            mobile: _buildMobileWidget(foodIsShow.datas ?? <Food>[]),
+            tablet: _buildMobileWidget(foodIsShow.datas ?? <Food>[]),
+            desktop: _buildWebWidget(foodIsShow.datas ?? <Food>[]))
+      });
+    }));
+  }
+
+  Widget _buildMobileWidget(List<Food> foods) {
+    return Column(children: [
+      Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          child: _buildSearch()),
+      Expanded(
+          child: CommonRefreshIndicator(
+              onRefresh: () async {
+                await Future.delayed(const Duration(milliseconds: 500));
+                _getData();
+              },
+              child: _buildWidget(foods)))
+    ]);
+  }
+
+  Widget _buildWebWidget(List<Food> foods) {
+    return Row(children: [
+      Expanded(
+          flex: 4,
+          child: Padding(
+              padding: const EdgeInsets.all(16),
+              child: Column(children: [
+                Row(children: [
+                  const Spacer(),
+                  const Spacer(),
+                  Expanded(child: _buildSearch())
+                ]),
                 Expanded(
                     child: CommonRefreshIndicator(
                         onRefresh: () async {
@@ -99,34 +120,10 @@ class _ListFoodIsShowViewState extends State<ListFoodIsShowView>
                               const Duration(milliseconds: 500));
                           _getData();
                         },
-                        child: _buildWidget(foodIsShow.datas ?? <Food>[])))
-              ])
-          });
-        })));
+                        child: _buildWidget(foods)))
+              ])))
+    ]);
   }
-
-  _buildAppbar() => AppBar(
-      centerTitle: true,
-      automaticallyImplyLeading: Responsive.isDesktop(context) ? false : true,
-      actions: [
-        FilledButton(
-            onPressed: () {
-              _showDialogCreateOrUpdateFood();
-            },
-            style: ButtonStyle(
-                backgroundColor:
-                    MaterialStatePropertyAll(context.colorScheme.secondary)),
-            child: const FittedBox(
-                child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                  Icon(Icons.add),
-                  FittedBox(child: Text('Thêm Mới'))
-                ])))
-      ],
-      title: Text('Danh sách món đang hiện thị',
-          style:
-              context.titleStyleMedium!.copyWith(fontWeight: FontWeight.bold)));
 
   _buildSearch() => CommonTextField(
       controller: _searchCtrl,
@@ -144,7 +141,7 @@ class _ListFoodIsShowViewState extends State<ListFoodIsShowView>
         builder: (context, value, child) {
           _buildSreachList(value);
           return Padding(
-              padding: const EdgeInsets.only(top: 16.0),
+              padding: const EdgeInsets.all(16.0),
               child: GridView.builder(
                   shrinkWrap: true,
                   physics: const BouncingScrollPhysics(),
@@ -255,24 +252,4 @@ class _ListFoodIsShowViewState extends State<ListFoodIsShowView>
 
   @override
   bool get wantKeepAlive => true;
-
-  void _showDialogCreateOrUpdateFood() {
-    showDialog(
-        useSafeArea: false,
-        context: context,
-        builder: (BuildContext context) {
-          return AlertDialog(
-              contentPadding: const EdgeInsets.all(0),
-              shape: const RoundedRectangleBorder(
-                  borderRadius: BorderRadius.all(Radius.circular(32.0))),
-              content: SizedBox(
-                  width: 600,
-                  child: CreateOrUpdateFoodScreen(
-                      food: Food(), mode: Mode.create)));
-        }).then((value) async {
-      if (value is bool && value) {
-        _getData();
-      }
-    });
-  }
 }

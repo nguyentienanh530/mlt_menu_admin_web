@@ -1,4 +1,4 @@
-import 'package:mlt_menu_admin_web/features/order/data/model/food_dto.dart';
+import 'package:mlt_menu_admin/features/order/data/model/food_dto.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 part 'order_model.freezed.dart';

@@ -1,4 +1,4 @@
-import 'package:mlt_menu_admin_web/common/firebase/firebase_result.dart';
+import 'package:mlt_menu_admin/common/firebase/firebase_result.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 abstract class FirebaseBase<T> {

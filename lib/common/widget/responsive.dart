@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:mlt_menu_admin_web/core/utils/extensions.dart';
+import 'package:mlt_menu_admin/core/utils/extensions.dart';
 
 class Responsive extends StatelessWidget {
   final Widget mobile;

@@ -1,4 +1,4 @@
-import 'package:mlt_menu_admin_web/common/firebase/firebase_result.dart';
+import 'package:mlt_menu_admin/common/firebase/firebase_result.dart';
 import 'package:food_repository/food_repository.dart';
 import '../../../../../common/firebase/firebase_base.dart';
 import '../../model/food_model.dart';

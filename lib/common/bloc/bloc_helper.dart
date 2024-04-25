@@ -1,6 +1,6 @@
 import 'dart:async';
 
-import 'package:mlt_menu_admin_web/common/firebase/firebase_result.dart';
+import 'package:mlt_menu_admin/common/firebase/firebase_result.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'generic_bloc_state.dart';

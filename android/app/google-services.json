@@ -1,59 +1,21 @@
 {
   "project_info": {
-    "project_number": "699436605619",
-    "project_id": "mltmenu",
-    "storage_bucket": "mltmenu.appspot.com"
+    "project_number": "887142047579",
+    "project_id": "minhlong-menu",
+    "storage_bucket": "minhlong-menu.appspot.com"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:699436605619:android:a0ff98904131b7b26610c6",
+        "mobilesdk_app_id": "1:887142047579:android:199393345f91a11648c47e",
         "android_client_info": {
-          "package_name": "com.example.mlt_menu_admin_web"
+          "package_name": "com.mlt.mlt_menu_admin"
         }
       },
       "oauth_client": [],
       "api_key": [
         {
-          "current_key": "AIzaSyBT0ydFg1_DkEtsLS6saG5al7L59pALaGU"
-        }
-      ],
-      "services": {
-        "appinvite_service": {
-          "other_platform_oauth_client": []
-        }
-      }
-    },
-    {
-      "client_info": {
-        "mobilesdk_app_id": "1:699436605619:android:75aadebe567d9e656610c6",
-        "android_client_info": {
-          "package_name": "com.mlt.milo_menu"
-        }
-      },
-      "oauth_client": [],
-      "api_key": [
-        {
-          "current_key": "AIzaSyBT0ydFg1_DkEtsLS6saG5al7L59pALaGU"
-        }
-      ],
-      "services": {
-        "appinvite_service": {
-          "other_platform_oauth_client": []
-        }
-      }
-    },
-    {
-      "client_info": {
-        "mobilesdk_app_id": "1:699436605619:android:e476c0ec57f2d7ae6610c6",
-        "android_client_info": {
-          "package_name": "com.mlt.mlt_menu_food"
-        }
-      },
-      "oauth_client": [],
-      "api_key": [
-        {
-          "current_key": "AIzaSyBT0ydFg1_DkEtsLS6saG5al7L59pALaGU"
+          "current_key": "AIzaSyC_h68J2Rge86nFGmFbnDRWGK9EmcXFJek"
         }
       ],
       "services": {

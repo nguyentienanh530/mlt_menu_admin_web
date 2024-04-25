@@ -1,22 +1,20 @@
-import 'package:mlt_menu_admin_web/common/bloc/generic_bloc_state.dart';
-import 'package:mlt_menu_admin_web/common/dialog/app_alerts.dart';
-import 'package:mlt_menu_admin_web/common/widget/common_refresh_indicator.dart';
-import 'package:mlt_menu_admin_web/common/widget/empty_screen.dart';
-import 'package:mlt_menu_admin_web/common/widget/error_screen.dart';
-import 'package:mlt_menu_admin_web/common/widget/error_widget.dart';
-import 'package:mlt_menu_admin_web/common/widget/loading_screen.dart';
-import 'package:mlt_menu_admin_web/core/utils/utils.dart';
-import 'package:mlt_menu_admin_web/features/category/bloc/category_bloc.dart';
-import 'package:mlt_menu_admin_web/features/category/data/model/category_model.dart';
+import 'package:mlt_menu_admin/common/bloc/generic_bloc_state.dart';
+import 'package:mlt_menu_admin/common/dialog/app_alerts.dart';
+import 'package:mlt_menu_admin/common/widget/common_refresh_indicator.dart';
+import 'package:mlt_menu_admin/common/widget/empty_screen.dart';
+import 'package:mlt_menu_admin/common/widget/error_screen.dart';
+import 'package:mlt_menu_admin/common/widget/error_widget.dart';
+import 'package:mlt_menu_admin/common/widget/loading_screen.dart';
+import 'package:mlt_menu_admin/core/utils/utils.dart';
+import 'package:mlt_menu_admin/features/category/bloc/category_bloc.dart';
+import 'package:mlt_menu_admin/features/category/data/model/category_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import 'package:mlt_menu_admin_web/features/category/view/screen/create_or_update_category.dart';
+import 'package:mlt_menu_admin/features/category/view/screen/create_or_update_category.dart';
 import '../../../../common/dialog/progress_dialog.dart';
 import '../../../../common/widget/common_icon_button.dart';
 import '../../../../common/widget/responsive.dart';
-import '../../../home/cubit/home_cubit.dart';
-import '../../../home/view/screen/home_screen.dart';
 
 class CategoriesScreen extends StatelessWidget {
   const CategoriesScreen({super.key});
@@ -37,6 +35,7 @@ class CategoriesView extends StatefulWidget {
 class _CategoriesViewState extends State<CategoriesView>
     with AutomaticKeepAliveClientMixin {
   final _key = GlobalKey<ScaffoldState>();
+  var _lenght = 0;
   @override
   void initState() {
     _getData();
@@ -53,14 +52,31 @@ class _CategoriesViewState extends State<CategoriesView>
     super.build(context);
     return Scaffold(
         key: _key,
-        drawer: SideMenu(
-            scafoldKey: _key,
-            onPageSelected: (page) {
-              _key.currentState!.closeDrawer();
-              context.read<PageHomeCubit>().pageChanged(page);
-            }),
-        appBar: _buildAppbar(),
+        floatingActionButton: _buildFloatingActionButton(),
         body: _buildBody());
+  }
+
+  Widget _buildFloatingActionButton() {
+    return FloatingActionButton(
+        heroTag: 'addTable',
+        tooltip: 'Thêm bàn ăn',
+        backgroundColor: context.colorScheme.secondary,
+        onPressed: () async {
+          await showDialog(
+              context: context,
+              builder: (context) => AlertDialog(
+                  content: SizedBox(
+                      width: 600,
+                      child: CreateOrUpdateCategory(
+                          lenght: _lenght,
+                          categoryModel: CategoryModel(),
+                          mode: Mode.create)))).then((result) {
+            if (result is bool && result) {
+              _getData();
+            }
+          });
+        },
+        child: const Icon(Icons.add));
   }
 
   _buildAppbar() => AppBar(
@@ -84,6 +100,7 @@ class _CategoriesViewState extends State<CategoriesView>
                           content: SizedBox(
                               width: 600,
                               child: CreateOrUpdateCategory(
+                                  lenght: _lenght,
                                   categoryModel: CategoryModel(),
                                   mode: Mode.create)))).then((result) {
                     if (result is bool && result) {
@@ -92,25 +109,58 @@ class _CategoriesViewState extends State<CategoriesView>
                   });
                 },
                 icon: const Icon(Icons.add),
-                label: const Text('Thêm'))
+                label: const Text('Thêm')),
+            const SizedBox(width: 16)
           ]);
 
   Widget _buildBody() {
     return Builder(builder: (_) {
       var categoryState = context.watch<CategoryBloc>().state;
-      return CommonRefreshIndicator(
-          onRefresh: () async {
-            await Future.delayed(const Duration(milliseconds: 500));
-            _getData();
-          },
-          child: switch (categoryState.status) {
-            Status.loading => const LoadingScreen(),
-            Status.empty => const EmptyScreen(),
-            Status.failure => ErrorScreen(errorMsg: categoryState.error),
-            Status.success =>
-              _buildCategories(categoryState.datas ?? <CategoryModel>[])
-          });
+      return Responsive(
+          mobile: _buildMobileWidget(categoryState),
+          tablet: _buildMobileWidget(categoryState),
+          desktop: _buildWebWidget(categoryState));
     });
+  }
+
+  Widget _buildWebWidget(GenericBlocState<CategoryModel> categoryState) {
+    return Row(
+        mainAxisAlignment: MainAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Expanded(
+              flex: 4,
+              child: Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: CommonRefreshIndicator(
+                      onRefresh: () async {
+                        await Future.delayed(const Duration(milliseconds: 500));
+                        _getData();
+                      },
+                      child: switch (categoryState.status) {
+                        Status.loading => const LoadingScreen(),
+                        Status.empty => const EmptyScreen(),
+                        Status.failure =>
+                          ErrorScreen(errorMsg: categoryState.error),
+                        Status.success => _buildCategories(
+                            categoryState.datas ?? <CategoryModel>[])
+                      })))
+        ]);
+  }
+
+  Widget _buildMobileWidget(GenericBlocState<CategoryModel> categoryState) {
+    return CommonRefreshIndicator(
+        onRefresh: () async {
+          await Future.delayed(const Duration(milliseconds: 500));
+          _getData();
+        },
+        child: switch (categoryState.status) {
+          Status.loading => const LoadingScreen(),
+          Status.empty => const EmptyScreen(),
+          Status.failure => ErrorScreen(errorMsg: categoryState.error),
+          Status.success =>
+            _buildCategories(categoryState.datas ?? <CategoryModel>[])
+        });
   }
 
   Widget _buildHeader(CategoryModel categoryModel, int index) => Container(
@@ -129,12 +179,11 @@ class _CategoriesViewState extends State<CategoriesView>
                   onTap: () async => _editCategory(categoryModel)),
               const SizedBox(width: 8),
               BlocProvider(
-                create: (context) => CategoryBloc(),
-                child: CommonIconButton(
-                    icon: Icons.delete,
-                    color: context.colorScheme.errorContainer,
-                    onTap: () => _buildDeleteFood(categoryModel)),
-              )
+                  create: (context) => CategoryBloc(),
+                  child: CommonIconButton(
+                      icon: Icons.delete,
+                      color: context.colorScheme.errorContainer,
+                      onTap: () => _buildDeleteFood(categoryModel)))
             ])
           ])));
 
@@ -145,6 +194,7 @@ class _CategoriesViewState extends State<CategoriesView>
             content: SizedBox(
                 width: 600,
                 child: CreateOrUpdateCategory(
+                    lenght: _lenght,
                     categoryModel: categoryModel,
                     mode: Mode.update)))).then((result) {
       if (result is bool && result) {
@@ -204,11 +254,14 @@ class _CategoriesViewState extends State<CategoriesView>
   bool get wantKeepAlive => true;
 
   Widget _buildCategories(List<CategoryModel> categories) {
+    var modifiableList = List.from(categories);
+    modifiableList.sort((a, b) => a.sort!.compareTo(b.sort!));
+    _lenght = modifiableList.length;
     return GridView.builder(
         shrinkWrap: true,
-        itemCount: categories.length,
+        itemCount: modifiableList.length,
         itemBuilder: (context, index) =>
-            _buildCategory(categories[index], index),
+            _buildCategory(modifiableList[index], index),
         gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
             crossAxisCount: countGridView(context),
             mainAxisSpacing: 16,
@@ -254,12 +307,13 @@ class _CategoriesViewState extends State<CategoriesView>
                         textAlign: TextAlign.center))),
             Expanded(
                 child: Padding(
-                    padding: const EdgeInsets.all(8.0),
+                    padding:
+                        const EdgeInsets.only(left: 8, right: 8, bottom: 8.0),
                     child: Text(
                         categoryModel.description!.isEmpty
                             ? '_'
                             : categoryModel.description!,
-                        overflow: TextOverflow.clip,
+                        overflow: TextOverflow.ellipsis,
                         textAlign: TextAlign.start,
                         maxLines: 1,
                         style: context.textStyleSmall!
@@ -278,6 +332,7 @@ class _CategoriesViewState extends State<CategoriesView>
                 content: SizedBox(
                     width: 600,
                     child: CreateOrUpdateCategory(
+                        lenght: _lenght,
                         categoryModel: CategoryModel(),
                         mode: Mode.create)))).then((result) {
           if (result is bool && result) {

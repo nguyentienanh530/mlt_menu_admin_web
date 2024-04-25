@@ -1,4 +1,4 @@
-import 'package:mlt_menu_admin_web/core/utils/utils.dart';
+import 'package:mlt_menu_admin/core/utils/utils.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 

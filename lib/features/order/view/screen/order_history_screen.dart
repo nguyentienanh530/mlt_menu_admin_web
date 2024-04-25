@@ -1,17 +1,15 @@
-import 'package:mlt_menu_admin_web/common/bloc/generic_bloc_state.dart';
-import 'package:mlt_menu_admin_web/common/widget/responsive.dart';
-import 'package:mlt_menu_admin_web/features/home/cubit/home_cubit.dart';
-import 'package:mlt_menu_admin_web/features/order/bloc/order_bloc.dart';
-import 'package:mlt_menu_admin_web/core/utils/utils.dart';
-import 'package:mlt_menu_admin_web/common/widget/empty_screen.dart';
-import 'package:mlt_menu_admin_web/common/widget/error_screen.dart';
-import 'package:mlt_menu_admin_web/common/widget/loading_screen.dart';
+import 'package:mlt_menu_admin/common/bloc/generic_bloc_state.dart';
+import 'package:mlt_menu_admin/common/widget/responsive.dart';
+import 'package:mlt_menu_admin/features/order/bloc/order_bloc.dart';
+import 'package:mlt_menu_admin/core/utils/utils.dart';
+import 'package:mlt_menu_admin/common/widget/empty_screen.dart';
+import 'package:mlt_menu_admin/common/widget/error_screen.dart';
+import 'package:mlt_menu_admin/common/widget/loading_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:mlt_menu_admin_web/config/config.dart';
+import 'package:mlt_menu_admin/config/config.dart';
 import 'package:go_router/go_router.dart';
-import 'package:mlt_menu_admin_web/features/order/data/model/order_group.dart';
-import '../../../home/view/screen/home_screen.dart';
+import 'package:mlt_menu_admin/features/order/data/model/order_group.dart';
 import '../../data/model/order_model.dart';
 
 class OrderHistoryScreen extends StatefulWidget {
@@ -31,12 +29,6 @@ class _OrderHistoryScreenState extends State<OrderHistoryScreen>
         create: (context) => OrderBloc(),
         child: Scaffold(
             key: _key,
-            drawer: SideMenu(
-                scafoldKey: _key,
-                onPageSelected: (page) {
-                  _key.currentState!.closeDrawer();
-                  context.read<PageHomeCubit>().pageChanged(page);
-                }),
             appBar: AppBar(
                 title: Text('Lịch sử đơn',
                     style: context.titleStyleMedium!
@@ -78,9 +70,27 @@ class _OrderHistoryViewState extends State<OrderHistoryView> {
         Status.loading => const LoadingScreen(),
         Status.empty => const EmptyScreen(),
         Status.failure => ErrorScreen(errorMsg: orderState.error),
-        Status.success => _buildBody(orderState.datas as List<Orders>)
+        Status.success => Responsive(
+            mobile: _buildMobile(orderState.datas as List<Orders>),
+            tablet: _buildMobile(orderState.datas as List<Orders>),
+            desktop: _buildWeb(orderState.datas as List<Orders>))
       });
     });
+  }
+
+  Widget _buildWeb(List<Orders> orders) {
+    return Row(children: [
+      Expanded(
+          flex: 4,
+          child: Padding(
+            padding: const EdgeInsets.all(16),
+            child: _buildBody(orders),
+          ))
+    ]);
+  }
+
+  Widget _buildMobile(List<Orders> orders) {
+    return _buildBody(orders);
   }
 
   Widget _buildBody(List<Orders> orders) {
@@ -114,7 +124,7 @@ class _OrderHistoryViewState extends State<OrderHistoryView> {
   Widget _buildItem(OrdersGroupByPayTime order, int index, int totalOrder,
       double totalPrice) {
     return InkWell(
-      onTap: () => context.push(RouteName.orderHistoryDetailOnDayScreen,
+      onTap: () => context.goNamed(RouteName.orderHistoryDetailOnDayScreen,
           extra: order.orders),
       child: _buildRowTitle(
           color: index % 2 == 0

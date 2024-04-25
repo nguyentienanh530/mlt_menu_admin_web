@@ -89,7 +89,11 @@ class _SignUpViewState extends State<SignUpView> {
                             });
                             break;
                           case FormzSubmissionStatus.success:
+                            context
+                                .read<AuthBloc>()
+                                .add(const AuthLogoutRequested());
                             _handleCreateUser();
+
                             AppAlerts.successDialog(context,
                                 title: AppString.success,
                                 desc: AppString.registerSuccessTitle,

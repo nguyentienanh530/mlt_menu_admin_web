@@ -10,13 +10,15 @@ extension on DashboardViewState {
       }
     }
     return Column(children: [
-      SizedBox(height: context.sizeDevice.height * 0.3, child: dailyRevenue),
+      SizedBox(width: double.infinity, height: 300, child: dailyRevenue),
       const SizedBox(height: 16),
-      SizedBox(height: context.sizeDevice.height * 0.3, child: performance),
+      SizedBox(height: 300, child: performance),
+      // performance,
       const SizedBox(height: 16),
       buildInfo(context, tableIsUseNumber),
       const SizedBox(height: 16),
-      SizedBox(height: context.sizeDevice.height * 0.35, child: _leftInfo),
+      // SizedBox(height: context.sizeDevice.height * 0.35, child: _leftInfo),
+      _leftInfo,
       const SizedBox(height: 16),
       listTable,
       const SizedBox(height: 16),

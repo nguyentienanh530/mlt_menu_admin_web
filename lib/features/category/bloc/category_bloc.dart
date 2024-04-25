@@ -1,8 +1,8 @@
 import 'dart:async';
 
-import 'package:mlt_menu_admin_web/common/bloc/bloc_helper.dart';
-import 'package:mlt_menu_admin_web/common/bloc/generic_bloc_state.dart';
-import 'package:mlt_menu_admin_web/features/category/data/provider/remote/category_repo.dart';
+import 'package:mlt_menu_admin/common/bloc/bloc_helper.dart';
+import 'package:mlt_menu_admin/common/bloc/generic_bloc_state.dart';
+import 'package:mlt_menu_admin/features/category/data/provider/remote/category_repo.dart';
 import 'package:category_repository/category_repository.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:equatable/equatable.dart';

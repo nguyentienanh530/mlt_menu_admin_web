@@ -1,14 +1,14 @@
 import 'package:go_router/go_router.dart';
-import 'package:mlt_menu_admin_web/common/bloc/generic_bloc_state.dart';
-import 'package:mlt_menu_admin_web/common/dialog/app_alerts.dart';
-import 'package:mlt_menu_admin_web/common/widget/common_icon_button.dart';
-import 'package:mlt_menu_admin_web/common/widget/common_refresh_indicator.dart';
-import 'package:mlt_menu_admin_web/common/widget/responsive.dart';
-import 'package:mlt_menu_admin_web/features/order/bloc/order_bloc.dart';
-import 'package:mlt_menu_admin_web/core/utils/utils.dart';
-import 'package:mlt_menu_admin_web/common/widget/empty_screen.dart';
-import 'package:mlt_menu_admin_web/common/widget/error_screen.dart';
-import 'package:mlt_menu_admin_web/common/widget/loading_screen.dart';
+import 'package:mlt_menu_admin/common/bloc/generic_bloc_state.dart';
+import 'package:mlt_menu_admin/common/dialog/app_alerts.dart';
+import 'package:mlt_menu_admin/common/widget/common_icon_button.dart';
+import 'package:mlt_menu_admin/common/widget/common_refresh_indicator.dart';
+import 'package:mlt_menu_admin/common/widget/responsive.dart';
+import 'package:mlt_menu_admin/features/order/bloc/order_bloc.dart';
+import 'package:mlt_menu_admin/core/utils/utils.dart';
+import 'package:mlt_menu_admin/common/widget/empty_screen.dart';
+import 'package:mlt_menu_admin/common/widget/error_screen.dart';
+import 'package:mlt_menu_admin/common/widget/loading_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../common/dialog/progress_dialog.dart';
@@ -31,21 +31,21 @@ class _CurrentOrderState extends State<CurrentOrder>
     super.build(context);
     return BlocProvider(
         create: (context) => OrderBloc()..add(NewOrdersFecthed()),
-        child: CustomScrollView(
-          physics: const BouncingScrollPhysics(),
-          slivers: [
-            SliverAppBar(
-                stretch: true,
-                pinned: true,
-                automaticallyImplyLeading:
-                    Responsive.isDesktop(context) ? false : true,
-                centerTitle: true,
-                title: Text('Đơn hiện tại',
-                    style: context.titleStyleMedium!
-                        .copyWith(fontWeight: FontWeight.bold))),
-            const SliverToBoxAdapter(child: OrderHistoryView())
-          ],
-        ));
+        child: Scaffold(
+            body: CustomScrollView(
+                physics: const BouncingScrollPhysics(),
+                slivers: [
+              SliverAppBar(
+                  stretch: true,
+                  pinned: true,
+                  automaticallyImplyLeading:
+                      Responsive.isDesktop(context) ? false : true,
+                  centerTitle: true,
+                  title: Text('Đơn hiện tại',
+                      style: context.titleStyleMedium!
+                          .copyWith(fontWeight: FontWeight.bold))),
+              const SliverToBoxAdapter(child: OrderHistoryView())
+            ])));
   }
 
   @override
@@ -67,42 +67,61 @@ class OrderHistoryView extends StatelessWidget {
         Status.loading => const LoadingScreen(),
         Status.empty => const EmptyScreen(),
         Status.failure => ErrorScreen(errorMsg: state.error),
-        Status.success => _buildBody(context, state.datas as List<Orders>)
+        Status.success => Responsive(
+            mobile: _buildMobile(context, state.datas ?? <Orders>[]),
+            tablet: _buildMobile(context, state.datas ?? <Orders>[]),
+            desktop: _buildWeb(context, state.datas ?? <Orders>[]))
       });
     }));
+  }
+
+  Widget _buildMobile(BuildContext context, List<Orders> orders) {
+    return _buildBody(context, orders);
+  }
+
+  Widget _buildWeb(BuildContext context, List<Orders> orders) {
+    return SizedBox(
+        height: context.sizeDevice.height,
+        child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+          Expanded(flex: 3, child: _buildBody(context, orders)),
+          const Spacer()
+        ]));
   }
 
   Widget _buildBody(BuildContext context, List<Orders> orders) {
     final groupedOrders = groupOrdersByTable(orders);
 
-    return ListView.builder(
-        shrinkWrap: true,
-        itemCount: groupedOrders.length,
-        itemBuilder: (context, index) {
-          final group = groupedOrders[index];
-          return Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Container(
-                    margin: const EdgeInsets.all(16),
-                    alignment: Alignment.center,
-                    width: double.infinity,
-                    height: 55,
-                    decoration: BoxDecoration(
-                        color: context.colorScheme.tertiaryContainer,
-                        borderRadius: BorderRadius.circular(16)),
-                    child: Text('Bàn ăn: ${group.tableName ?? 'Unknown'}',
-                        style: const TextStyle(fontWeight: FontWeight.bold))),
-                ListView.builder(
-                    shrinkWrap: true,
-                    physics: const NeverScrollableScrollPhysics(),
-                    itemCount: group.orders.length,
-                    itemBuilder: (context, idx) {
-                      final order = group.orders[idx];
-                      return _buildItemListView(context, order, idx);
-                    })
-              ]);
-        });
+    return Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16),
+        child: ListView.builder(
+            shrinkWrap: true,
+            itemCount: groupedOrders.length,
+            itemBuilder: (context, index) {
+              final group = groupedOrders[index];
+              return Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Container(
+                        margin: const EdgeInsets.all(16),
+                        alignment: Alignment.center,
+                        width: double.infinity,
+                        height: 55,
+                        decoration: BoxDecoration(
+                            color: context.colorScheme.tertiaryContainer,
+                            borderRadius: BorderRadius.circular(16)),
+                        child: Text('Bàn ăn: ${group.tableName ?? 'Unknown'}',
+                            style:
+                                const TextStyle(fontWeight: FontWeight.bold))),
+                    ListView.builder(
+                        shrinkWrap: true,
+                        physics: const NeverScrollableScrollPhysics(),
+                        itemCount: group.orders.length,
+                        itemBuilder: (context, idx) {
+                          final order = group.orders[idx];
+                          return _buildItemListView(context, order, idx);
+                        })
+                  ]);
+            }));
   }
 
   Widget _buildItemListView(

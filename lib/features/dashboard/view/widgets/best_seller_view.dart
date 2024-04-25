@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:mlt_menu_admin_web/common/bloc/generic_bloc_state.dart';
-import 'package:mlt_menu_admin_web/common/widget/empty_widget.dart';
-import 'package:mlt_menu_admin_web/common/widget/error_widget.dart';
-import 'package:mlt_menu_admin_web/common/widget/loading_screen.dart';
-import 'package:mlt_menu_admin_web/core/utils/extensions.dart';
-import 'package:mlt_menu_admin_web/features/food/bloc/food_bloc.dart';
+import 'package:mlt_menu_admin/common/bloc/generic_bloc_state.dart';
+import 'package:mlt_menu_admin/common/widget/empty_widget.dart';
+import 'package:mlt_menu_admin/common/widget/error_widget.dart';
+import 'package:mlt_menu_admin/common/widget/loading_screen.dart';
+import 'package:mlt_menu_admin/core/utils/extensions.dart';
+import 'package:mlt_menu_admin/features/food/bloc/food_bloc.dart';
 
 import '../../../food/data/model/food_model.dart';
 
@@ -31,40 +31,50 @@ class FoodBestSeller extends StatelessWidget {
   }
 
   Widget _buildFoods(BuildContext context, Food food) {
-    return Column(children: [
-      SizedBox(
-          height: context.sizeDevice.height * 0.1,
-          child: Row(children: [
-            Expanded(
-                child: Container(
-                    margin: const EdgeInsets.all(8),
-                    clipBehavior: Clip.hardEdge,
-                    decoration: const BoxDecoration(shape: BoxShape.circle),
-                    child: Image.network(food.image,
-                        fit: BoxFit.cover,
-                        loadingBuilder: (context, child, loadingProgress) =>
-                            loadingProgress != null
-                                ? const LoadingScreen()
-                                : child))),
-            const SizedBox(height: 8),
-            Expanded(
-                flex: 2,
-                child: Column(
-                    mainAxisAlignment: MainAxisAlignment.spaceAround,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      FittedBox(
-                          fit: BoxFit.scaleDown,
-                          child: Text(food.name, textAlign: TextAlign.center)),
-                      FittedBox(
-                          fit: BoxFit.scaleDown,
-                          child: Text('Lần đặt: ${food.count.toString()}',
-                              textAlign: TextAlign.center))
-                    ])),
-            const SizedBox(height: 8)
-          ])),
-      Divider(color: context.colorScheme.primary.withOpacity(0.3))
-    ]);
+    return SizedBox(
+        height: context.sizeDevice.height * 0.1,
+        child: Column(children: [
+          Expanded(
+            child: Row(children: [
+              Expanded(
+                  child: Container(
+                      height: context.sizeDevice.height * 0.1,
+                      width: context.sizeDevice.height * 0.1,
+                      margin: const EdgeInsets.all(8),
+                      clipBehavior: Clip.hardEdge,
+                      decoration: const BoxDecoration(shape: BoxShape.circle),
+                      child: Image.network(food.image,
+                          fit: BoxFit.cover,
+                          loadingBuilder: (context, child, loadingProgress) =>
+                              loadingProgress != null
+                                  ? const LoadingScreen()
+                                  : child))),
+              const SizedBox(height: 18),
+              Expanded(
+                  flex: 2,
+                  child: Column(
+                      mainAxisAlignment: MainAxisAlignment.spaceAround,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Expanded(
+                            child: FittedBox(
+                                fit: BoxFit.scaleDown,
+                                child: Text(food.name,
+                                    textAlign: TextAlign.center,
+                                    style: TextStyle(
+                                        color:
+                                            Colors.white.withOpacity(0.3))))),
+                        Expanded(
+                            child: FittedBox(
+                                fit: BoxFit.scaleDown,
+                                child: Text('Lần đặt: ${food.count.toString()}',
+                                    textAlign: TextAlign.center)))
+                      ])),
+              const SizedBox(height: 8)
+            ]),
+          ),
+          Divider(color: context.colorScheme.primary.withOpacity(0.3))
+        ]));
   }
 
   _buildSuccessWidget(BuildContext context, List<Food> foods) {

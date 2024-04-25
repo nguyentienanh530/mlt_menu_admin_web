@@ -1,11 +1,11 @@
-import 'package:mlt_menu_admin_web/common/dialog/app_alerts.dart';
-import 'package:mlt_menu_admin_web/common/widget/common_refresh_indicator.dart';
-import 'package:mlt_menu_admin_web/features/table/bloc/table_bloc.dart';
-import 'package:mlt_menu_admin_web/core/utils/utils.dart';
+import 'package:mlt_menu_admin/common/dialog/app_alerts.dart';
+import 'package:mlt_menu_admin/common/widget/common_refresh_indicator.dart';
+import 'package:mlt_menu_admin/features/table/bloc/table_bloc.dart';
+import 'package:mlt_menu_admin/core/utils/utils.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import 'package:mlt_menu_admin_web/features/table/view/screen/create_or_update_table.dart';
+import 'package:mlt_menu_admin/features/table/view/screen/create_or_update_table.dart';
 import '../../../../common/bloc/bloc_helper.dart';
 import '../../../../common/bloc/generic_bloc_state.dart';
 import '../../../../common/dialog/progress_dialog.dart';
@@ -13,8 +13,6 @@ import '../../../../common/dialog/retry_dialog.dart';
 import '../../../../common/widget/common_icon_button.dart';
 import '../../../../common/widget/common_line_text.dart';
 import '../../../../common/widget/responsive.dart';
-import '../../../home/cubit/home_cubit.dart';
-import '../../../home/view/screen/home_screen.dart';
 import '../../data/model/table_model.dart';
 import '../../../../common/widget/empty_screen.dart';
 import '../../../../common/widget/error_screen.dart';
@@ -40,23 +38,16 @@ class _TableScreenState extends State<TableScreen>
   Widget build(BuildContext context) {
     super.build(context);
     return Scaffold(
+        floatingActionButton: _buildFloatingActionButton(),
         key: _key,
-        drawer: SideMenu(
-            scafoldKey: _key,
-            onPageSelected: (page) {
-              _key.currentState!.closeDrawer();
-              context.read<PageHomeCubit>().pageChanged(page);
-            }),
-        appBar: _buildAppbar(context),
+        // appBar: _buildAppbar(context),
         body: SafeArea(
             child: CommonRefreshIndicator(
                 onRefresh: () async {
                   await Future.delayed(const Duration(milliseconds: 500));
                   _getData();
                 },
-                child: const SingleChildScrollView(
-                    physics: AlwaysScrollableScrollPhysics(),
-                    child: TableView()))));
+                child: const TableView())));
   }
 
   _getData() async {
@@ -67,6 +58,7 @@ class _TableScreenState extends State<TableScreen>
   Widget _buildFloatingActionButton() {
     return FloatingActionButton(
         heroTag: 'addTable',
+        tooltip: 'Thêm bàn ăn',
         backgroundColor: context.colorScheme.secondary,
         onPressed: () async {
           await showDialog(
@@ -113,7 +105,8 @@ class _TableScreenState extends State<TableScreen>
                   });
                 },
                 icon: const Icon(Icons.add),
-                label: const Text('Thêm bàn'))
+                label: const Text('Thêm bàn')),
+            const SizedBox(width: 16)
           ]);
 
   @override
@@ -125,40 +118,77 @@ class TableView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<TableBloc, GenericBlocState<TableModel>>(
-        buildWhen: (previous, current) =>
-            context.read<TableBloc>().operation == ApiOperation.select,
-        builder: (context, state) {
-          switch (state.status) {
-            case Status.loading:
-              return const LoadingScreen();
-            case Status.failure:
-              return ErrorScreen(errorMsg: state.error);
-            case Status.empty:
-              return const EmptyScreen();
-            case Status.success:
-              var newTables = [...state.datas ?? <TableModel>[]];
-              newTables.sort((a, b) => a.name.compareTo(b.name));
-              return _buildBody(context, newTables);
-          }
-        });
+    return Responsive(
+        mobile: _buildMobileWidget(context),
+        tablet: _buildMobileWidget(context),
+        desktop: _buildWebWidget(context));
+  }
+
+  Widget _buildMobileWidget(BuildContext context) {
+    return SingleChildScrollView(
+        physics: const AlwaysScrollableScrollPhysics(),
+        child: SizedBox(
+            height: context.sizeDevice.height,
+            child: BlocBuilder<TableBloc, GenericBlocState<TableModel>>(
+                buildWhen: (previous, current) =>
+                    context.read<TableBloc>().operation == ApiOperation.select,
+                builder: (context, state) {
+                  switch (state.status) {
+                    case Status.loading:
+                      return const LoadingScreen();
+                    case Status.failure:
+                      return ErrorScreen(errorMsg: state.error);
+                    case Status.empty:
+                      return const EmptyScreen();
+                    case Status.success:
+                      var newTables = [...state.datas ?? <TableModel>[]];
+                      newTables.sort((a, b) => a.name.compareTo(b.name));
+                      return _buildBody(context, newTables);
+                  }
+                })));
+  }
+
+  Widget _buildWebWidget(BuildContext context) {
+    return Row(children: [
+      Expanded(
+          flex: 4,
+          child: SingleChildScrollView(
+              physics: const AlwaysScrollableScrollPhysics(),
+              child: SizedBox(
+                  height: context.sizeDevice.height,
+                  child: BlocBuilder<TableBloc, GenericBlocState<TableModel>>(
+                      buildWhen: (previous, current) =>
+                          context.read<TableBloc>().operation ==
+                          ApiOperation.select,
+                      builder: (context, state) {
+                        switch (state.status) {
+                          case Status.loading:
+                            return const LoadingScreen();
+                          case Status.failure:
+                            return ErrorScreen(errorMsg: state.error);
+                          case Status.empty:
+                            return const EmptyScreen();
+                          case Status.success:
+                            var newTables = [...state.datas ?? <TableModel>[]];
+                            newTables.sort((a, b) => a.name.compareTo(b.name));
+                            return _buildBody(context, newTables);
+                        }
+                      }))))
+    ]);
   }
 
   Widget _buildBody(BuildContext context, List<TableModel> tables) {
-    return Padding(
-      padding: const EdgeInsets.only(top: 8),
-      child: GridView.builder(
-          shrinkWrap: true,
-          physics: const NeverScrollableScrollPhysics(),
-          itemCount: tables.length,
-          itemBuilder: (context, index) =>
-              _buildItem(context, tables[index], index),
-          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: countGridView(context),
-              // childAspectRatio: 1.5,
-              mainAxisSpacing: 16,
-              crossAxisSpacing: 16)),
-    );
+    return GridView.builder(
+        shrinkWrap: true,
+        physics: const NeverScrollableScrollPhysics(),
+        itemCount: tables.length,
+        itemBuilder: (context, index) =>
+            _buildItem(context, tables[index], index),
+        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: countGridView(context),
+            // childAspectRatio: 1.5,
+            mainAxisSpacing: 16,
+            crossAxisSpacing: 16));
   }
 
   void _dialogDeleted(BuildContext context, TableModel table) async {

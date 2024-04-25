@@ -1,11 +1,11 @@
 import 'dart:io';
 import 'package:flutter/cupertino.dart';
 import 'package:go_router/go_router.dart';
-import 'package:mlt_menu_admin_web/common/dialog/progress_dialog.dart';
-import 'package:mlt_menu_admin_web/features/table/bloc/table_bloc.dart';
-import 'package:mlt_menu_admin_web/features/table/data/model/table_model.dart';
-import 'package:mlt_menu_admin_web/common/dialog/app_alerts.dart';
-import 'package:mlt_menu_admin_web/core/utils/utils.dart';
+import 'package:mlt_menu_admin/common/dialog/progress_dialog.dart';
+import 'package:mlt_menu_admin/features/table/bloc/table_bloc.dart';
+import 'package:mlt_menu_admin/features/table/data/model/table_model.dart';
+import 'package:mlt_menu_admin/common/dialog/app_alerts.dart';
+import 'package:mlt_menu_admin/core/utils/utils.dart';
 import 'package:dotted_border/dotted_border.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';

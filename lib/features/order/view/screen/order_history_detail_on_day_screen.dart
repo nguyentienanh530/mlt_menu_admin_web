@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:mlt_menu_admin_web/features/order/view/screen/order_history_detail_screen.dart';
+import 'package:mlt_menu_admin/features/order/view/screen/order_history_detail_screen.dart';
 import '../../../../core/utils/utils.dart';
 import '../../data/model/order_model.dart';
 

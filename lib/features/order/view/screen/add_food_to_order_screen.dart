@@ -1,10 +1,10 @@
-import 'package:mlt_menu_admin_web/features/order/data/model/food_dto.dart';
-import 'package:mlt_menu_admin_web/features/search_food/cubit/text_search_cubit.dart';
+import 'package:mlt_menu_admin/features/order/data/model/food_dto.dart';
+import 'package:mlt_menu_admin/features/search_food/cubit/text_search_cubit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:mlt_menu_admin_web/common/bloc/generic_bloc_state.dart';
-import 'package:mlt_menu_admin_web/features/food/bloc/food_bloc.dart';
-import 'package:mlt_menu_admin_web/common/widget/empty_screen.dart';
+import 'package:mlt_menu_admin/common/bloc/generic_bloc_state.dart';
+import 'package:mlt_menu_admin/features/food/bloc/food_bloc.dart';
+import 'package:mlt_menu_admin/common/widget/empty_screen.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:go_router/go_router.dart';

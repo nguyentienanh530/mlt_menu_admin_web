@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:mlt_menu_admin_web/common/bloc/generic_bloc_state.dart';
-import 'package:mlt_menu_admin_web/common/widget/empty_widget.dart';
-import 'package:mlt_menu_admin_web/common/widget/error_widget.dart';
-import 'package:mlt_menu_admin_web/common/widget/loading_screen.dart';
-import 'package:mlt_menu_admin_web/core/utils/extensions.dart';
-import 'package:mlt_menu_admin_web/features/category/bloc/category_bloc.dart';
-import 'package:mlt_menu_admin_web/features/category/data/model/category_model.dart';
+import 'package:mlt_menu_admin/common/bloc/generic_bloc_state.dart';
+import 'package:mlt_menu_admin/common/widget/empty_widget.dart';
+import 'package:mlt_menu_admin/common/widget/error_widget.dart';
+import 'package:mlt_menu_admin/common/widget/loading_screen.dart';
+import 'package:mlt_menu_admin/core/utils/extensions.dart';
+import 'package:mlt_menu_admin/features/category/bloc/category_bloc.dart';
+import 'package:mlt_menu_admin/features/category/data/model/category_model.dart';
 
 class CategoryView extends StatelessWidget {
   const CategoryView({super.key});

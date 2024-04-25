@@ -1,24 +1,28 @@
 import 'package:flutter/foundation.dart';
 import 'package:go_router/go_router.dart';
-import 'package:mlt_menu_admin_web/common/bloc/generic_bloc_state.dart';
-import 'package:mlt_menu_admin_web/common/dialog/app_alerts.dart';
-import 'package:mlt_menu_admin_web/common/dialog/progress_dialog.dart';
-import 'package:mlt_menu_admin_web/common/dialog/retry_dialog.dart';
-import 'package:mlt_menu_admin_web/common/widget/common_text_field.dart';
-import 'package:mlt_menu_admin_web/common/widget/empty_widget.dart';
-import 'package:mlt_menu_admin_web/core/utils/contants.dart';
-import 'package:mlt_menu_admin_web/core/utils/extensions.dart';
-import 'package:mlt_menu_admin_web/core/utils/util.dart';
-import 'package:mlt_menu_admin_web/features/category/bloc/category_bloc.dart';
-import 'package:mlt_menu_admin_web/features/category/data/model/category_model.dart';
+import 'package:mlt_menu_admin/common/bloc/generic_bloc_state.dart';
+import 'package:mlt_menu_admin/common/dialog/app_alerts.dart';
+import 'package:mlt_menu_admin/common/dialog/progress_dialog.dart';
+import 'package:mlt_menu_admin/common/dialog/retry_dialog.dart';
+import 'package:mlt_menu_admin/common/widget/common_text_field.dart';
+import 'package:mlt_menu_admin/common/widget/empty_widget.dart';
+import 'package:mlt_menu_admin/core/utils/contants.dart';
+import 'package:mlt_menu_admin/core/utils/extensions.dart';
+import 'package:mlt_menu_admin/core/utils/util.dart';
+import 'package:mlt_menu_admin/features/category/bloc/category_bloc.dart';
+import 'package:mlt_menu_admin/features/category/data/model/category_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 
 class CreateOrUpdateCategory extends StatefulWidget {
   const CreateOrUpdateCategory(
-      {super.key, required this.categoryModel, required this.mode});
+      {super.key,
+      required this.categoryModel,
+      required this.mode,
+      required this.lenght});
   final CategoryModel categoryModel;
+  final int lenght;
   final Mode mode;
 
   @override
@@ -35,10 +39,16 @@ class _CreateOrUpdateCategoryState extends State<CreateOrUpdateCategory> {
   final _formKey = GlobalKey<FormState>();
   final _uploadImageProgress = ValueNotifier(0.0);
   final _isUploadImage = ValueNotifier(false);
+  var _lenght = 0;
+  var _sortNumber = 0;
 
   @override
   void initState() {
     _mode = widget.mode;
+    _lenght = widget.lenght;
+    if (_mode == Mode.create) {
+      _categoryModel = CategoryModel();
+    }
     _initData();
     super.initState();
   }
@@ -49,6 +59,7 @@ class _CreateOrUpdateCategoryState extends State<CreateOrUpdateCategory> {
       _nameCtrl.text = _categoryModel.name ?? '';
       _desCtrl.text = _categoryModel.description ?? '';
       _image = _categoryModel.image ?? noImage;
+      _sortNumber = _categoryModel.sort ?? 0;
     }
   }
 
@@ -59,32 +70,39 @@ class _CreateOrUpdateCategoryState extends State<CreateOrUpdateCategory> {
             key: _formKey,
             child: Column(children: [
               _buildAppbar(),
+              const SizedBox(height: 16),
               Expanded(
-                  child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                    _buildImageCatagory(),
-                    Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          const SizedBox(height: 16),
-                          _buildTitle('Tên danh mục (*):'),
-                          const SizedBox(height: 8),
-                          _buildNameCatagory(),
-                          const SizedBox(height: 16),
-                          _buildTitle('Mô tả:'),
-                          const SizedBox(height: 8),
-                          _buildDescriptionCatagory()
-                        ]),
-                    const SizedBox(height: 32),
-                    _buildButton(),
-                    const SizedBox(height: 8),
-                    Text('(*) không được để trống',
-                        style: context.textStyleSmall!.copyWith(
-                            fontStyle: FontStyle.italic,
-                            color: context.colorScheme.error))
-                  ]))
+                  child: SingleChildScrollView(
+                child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      _buildImageCatagory(),
+                      Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const SizedBox(height: 16),
+                            _buildTitle('Tên danh mục (*):'),
+                            const SizedBox(height: 16),
+                            _buildNameCatagory(),
+                            const SizedBox(height: 16),
+                            _buildTitle('Thứ tự hiển thị (*):'),
+                            const SizedBox(height: 16),
+                            _buildSortCatagory(),
+                            const SizedBox(height: 16),
+                            _buildTitle('Mô tả:'),
+                            const SizedBox(height: 16),
+                            _buildDescriptionCatagory()
+                          ]),
+                      const SizedBox(height: 32),
+                      _buildButton(),
+                      const SizedBox(height: 8),
+                      Text('(*) không được để trống',
+                          style: context.textStyleSmall!.copyWith(
+                              fontStyle: FontStyle.italic,
+                              color: context.colorScheme.error))
+                    ]),
+              ))
             ])));
 
     var uploadImageWidget = ValueListenableBuilder(
@@ -113,8 +131,8 @@ class _CreateOrUpdateCategoryState extends State<CreateOrUpdateCategory> {
             value ? uploadImageWidget : buildWidget);
   }
 
-  _buildTitle(String title) => Text(title,
-      style: context.titleStyleMedium!.copyWith(fontWeight: FontWeight.bold));
+  _buildTitle(String title) =>
+      Text(title, style: const TextStyle(fontWeight: FontWeight.bold));
 
   _buildNameCatagory() => CommonTextField(
       hintText: 'Tên danh mục',
@@ -150,7 +168,10 @@ class _CreateOrUpdateCategoryState extends State<CreateOrUpdateCategory> {
             progress: _uploadImageProgress);
         _isUploadImage.value = false;
         var newCategory = CategoryModel(
-            name: _nameCtrl.text, description: _desCtrl.text, image: _image);
+            name: _nameCtrl.text,
+            description: _desCtrl.text,
+            image: _image,
+            sort: _sortNumber);
         _createCategory(newCategory);
       }
     }
@@ -160,6 +181,7 @@ class _CreateOrUpdateCategoryState extends State<CreateOrUpdateCategory> {
     context
         .read<CategoryBloc>()
         .add(CategoryUpdated(categoryModel: categoryModel));
+    print(categoryModel.toString());
     showDialog(
         context: context,
         builder: (context) => BlocBuilder<CategoryBloc,
@@ -213,7 +235,10 @@ class _CreateOrUpdateCategoryState extends State<CreateOrUpdateCategory> {
     if (invalid) {
       if (_imageFile == null) {
         _categoryModel = _categoryModel.copyWith(
-            image: _image, name: _nameCtrl.text, description: _desCtrl.text);
+            image: _image,
+            name: _nameCtrl.text,
+            description: _desCtrl.text,
+            sort: _sortNumber);
         _updateCategory(_categoryModel);
       } else {
         _isUploadImage.value = true;
@@ -222,8 +247,12 @@ class _CreateOrUpdateCategoryState extends State<CreateOrUpdateCategory> {
             file: _imageFile!,
             progress: _uploadImageProgress);
         _isUploadImage.value = false;
+        // print('ad $_sortNumber');
         _categoryModel = _categoryModel.copyWith(
-            image: _image, name: _nameCtrl.text, description: _desCtrl.text);
+            image: _image,
+            name: _nameCtrl.text,
+            description: _desCtrl.text,
+            sort: _sortNumber);
         _updateCategory(_categoryModel);
       }
     }
@@ -233,8 +262,8 @@ class _CreateOrUpdateCategoryState extends State<CreateOrUpdateCategory> {
     return Stack(children: [
       _imageFile == null
           ? Container(
-              height: context.sizeDevice.width * 0.3,
-              width: context.sizeDevice.width * 0.3,
+              height: context.sizeDevice.width * 0.1,
+              width: context.sizeDevice.width * 0.1,
               clipBehavior: Clip.hardEdge,
               padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
@@ -242,8 +271,8 @@ class _CreateOrUpdateCategoryState extends State<CreateOrUpdateCategory> {
                   shape: BoxShape.circle),
               child: Image.network(_image.isEmpty ? noImage : _image))
           : Container(
-              height: context.sizeDevice.width * 0.3,
-              width: context.sizeDevice.width * 0.3,
+              height: context.sizeDevice.width * 0.1,
+              width: context.sizeDevice.width * 0.1,
               clipBehavior: Clip.hardEdge,
               padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
@@ -251,8 +280,8 @@ class _CreateOrUpdateCategoryState extends State<CreateOrUpdateCategory> {
                   shape: BoxShape.circle),
               child: Image.memory(_imageFile!)),
       Positioned(
-          top: context.sizeDevice.width * 0.3 - 25,
-          left: (context.sizeDevice.width * 0.3 - 20) / 2,
+          top: context.sizeDevice.width * 0.1 - 25,
+          left: (context.sizeDevice.width * 0.1 - 20) / 2,
           child: GestureDetector(
               onTap: () async => await pickAndResizeImage().then((value) {
                     setState(() {
@@ -269,10 +298,45 @@ class _CreateOrUpdateCategoryState extends State<CreateOrUpdateCategory> {
           backgroundColor: Colors.transparent,
           title: Text(
               _mode == Mode.create ? 'Thêm danh mục' : "Chỉnh sửa danh mục",
-              style: context.titleStyleMedium),
+              style: context.titleStyleMedium!
+                  .copyWith(fontWeight: FontWeight.bold)),
           actions: [
             IconButton(
                 onPressed: () => context.pop(),
                 icon: const Icon(Icons.highlight_remove_rounded))
           ]);
+
+  _buildSortCatagory() {
+    var lstSort = <int>[];
+    if (_mode == Mode.create) {
+      for (int i = 0; i < _lenght + 1; i++) {
+        lstSort.add(i + 1);
+      }
+      _sortNumber = lstSort.last;
+    } else {
+      for (int i = 0; i < _lenght; i++) {
+        lstSort.add(i + 1);
+      }
+    }
+    return Wrap(
+        spacing: 4.0,
+        runSpacing: 4.0,
+        children: lstSort
+            .map((e) => SizedBox(
+                height: 25,
+                child: FilledButton(
+                    style: ButtonStyle(
+                        backgroundColor: MaterialStatePropertyAll(
+                            _sortNumber == e
+                                ? context.colorScheme.errorContainer
+                                : context.colorScheme.primaryContainer)),
+                    onPressed: () {
+                      setState(() {
+                        _sortNumber = e;
+                      });
+                      // print(_sortNumber);
+                    },
+                    child: Text(e.toString()))))
+            .toList());
+  }
 }

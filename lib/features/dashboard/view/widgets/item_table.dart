@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:mlt_menu_admin_web/core/utils/utils.dart';
+import 'package:mlt_menu_admin/core/utils/utils.dart';
 
 import '../../../order/view/screen/order_on_table.dart';
 import '../../../table/data/model/table_model.dart';
@@ -32,57 +32,80 @@ class ItemTable extends StatelessWidget {
                           mainAxisAlignment: MainAxisAlignment.spaceAround,
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            RichText(
-                                maxLines: 1,
-                                softWrap: false,
-                                overflow: TextOverflow.ellipsis,
-                                text: TextSpan(
-                                    text: 'Bàn: ',
-                                    style: context.textStyleSmall!.copyWith(
-                                        color: Colors.white.withOpacity(0.3)),
-                                    children: <TextSpan>[
-                                      TextSpan(
-                                          text: table.name,
-                                          style: context.titleStyleMedium!
-                                              .copyWith(
-                                                  color: context
-                                                      .colorScheme.secondary,
-                                                  fontWeight: FontWeight.bold))
-                                    ])),
-                            RichText(
-                                maxLines: 1,
-                                softWrap: false,
-                                overflow: TextOverflow.ellipsis,
-                                text: TextSpan(
-                                    text: 'Số ghế: ',
-                                    style: context.textStyleSmall!.copyWith(
-                                        color: Colors.white.withOpacity(0.3)),
-                                    children: <TextSpan>[
-                                      TextSpan(
-                                          text: table.seats.toString(),
-                                          style: context.textStyleMedium!
-                                              .copyWith(
-                                                  fontWeight: FontWeight.bold))
-                                    ])),
-                            RichText(
-                                maxLines: 1,
-                                softWrap: false,
-                                overflow: TextOverflow.ellipsis,
-                                text: TextSpan(
-                                    text: 'trạng thái: ',
-                                    style: context.textStyleSmall!.copyWith(
-                                        color: Colors.white.withOpacity(0.3)),
-                                    children: <TextSpan>[
-                                      TextSpan(
-                                          text: Ultils.tableStatus(table.isUse),
-                                          style: context.textStyleSmall!
-                                              .copyWith(
-                                                  color: table.isUse
-                                                      ? Colors.green
-                                                      : context.colorScheme
-                                                          .errorContainer,
-                                                  fontWeight: FontWeight.bold))
-                                    ]))
+                            Expanded(
+                                child: FittedBox(
+                                    fit: BoxFit.scaleDown,
+                                    child: RichText(
+                                        maxLines: 1,
+                                        softWrap: false,
+                                        overflow: TextOverflow.ellipsis,
+                                        text: TextSpan(
+                                            text: 'Bàn: ',
+                                            style: context.textStyleSmall!
+                                                .copyWith(
+                                                    color: Colors.white
+                                                        .withOpacity(0.3)),
+                                            children: <TextSpan>[
+                                              TextSpan(
+                                                  text: table.name,
+                                                  style: context
+                                                      .titleStyleMedium!
+                                                      .copyWith(
+                                                          color: context
+                                                              .colorScheme
+                                                              .secondary,
+                                                          fontWeight:
+                                                              FontWeight.bold))
+                                            ])))),
+                            Expanded(
+                                child: FittedBox(
+                                    fit: BoxFit.scaleDown,
+                                    child: RichText(
+                                        maxLines: 1,
+                                        softWrap: false,
+                                        overflow: TextOverflow.ellipsis,
+                                        text: TextSpan(
+                                            text: 'Số ghế: ',
+                                            style: context.textStyleSmall!
+                                                .copyWith(
+                                                    color: Colors.white
+                                                        .withOpacity(0.3)),
+                                            children: <TextSpan>[
+                                              TextSpan(
+                                                  text: table.seats.toString(),
+                                                  style: context
+                                                      .textStyleMedium!
+                                                      .copyWith(
+                                                          fontWeight:
+                                                              FontWeight.bold))
+                                            ])))),
+                            Expanded(
+                                child: FittedBox(
+                                    fit: BoxFit.scaleDown,
+                                    child: RichText(
+                                        maxLines: 1,
+                                        softWrap: false,
+                                        overflow: TextOverflow.ellipsis,
+                                        text: TextSpan(
+                                            text: 'trạng thái: ',
+                                            style: context.textStyleSmall!
+                                                .copyWith(
+                                                    color: Colors.white
+                                                        .withOpacity(0.3)),
+                                            children: <TextSpan>[
+                                              TextSpan(
+                                                  text: Ultils.tableStatus(
+                                                      table.isUse),
+                                                  style: context.textStyleSmall!
+                                                      .copyWith(
+                                                          color: table.isUse
+                                                              ? Colors.green
+                                                              : context
+                                                                  .colorScheme
+                                                                  .errorContainer,
+                                                          fontWeight:
+                                                              FontWeight.bold))
+                                            ]))))
                           ])),
                   Expanded(
                       child: Center(

@@ -8,7 +8,7 @@ extension on DashboardViewState {
             SizedBox(
                 height: 50,
                 child: Center(child: _buildTitle(title: 'Danh sách bàn ăn'))),
-            const _ListTable(isScroll: true),
+            const _ListTable(isScroll: false),
             SizedBox(height: defaultPadding)
           ]);
 }
@@ -30,11 +30,11 @@ class _ListTable extends StatelessWidget {
         var newTables = [...tableState.datas ?? <TableModel>[]];
         newTables.sort((a, b) => a.name.compareTo(b.name));
         return GridView.builder(
-            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                 crossAxisCount: 2,
                 mainAxisSpacing: 8,
                 crossAxisSpacing: 8,
-                mainAxisExtent: context.sizeDevice.height * 0.1),
+                mainAxisExtent: 100),
             physics: isScroll
                 ? const BouncingScrollPhysics()
                 : const NeverScrollableScrollPhysics(),

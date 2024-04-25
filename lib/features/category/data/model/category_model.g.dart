@@ -12,6 +12,7 @@ _$CategoryModelImpl _$$CategoryModelImplFromJson(Map<String, dynamic> json) =>
       name: json['name'] as String?,
       image: json['image'] as String?,
       description: json['description'] as String?,
+      sort: json['sort'] as int?,
     );
 
 Map<String, dynamic> _$$CategoryModelImplToJson(_$CategoryModelImpl instance) =>
@@ -20,4 +21,5 @@ Map<String, dynamic> _$$CategoryModelImplToJson(_$CategoryModelImpl instance) =>
       'name': instance.name,
       'image': instance.image,
       'description': instance.description,
+      'sort': instance.sort,
     };

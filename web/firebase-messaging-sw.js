@@ -3,13 +3,13 @@ importScripts('https://www.gstatic.com/firebasejs/8.4.1/firebase-messaging.js');
 
 
 const firebaseConfig = {
-    apiKey: 'AIzaSyAaA1e_mqgw-pFUNhGfri3YmU48GABXF7w',
-    appId: '1:699436605619:web:1cfa72688dbcfe186610c6',
-    messagingSenderId: '699436605619',
-    projectId: 'mltmenu',
-    authDomain: 'mltmenu.firebaseapp.com',
-    storageBucket: 'mltmenu.appspot.com',
-    measurementId: 'G-FQZTDC0BDB',
+    apiKey: 'AIzaSyCAxuoVLGByF-CiUL7mlXHvjMoDdCWlqRo',
+    appId: '1:887142047579:web:88c153ed7555b48948c47e',
+    messagingSenderId: '887142047579',
+    projectId: 'minhlong-menu',
+    authDomain: 'minhlong-menu.firebaseapp.com',
+    storageBucket: 'minhlong-menu.appspot.com',
+    measurementId: 'G-YPPLV69NT4',
 };
 firebase.initializeApp(firebaseConfig);
 const messaging = firebase.messaging();

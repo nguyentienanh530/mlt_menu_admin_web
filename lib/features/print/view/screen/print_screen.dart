@@ -1,14 +1,14 @@
-import 'package:mlt_menu_admin_web/common/dialog/app_alerts.dart';
-import 'package:mlt_menu_admin_web/common/dialog/progress_dialog.dart';
-import 'package:mlt_menu_admin_web/common/dialog/retry_dialog.dart';
-import 'package:mlt_menu_admin_web/common/widget/common_icon_button.dart';
-import 'package:mlt_menu_admin_web/core/utils/utils.dart';
+import 'package:mlt_menu_admin/common/dialog/app_alerts.dart';
+import 'package:mlt_menu_admin/common/dialog/progress_dialog.dart';
+import 'package:mlt_menu_admin/common/dialog/retry_dialog.dart';
+import 'package:mlt_menu_admin/common/widget/common_icon_button.dart';
+import 'package:mlt_menu_admin/core/utils/utils.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
-import 'package:mlt_menu_admin_web/features/print/view/screen/create_or_update_print.dart';
+import 'package:mlt_menu_admin/features/print/view/screen/create_or_update_print.dart';
 
 import '../../../../../common/bloc/generic_bloc_state.dart';
 import '../../../../../common/widget/empty_screen.dart';

@@ -1,6 +1,6 @@
 {
-    "name": "mlt_menu_admin_web",
-    "short_name": "mlt_menu_admin_web",
+    "name": "mlt_menu_admin",
+    "short_name": "mlt_menu_admin",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",

@@ -3,19 +3,20 @@ part of '../screen/dashboard_view.dart';
 extension on DashboardViewState {
   Widget get _leftInfo => Card(
       elevation: 10,
-      child: Container(
-          margin: const EdgeInsets.all(16),
-          child: Column(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                _buildOrderHistory(),
-                const SizedBox(height: 16),
-                _buildUserAccount(),
-                const SizedBox(height: 16),
-                _buildFoods(),
-                const SizedBox(height: 16),
-                _buildTableNumber(),
-              ])));
+      child: AutofillGroup(
+          child: Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Column(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    _buildOrderHistory(),
+                    const SizedBox(height: 8),
+                    _buildUserAccount(),
+                    const SizedBox(height: 8),
+                    _buildFoods(),
+                    const SizedBox(height: 8),
+                    _buildTableNumber()
+                  ]))));
 
   Widget _buildUserAccount() {
     return BlocProvider(
@@ -24,13 +25,11 @@ extension on DashboardViewState {
             builder: (context, state) => switch (state.status) {
                   Status.loading => const LoadingScreen(),
                   Status.empty => const ItemChildOfOrderInfo(
-                      svgPath: 'assets/icon/user.svg',
-                      title: 'Tổng người dùng',
-                      value: '0'),
+                      icon: Icons.person, title: 'Tổng người dùng', value: '0'),
                   Status.failure =>
                     Text('Failure', style: context.textStyleSmall),
                   Status.success => ItemChildOfOrderInfo(
-                      svgPath: 'assets/icon/user.svg',
+                      icon: Icons.person,
                       title: 'Tổng người dùng',
                       value: state.datas!.isEmpty
                           ? '0'
@@ -47,12 +46,12 @@ extension on DashboardViewState {
           return (switch (state.status) {
             Status.loading => const LoadingScreen(),
             Status.empty => const ItemChildOfOrderInfo(
-                svgPath: 'assets/icon/food.svg',
+                icon: Icons.food_bank_rounded,
                 title: 'Số lượng món ăn',
                 value: '0'),
             Status.failure => Center(child: Text(state.error!)),
             Status.success => ItemChildOfOrderInfo(
-                svgPath: 'assets/icon/food.svg',
+                icon: Icons.food_bank_rounded,
                 title: 'Số lượng món ăn',
                 value:
                     state.datas!.isEmpty ? '0' : state.datas!.length.toString())
@@ -66,15 +65,13 @@ extension on DashboardViewState {
       Status.loading => const LoadingScreen(),
       Status.failure => Center(child: Text(tableState.error ?? '')),
       Status.success => ItemChildOfOrderInfo(
-          svgPath: 'assets/icon/dinner_table.svg',
+          icon: Icons.dining_rounded,
           title: 'Số lượng bàn ăn',
           value: tableState.datas!.isEmpty
               ? '0'
               : tableState.datas!.length.toString()),
       Status.empty => const ItemChildOfOrderInfo(
-          svgPath: 'assets/icon/dinner_table.svg',
-          title: 'Số lượng bàn ăn',
-          value: '0')
+          icon: Icons.dining_rounded, title: 'Số lượng bàn ăn', value: '0')
     });
   }
 
@@ -85,13 +82,13 @@ extension on DashboardViewState {
             builder: (context, state) => switch (state.status) {
                   Status.loading => const LoadingScreen(),
                   Status.empty => const ItemChildOfOrderInfo(
-                      svgPath: 'assets/icon/ordered.svg',
+                      icon: Icons.restaurant_menu_rounded,
                       title: 'Tổng đơn hoàn thành',
                       value: '0'),
                   Status.failure =>
                     Text('Failure', style: context.textStyleSmall),
                   Status.success => ItemChildOfOrderInfo(
-                      svgPath: 'assets/icon/ordered.svg',
+                      icon: Icons.restaurant_menu_rounded,
                       title: 'Tổng đơn hoàn thành',
                       value: state.datas!.isEmpty
                           ? '0'

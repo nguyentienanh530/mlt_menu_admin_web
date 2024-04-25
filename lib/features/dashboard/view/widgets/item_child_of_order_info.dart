@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
-import 'package:mlt_menu_admin_web/core/utils/utils.dart';
+import 'package:mlt_menu_admin/core/utils/utils.dart';
 
 class ItemChildOfOrderInfo extends StatelessWidget {
-  const ItemChildOfOrderInfo({super.key, this.svgPath, this.title, this.value});
-  final String? svgPath;
+  const ItemChildOfOrderInfo({super.key, this.icon, this.title, this.value});
+  final IconData? icon;
   final String? title;
   final String? value;
   @override
@@ -22,9 +21,7 @@ class ItemChildOfOrderInfo extends StatelessWidget {
                   borderRadius: BorderRadius.circular(5),
                   border: Border.all(
                       color: context.colorScheme.secondary.withOpacity(0.8))),
-              child: SvgPicture.asset(svgPath ?? 'assets/icon/cart.svg',
-                  colorFilter: ColorFilter.mode(
-                      context.colorScheme.secondary, BlendMode.srcIn))),
+              child: Icon(icon, color: context.colorScheme.secondary)),
           const SizedBox(width: 16),
           Column(
               crossAxisAlignment: CrossAxisAlignment.start,

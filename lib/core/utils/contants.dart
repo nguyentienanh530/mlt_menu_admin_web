@@ -1,7 +1,9 @@
+import 'package:easy_sidemenu/easy_sidemenu.dart';
 import 'package:flutter/material.dart';
 import 'package:logger/logger.dart';
 
 // var lstFoodInCart = <FoodModel>[];
+final SideMenuController sideMenuController = SideMenuController();
 
 enum Mode { create, update }
 

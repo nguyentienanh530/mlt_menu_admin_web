@@ -1,6 +1,6 @@
-import 'package:mlt_menu_admin_web/common/firebase/firebase_base.dart';
-import 'package:mlt_menu_admin_web/common/firebase/firebase_result.dart';
-import 'package:mlt_menu_admin_web/features/user/data/model/user_model.dart';
+import 'package:mlt_menu_admin/common/firebase/firebase_base.dart';
+import 'package:mlt_menu_admin/common/firebase/firebase_result.dart';
+import 'package:mlt_menu_admin/features/user/data/model/user_model.dart';
 import 'package:user_repository/user_repository.dart';
 
 class UserRepo extends FirebaseBase<UserModel> {

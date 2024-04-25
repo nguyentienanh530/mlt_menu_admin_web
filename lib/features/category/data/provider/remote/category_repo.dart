@@ -1,6 +1,6 @@
-import 'package:mlt_menu_admin_web/common/firebase/firebase_base.dart';
-import 'package:mlt_menu_admin_web/common/firebase/firebase_result.dart';
-import 'package:mlt_menu_admin_web/features/category/data/model/category_model.dart';
+import 'package:mlt_menu_admin/common/firebase/firebase_base.dart';
+import 'package:mlt_menu_admin/common/firebase/firebase_result.dart';
+import 'package:mlt_menu_admin/features/category/data/model/category_model.dart';
 import 'package:category_repository/category_repository.dart';
 
 class CategoryRepo extends FirebaseBase<CategoryModel> {

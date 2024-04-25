@@ -1,7 +1,7 @@
 import 'dart:async';
-import 'package:mlt_menu_admin_web/common/bloc/bloc_helper.dart';
-import 'package:mlt_menu_admin_web/common/bloc/generic_bloc_state.dart';
-import 'package:mlt_menu_admin_web/features/table/data/provider/remote/table_repo.dart';
+import 'package:mlt_menu_admin/common/bloc/bloc_helper.dart';
+import 'package:mlt_menu_admin/common/bloc/generic_bloc_state.dart';
+import 'package:mlt_menu_admin/features/table/data/provider/remote/table_repo.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:table_repository/table_repository.dart';

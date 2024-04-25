@@ -1,4 +1,4 @@
-name: mlt_menu_admin_web
+name: mlt_menu_admin
 description: "A new Flutter project."
 publish_to: 'none'
 version: 1.0.0
@@ -61,6 +61,7 @@ dependencies:
   image: ^4.1.7
   image_picker: ^1.1.0
   url_strategy: ^0.2.0
+  easy_sidemenu: ^0.6.0
  
   
 
@@ -92,7 +93,9 @@ flutter:
 flutter_native_splash:
   android: true
   ios: false
-  web: true
+  web: false
+    # background_image: assets/image/onBoarding3.jpeg
+    # image: assets/image/icon_splash.png
   background_image: assets/image/splash.png
   image: assets/image/icon_splash.png
   android_12:

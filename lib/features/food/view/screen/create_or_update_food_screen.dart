@@ -1,18 +1,18 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
-import 'package:mlt_menu_admin_web/common/bloc/generic_bloc_state.dart';
-import 'package:mlt_menu_admin_web/common/widget/empty_widget.dart';
-import 'package:mlt_menu_admin_web/common/widget/error_widget.dart';
-import 'package:mlt_menu_admin_web/common/widget/loading_screen.dart';
-import 'package:mlt_menu_admin_web/features/category/bloc/category_bloc.dart';
-import 'package:mlt_menu_admin_web/features/food/data/model/food_model.dart';
-import 'package:mlt_menu_admin_web/common/dialog/app_alerts.dart';
+import 'package:mlt_menu_admin/common/bloc/generic_bloc_state.dart';
+import 'package:mlt_menu_admin/common/widget/empty_widget.dart';
+import 'package:mlt_menu_admin/common/widget/error_widget.dart';
+import 'package:mlt_menu_admin/common/widget/loading_screen.dart';
+import 'package:mlt_menu_admin/features/category/bloc/category_bloc.dart';
+import 'package:mlt_menu_admin/features/food/data/model/food_model.dart';
+import 'package:mlt_menu_admin/common/dialog/app_alerts.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'package:dotted_border/dotted_border.dart';
 import 'package:flutter_animate/flutter_animate.dart';
-import 'package:mlt_menu_admin_web/core/utils/utils.dart';
+import 'package:mlt_menu_admin/core/utils/utils.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../common/widget/common_text_field.dart';

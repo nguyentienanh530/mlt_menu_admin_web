@@ -1,5 +1,5 @@
 import 'package:collection/collection.dart';
-import 'package:mlt_menu_admin_web/features/order/data/model/order_model.dart';
+import 'package:mlt_menu_admin/features/order/data/model/order_model.dart';
 
 import '../../../../core/utils/utils.dart';
 

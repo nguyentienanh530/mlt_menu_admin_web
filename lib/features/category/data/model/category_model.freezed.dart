@@ -24,6 +24,7 @@ mixin _$CategoryModel {
   String? get name => throw _privateConstructorUsedError;
   String? get image => throw _privateConstructorUsedError;
   String? get description => throw _privateConstructorUsedError;
+  int? get sort => throw _privateConstructorUsedError;
 
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
   @JsonKey(ignore: true)
@@ -37,7 +38,12 @@ abstract class $CategoryModelCopyWith<$Res> {
           CategoryModel value, $Res Function(CategoryModel) then) =
       _$CategoryModelCopyWithImpl<$Res, CategoryModel>;
   @useResult
-  $Res call({String? id, String? name, String? image, String? description});
+  $Res call(
+      {String? id,
+      String? name,
+      String? image,
+      String? description,
+      int? sort});
 }
 
 /// @nodoc
@@ -57,6 +63,7 @@ class _$CategoryModelCopyWithImpl<$Res, $Val extends CategoryModel>
     Object? name = freezed,
     Object? image = freezed,
     Object? description = freezed,
+    Object? sort = freezed,
   }) {
     return _then(_value.copyWith(
       id: freezed == id
@@ -75,6 +82,10 @@ class _$CategoryModelCopyWithImpl<$Res, $Val extends CategoryModel>
           ? _value.description
           : description // ignore: cast_nullable_to_non_nullable
               as String?,
+      sort: freezed == sort
+          ? _value.sort
+          : sort // ignore: cast_nullable_to_non_nullable
+              as int?,
     ) as $Val);
   }
 }
@@ -87,7 +98,12 @@ abstract class _$$CategoryModelImplCopyWith<$Res>
       __$$CategoryModelImplCopyWithImpl<$Res>;
   @override
   @useResult
-  $Res call({String? id, String? name, String? image, String? description});
+  $Res call(
+      {String? id,
+      String? name,
+      String? image,
+      String? description,
+      int? sort});
 }
 
 /// @nodoc
@@ -105,6 +121,7 @@ class __$$CategoryModelImplCopyWithImpl<$Res>
     Object? name = freezed,
     Object? image = freezed,
     Object? description = freezed,
+    Object? sort = freezed,
   }) {
     return _then(_$CategoryModelImpl(
       id: freezed == id
@@ -123,6 +140,10 @@ class __$$CategoryModelImplCopyWithImpl<$Res>
           ? _value.description
           : description // ignore: cast_nullable_to_non_nullable
               as String?,
+      sort: freezed == sort
+          ? _value.sort
+          : sort // ignore: cast_nullable_to_non_nullable
+              as int?,
     ));
   }
 }
@@ -132,7 +153,8 @@ class __$$CategoryModelImplCopyWithImpl<$Res>
 class _$CategoryModelImpl
     with DiagnosticableTreeMixin
     implements _CategoryModel {
-  _$CategoryModelImpl({this.id, this.name, this.image, this.description});
+  _$CategoryModelImpl(
+      {this.id, this.name, this.image, this.description, this.sort});
 
   factory _$CategoryModelImpl.fromJson(Map<String, dynamic> json) =>
       _$$CategoryModelImplFromJson(json);
@@ -145,10 +167,12 @@ class _$CategoryModelImpl
   final String? image;
   @override
   final String? description;
+  @override
+  final int? sort;
 
   @override
   String toString({DiagnosticLevel minLevel = DiagnosticLevel.info}) {
-    return 'CategoryModel(id: $id, name: $name, image: $image, description: $description)';
+    return 'CategoryModel(id: $id, name: $name, image: $image, description: $description, sort: $sort)';
   }
 
   @override
@@ -159,7 +183,8 @@ class _$CategoryModelImpl
       ..add(DiagnosticsProperty('id', id))
       ..add(DiagnosticsProperty('name', name))
       ..add(DiagnosticsProperty('image', image))
-      ..add(DiagnosticsProperty('description', description));
+      ..add(DiagnosticsProperty('description', description))
+      ..add(DiagnosticsProperty('sort', sort));
   }
 
   @override
@@ -171,12 +196,14 @@ class _$CategoryModelImpl
             (identical(other.name, name) || other.name == name) &&
             (identical(other.image, image) || other.image == image) &&
             (identical(other.description, description) ||
-                other.description == description));
+                other.description == description) &&
+            (identical(other.sort, sort) || other.sort == sort));
   }
 
   @JsonKey(ignore: true)
   @override
-  int get hashCode => Object.hash(runtimeType, id, name, image, description);
+  int get hashCode =>
+      Object.hash(runtimeType, id, name, image, description, sort);
 
   @JsonKey(ignore: true)
   @override
@@ -197,7 +224,8 @@ abstract class _CategoryModel implements CategoryModel {
       {final String? id,
       final String? name,
       final String? image,
-      final String? description}) = _$CategoryModelImpl;
+      final String? description,
+      final int? sort}) = _$CategoryModelImpl;
 
   factory _CategoryModel.fromJson(Map<String, dynamic> json) =
       _$CategoryModelImpl.fromJson;
@@ -210,6 +238,8 @@ abstract class _CategoryModel implements CategoryModel {
   String? get image;
   @override
   String? get description;
+  @override
+  int? get sort;
   @override
   @JsonKey(ignore: true)
   _$$CategoryModelImplCopyWith<_$CategoryModelImpl> get copyWith =>

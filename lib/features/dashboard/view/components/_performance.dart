@@ -50,7 +50,6 @@ extension on DashboardViewState {
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
                               const Text('Doanh thu hôm qua'),
-                              const SizedBox(height: 8),
                               price()
                             ]))
                       ]))
@@ -97,10 +96,8 @@ extension on DashboardViewState {
                       ])),
               footer: FittedBox(
                   fit: BoxFit.scaleDown,
-                  child: Padding(
-                      padding: const EdgeInsets.only(top: 8.0),
-                      child: Text("Doanh thu so với hôm qua",
-                          style: context.titleStyleMedium))),
+                  child: Text("Doanh thu so với hôm qua",
+                      style: context.titleStyleMedium)),
               circularStrokeCap: CircularStrokeCap.round,
               progressColor: Colors.green));
 }

@@ -11,12 +11,12 @@ extension on DashboardViewState {
               return _buildLoadingItem();
             case Status.empty:
               return _buildItem(
-                  svg: 'assets/icon/ordered.svg',
+                  icon: Icons.restaurant_menu_rounded,
                   title: 'Tổng đơn/ngày',
                   value: '0');
             case Status.failure:
               return _buildItem(
-                  svg: 'assets/icon/ordered.svg',
+                  icon: Icons.restaurant_menu_rounded,
                   title: 'Tổng đơn/ngày',
                   value: state.error ?? '');
             case Status.success:
@@ -37,7 +37,8 @@ extension on DashboardViewState {
                   totalPrice += double.parse(element.totalPrice.toString());
                   listCurentDataChart.add(FlSpot(
                       double.parse(ordersNumber.toString()),
-                      double.parse(element.totalPrice.toString())));
+                      double.parse(
+                          (element.totalPrice! / 1000000).toString())));
                 } else if (orderDate ==
                     Ultils.formatToDate(yesterday.toString())) {
                   ordersNumberYes++;
@@ -45,7 +46,8 @@ extension on DashboardViewState {
                       double.parse(element.totalPrice.toString());
                   listYesterdayDataChart.add(FlSpot(
                       double.parse(ordersNumberYes.toString()),
-                      double.parse(element.totalPrice.toString())));
+                      double.parse(
+                          (element.totalPrice! / 1000000).toString())));
                 }
               }
 
@@ -66,7 +68,7 @@ extension on DashboardViewState {
                   .onDailyRevenueChanged(totalPrice);
 
               return _buildItem(
-                  svg: 'assets/icon/ordered.svg',
+                  icon: Icons.restaurant_menu_rounded,
                   title: 'Tổng đơn/ngày',
                   value: ordersNumber.toString());
             default:
