@@ -156,6 +156,16 @@ class CommonSideMenu extends StatelessWidget {
                       colorFilter: const ColorFilter.mode(
                           Colors.white, BlendMode.srcIn))),
               SideMenuItem(
+                  title: 'Banner',
+                  onTap: (index, _) {
+                    _handelCloseDrawer(context);
+                    controller.changePage(index);
+                    context.go(RouteName.banner);
+                  },
+                  iconWidget: SvgPicture.asset("assets/icon/images.svg",
+                      colorFilter: const ColorFilter.mode(
+                          Colors.white, BlendMode.srcIn))),
+              SideMenuItem(
                   title: 'Cài đặt',
                   onTap: (index, _) {
                     _handelCloseDrawer(context);

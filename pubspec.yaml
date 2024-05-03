@@ -25,6 +25,8 @@ dependencies:
     path: packages/user_repository
   print_repository:
     path: packages/print_repository
+  banner_repository:
+    path: packages/banner_repository
 
     
   awesome_dialog: ^3.2.0

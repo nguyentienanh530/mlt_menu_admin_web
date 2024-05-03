@@ -25,6 +25,7 @@ class RouteName {
   static const String table = '/table';
   static const String currentOrder = '/curent-order';
   static const String historyOrder = '/history-order';
+  static const String banner = '/banner';
 
   static const publicRoutes = [login, register];
 }

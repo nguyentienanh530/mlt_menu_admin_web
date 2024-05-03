@@ -1,6 +1,7 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:mlt_menu_admin/features/banner/view/screen/banner_screen.dart';
 import 'package:mlt_menu_admin/features/food/view/widgets/list_food_dont_show.dart';
 import 'package:mlt_menu_admin/features/food/view/widgets/list_food_is_show.dart';
 import 'package:mlt_menu_admin/features/order/view/screen/order_current_screen.dart';
@@ -198,9 +199,10 @@ class _AppViewState extends State<AppView> {
                     builder: (context, state) => const CategoriesScreen()),
                 GoRoute(
                     path: RouteName.table,
-                    builder: (context, state) {
-                      return const TableScreen();
-                    }),
+                    builder: (context, state) => const TableScreen()),
+                GoRoute(
+                    path: RouteName.banner,
+                    builder: (context, state) => const BannerScreen()),
               ])
           //////////////////////
           ////////////////////////

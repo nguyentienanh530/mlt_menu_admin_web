@@ -202,8 +202,7 @@ Future<String> uploadImage(
 
 Future<Uint8List?> pickAndResizeImage(
     {int width = 500, int height = 500}) async {
-  // ignore: prefer_typing_uninitialized_variables
-  var pickedFile;
+  dynamic pickedFile;
   Uint8List? bytes;
   if (kIsWeb) {
     pickedFile = await FilePicker.platform.pickFiles(type: FileType.image);
