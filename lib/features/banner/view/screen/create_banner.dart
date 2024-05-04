@@ -1,3 +1,4 @@
+import 'package:dotted_border/dotted_border.dart';
 import 'package:flutter/foundation.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mlt_menu_admin/common/bloc/generic_bloc_state.dart';
@@ -43,15 +44,25 @@ class _CreateBannerState extends State<CreateBanner> {
               _buildAppbar(),
               const SizedBox(height: 16),
               Expanded(
-                  child: SingleChildScrollView(
+                  child: Padding(
+                      padding: const EdgeInsets.all(18.0),
                       child: Column(
                           mainAxisAlignment: MainAxisAlignment.center,
                           crossAxisAlignment: CrossAxisAlignment.center,
                           children: [
-                    _buildImageBanner(),
-                    const SizedBox(height: 32),
-                    _buildButton(),
-                  ])))
+                            _ImageBanner(
+                                image: _image,
+                                imageFile: _imageFile,
+                                onTap: () async => await pickAndResizeImage(
+                                            width: 800, height: 340)
+                                        .then((value) {
+                                      setState(() {
+                                        _imageFile = value;
+                                      });
+                                    })),
+                            const SizedBox(height: 32),
+                            _buildButton()
+                          ])))
             ])));
 
     var uploadImageWidget = ValueListenableBuilder(
@@ -124,42 +135,6 @@ class _CreateBannerState extends State<CreateBanner> {
                     })));
   }
 
-  _buildImageBanner() {
-    return Stack(children: [
-      _imageFile == null
-          ? Container(
-              height: context.sizeDevice.width * 0.1,
-              width: context.sizeDevice.width * 0.1,
-              clipBehavior: Clip.hardEdge,
-              padding: const EdgeInsets.all(8),
-              decoration: BoxDecoration(
-                  border: Border.all(color: context.colorScheme.primary),
-                  shape: BoxShape.circle),
-              child: Image.network(_image.isEmpty ? noImage : _image))
-          : Container(
-              height: context.sizeDevice.width * 0.1,
-              width: context.sizeDevice.width * 0.1,
-              clipBehavior: Clip.hardEdge,
-              padding: const EdgeInsets.all(8),
-              decoration: BoxDecoration(
-                  border: Border.all(color: context.colorScheme.primary),
-                  shape: BoxShape.circle),
-              child: Image.memory(_imageFile!)),
-      Positioned(
-          top: context.sizeDevice.width * 0.1 - 25,
-          left: (context.sizeDevice.width * 0.1 - 20) / 2,
-          child: GestureDetector(
-              onTap: () async =>
-                  await pickAndResizeImage(width: 800, height: 340)
-                      .then((value) {
-                    setState(() {
-                      _imageFile = value;
-                    });
-                  }),
-              child: const Icon(Icons.camera_alt_rounded, color: Colors.white)))
-    ]);
-  }
-
   _buildAppbar() => AppBar(
           centerTitle: true,
           automaticallyImplyLeading: false,
@@ -172,4 +147,69 @@ class _CreateBannerState extends State<CreateBanner> {
                 onPressed: () => context.pop(),
                 icon: const Icon(Icons.highlight_remove_rounded))
           ]);
+}
+
+class _ImageBanner extends StatelessWidget {
+  const _ImageBanner(
+      {required this.image, required this.imageFile, required this.onTap});
+  final String image;
+  final Uint8List? imageFile;
+  final Function()? onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+        onTap: onTap,
+        child: imageFile == null
+            ? _buildImage(context)
+            : Container(
+                height: 155,
+                width: double.infinity,
+                decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(defaultBorderRadius),
+                    image: DecorationImage(
+                        image: MemoryImage(imageFile!), fit: BoxFit.cover))));
+  }
+
+  Widget _buildImage(BuildContext context) {
+    return image == ''
+        ? Container(
+            height: 155,
+            decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(defaultBorderRadius)),
+            child: DottedBorder(
+                dashPattern: const [6, 6],
+                color: context.colorScheme.secondary,
+                strokeWidth: 1,
+                radius: Radius.circular(defaultBorderRadius),
+                borderType: BorderType.RRect,
+                child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      Align(
+                          alignment: Alignment.topCenter,
+                          child: Container(
+                              height: 48,
+                              width: 48,
+                              decoration: BoxDecoration(
+                                  color: context.colorScheme.primary,
+                                  border: Border.all(
+                                      color: context.colorScheme.primary,
+                                      width: 1),
+                                  borderRadius: BorderRadius.circular(
+                                      defaultBorderRadius)),
+                              child: Icon(Icons.add,
+                                  color: context.colorScheme.secondary))),
+                      SizedBox(height: defaultPadding / 2),
+                      Text("Hình ảnh Banner", style: context.textStyleSmall)
+                    ])))
+        : Container(
+            height: 155,
+            width: double.infinity,
+            decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(defaultBorderRadius),
+                image: DecorationImage(
+                    image: NetworkImage(image), fit: BoxFit.cover)));
+  }
 }

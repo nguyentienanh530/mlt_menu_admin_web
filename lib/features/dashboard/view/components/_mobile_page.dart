@@ -12,7 +12,7 @@ extension on DashboardViewState {
     return Column(children: [
       SizedBox(width: double.infinity, height: 300, child: dailyRevenue),
       const SizedBox(height: 16),
-      SizedBox(height: 300, child: performance),
+      SizedBox(height: 200, child: performance),
       // performance,
       const SizedBox(height: 16),
       buildInfo(context, tableIsUseNumber),

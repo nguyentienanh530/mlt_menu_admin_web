@@ -1,3 +1,4 @@
+import 'package:dotted_border/dotted_border.dart';
 import 'package:flutter/foundation.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mlt_menu_admin/common/bloc/generic_bloc_state.dart';
@@ -77,7 +78,15 @@ class _CreateOrUpdateCategoryState extends State<CreateOrUpdateCategory> {
                     mainAxisAlignment: MainAxisAlignment.center,
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
-                      _buildImageCatagory(),
+                      _ImageCategory(
+                          image: _image,
+                          imageFile: _imageFile,
+                          onTap: () async =>
+                              await pickAndResizeImage().then((value) {
+                                setState(() {
+                                  _imageFile = value;
+                                });
+                              })),
                       Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
@@ -258,40 +267,6 @@ class _CreateOrUpdateCategoryState extends State<CreateOrUpdateCategory> {
     }
   }
 
-  _buildImageCatagory() {
-    return Stack(children: [
-      _imageFile == null
-          ? Container(
-              height: context.sizeDevice.width * 0.1,
-              width: context.sizeDevice.width * 0.1,
-              clipBehavior: Clip.hardEdge,
-              padding: const EdgeInsets.all(8),
-              decoration: BoxDecoration(
-                  border: Border.all(color: context.colorScheme.primary),
-                  shape: BoxShape.circle),
-              child: Image.network(_image.isEmpty ? noImage : _image))
-          : Container(
-              height: context.sizeDevice.width * 0.1,
-              width: context.sizeDevice.width * 0.1,
-              clipBehavior: Clip.hardEdge,
-              padding: const EdgeInsets.all(8),
-              decoration: BoxDecoration(
-                  border: Border.all(color: context.colorScheme.primary),
-                  shape: BoxShape.circle),
-              child: Image.memory(_imageFile!)),
-      Positioned(
-          top: context.sizeDevice.width * 0.1 - 25,
-          left: (context.sizeDevice.width * 0.1 - 20) / 2,
-          child: GestureDetector(
-              onTap: () async => await pickAndResizeImage().then((value) {
-                    setState(() {
-                      _imageFile = value;
-                    });
-                  }),
-              child: const Icon(Icons.camera_alt_rounded, color: Colors.white)))
-    ]);
-  }
-
   _buildAppbar() => AppBar(
           centerTitle: true,
           automaticallyImplyLeading: false,
@@ -338,5 +313,71 @@ class _CreateOrUpdateCategoryState extends State<CreateOrUpdateCategory> {
                     },
                     child: Text(e.toString()))))
             .toList());
+  }
+}
+
+class _ImageCategory extends StatelessWidget {
+  const _ImageCategory(
+      {required this.image, required this.imageFile, required this.onTap});
+  final String image;
+  final Uint8List? imageFile;
+  final Function()? onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+        onTap: onTap,
+        child: imageFile == null
+            ? _buildImage(context)
+            : Container(
+                height: 200,
+                width: 200,
+                decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(defaultBorderRadius),
+                    image: DecorationImage(
+                        image: MemoryImage(imageFile!), fit: BoxFit.cover))));
+  }
+
+  Widget _buildImage(BuildContext context) {
+    return image == ''
+        ? Container(
+            height: 200,
+            width: 200,
+            decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(defaultBorderRadius)),
+            child: DottedBorder(
+                dashPattern: const [6, 6],
+                color: context.colorScheme.secondary,
+                strokeWidth: 1,
+                radius: Radius.circular(defaultBorderRadius),
+                borderType: BorderType.RRect,
+                child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      Align(
+                          alignment: Alignment.topCenter,
+                          child: Container(
+                              height: 48,
+                              width: 48,
+                              decoration: BoxDecoration(
+                                  color: context.colorScheme.primary,
+                                  border: Border.all(
+                                      color: context.colorScheme.primary,
+                                      width: 1),
+                                  borderRadius: BorderRadius.circular(
+                                      defaultBorderRadius)),
+                              child: Icon(Icons.add,
+                                  color: context.colorScheme.secondary))),
+                      SizedBox(height: defaultPadding / 2),
+                      Text("Hình ảnh Danh mục", style: context.textStyleSmall)
+                    ])))
+        : Container(
+            height: 200,
+            width: 200,
+            decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(defaultBorderRadius),
+                image: DecorationImage(
+                    image: NetworkImage(image), fit: BoxFit.cover)));
   }
 }
