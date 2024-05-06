@@ -251,7 +251,7 @@ class TableView extends StatelessWidget {
                     descriptrion: "Đã xoá bàn: ${table.name}",
                     onPressed: () {
                       context.read<TableBloc>().add(TablesFetched());
-                      pop(context, 1);
+                      pop(context, 2);
                     },
                     isProgressed: false)
               };

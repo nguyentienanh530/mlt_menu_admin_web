@@ -1,5 +1,7 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
+import 'package:mlt_menu_admin/common/widget/loading_screen.dart';
 import '../../../../common/widget/common_icon_button.dart';
 import '../../../../core/utils/utils.dart';
 import '../../data/model/food_model.dart';
@@ -92,12 +94,14 @@ class ItemFood extends StatelessWidget {
         margin: EdgeInsets.all(defaultPadding / 2),
         height: 120,
         width: 120,
+        clipBehavior: Clip.hardEdge,
         decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            color: Colors.black.withOpacity(0.3),
-            image: DecorationImage(
-                image: NetworkImage(food.image == "" ? noImage : food.image),
-                fit: BoxFit.cover)));
+            shape: BoxShape.circle, color: Colors.black.withOpacity(0.3)),
+        child: CachedNetworkImage(
+            fit: BoxFit.cover,
+            imageUrl: food.image,
+            placeholder: (context, url) => const LoadingScreen(),
+            errorWidget: (context, url, error) => const Icon(Icons.photo)));
   }
 
   Widget _buildCategory(BuildContext context, Food food) {

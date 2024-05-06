@@ -10,7 +10,6 @@ import 'package:mlt_menu_admin/core/utils/extensions.dart';
 import 'package:mlt_menu_admin/core/utils/util.dart';
 import 'package:mlt_menu_admin/features/print/bloc/print_bloc.dart';
 import 'package:mlt_menu_admin/features/print/data/model/print_model.dart';
-import 'package:awesome_dialog/awesome_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -132,11 +131,14 @@ class _CreateOrUpdatePrintState extends State<CreateOrUpdatePrint> {
       );
 
   _buildButtomCreateOrUpdate() {
-    return AnimatedButton(
-        color: context.colorScheme.tertiaryContainer,
-        pressEvent: () =>
-            _mode == Mode.create ? _onCreateSubmit() : _onUpdateSubmit(),
-        text: _mode == Mode.create ? 'Thêm' : 'Cập nhật');
+    return FilledButton(
+      style: ButtonStyle(
+          backgroundColor:
+              MaterialStatePropertyAll(context.colorScheme.tertiaryContainer)),
+      child: _mode == Mode.create ? const Text('Thêm') : const Text('Cập nhật'),
+      onPressed: () =>
+          _mode == Mode.create ? _onCreateSubmit() : _onUpdateSubmit(),
+    );
   }
 
   _onCreateSubmit() {

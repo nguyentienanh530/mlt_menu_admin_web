@@ -19,6 +19,7 @@ extension on ListFoodIsShowViewState {
                 const Spacer(flex: 2),
                 Expanded(child: _buildSearch())
               ]),
+              const SizedBox(height: 8),
               Expanded(child: _buildWidget(foodIsShow.datas ?? <Food>[]))
             ]))
       });

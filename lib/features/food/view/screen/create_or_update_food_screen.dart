@@ -410,19 +410,23 @@ class _UpdateFoodViewState extends State<UpdateFoodView> {
             listener: (context, state) => (switch (state.status) {
                   Status.loading => AppAlerts.loadingDialog(context),
                   Status.empty => const SizedBox(),
-                  Status.failure =>
-                    AppAlerts.failureDialog(context, btnOkOnPress: () {
+                  Status.failure => AppAlerts.failureDialog(context,
+                        title: "Thông báo!",
+                        desc: state.error ?? '', btnCancelOnPress: () {
                       context.pop();
                     }),
-                  Status.success =>
-                    AppAlerts.successDialog(context, btnOkOnPress: () {
+                  Status.success => AppAlerts.successDialog(context,
+                        title: "Thành công!",
+                        desc: widget.mode == Mode.update
+                            ? 'Cập nhật thành công!'
+                            : 'Thêm món thành công!', btnOkOnPress: () {
                       if (_imageFile == null &&
                           _imageFile1 == null &&
                           _imageFile2 == null &&
                           _imageFile3 == null) {
-                        pop(context, 2);
+                        pop(context, 3);
                       } else {
-                        pop(context, 1);
+                        pop(context, 2);
                       }
                     })
                 }),

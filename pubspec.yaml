@@ -29,7 +29,7 @@ dependencies:
     path: packages/banner_repository
 
     
-  awesome_dialog: ^3.2.0
+  # awesome_dialog: ^3.2.0
   equatable: ^2.0.5
   firebase_auth: ^4.16.0
   firebase_core: ^2.25.0
@@ -64,6 +64,9 @@ dependencies:
   image_picker: ^1.1.0
   url_strategy: ^0.2.0
   easy_sidemenu: ^0.6.0
+  material_dialogs: ^1.1.4
+  lottie: ^2.7.0
+  cached_network_image: ^3.3.1
  
   
 
@@ -83,6 +86,7 @@ flutter:
   assets:
     - assets/map_style.txt
     - assets/image/
+    - assets/animations/
     - assets/image/banner/
     - assets/image/plate_food/
     - assets/image/image_recipe/

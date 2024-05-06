@@ -241,7 +241,7 @@ class _ListFoodIsShowViewState extends State<ListFoodIsShowView>
                           ..showToast(
                               child: AppAlerts.successToast(
                                   msg: 'Xóa thành công!'));
-                        pop(context, 1);
+                        pop(context, 2);
                         _getData();
                       },
                       isProgressed: false)

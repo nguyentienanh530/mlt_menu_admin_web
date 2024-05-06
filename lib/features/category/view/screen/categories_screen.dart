@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:mlt_menu_admin/common/bloc/generic_bloc_state.dart';
 import 'package:mlt_menu_admin/common/dialog/app_alerts.dart';
 import 'package:mlt_menu_admin/common/widget/common_refresh_indicator.dart';
@@ -244,7 +245,7 @@ class _CategoriesViewState extends State<CategoriesView>
                       descriptrion: 'Xóa thành công',
                       onPressed: () {
                         _getData();
-                        pop(context, 1);
+                        pop(context, 2);
                       },
                       isProgressed: false)
                 }));
@@ -290,11 +291,10 @@ class _CategoriesViewState extends State<CategoriesView>
       clipBehavior: Clip.hardEdge,
       decoration: BoxDecoration(
           color: context.colorScheme.background, shape: BoxShape.circle),
-      // height: 60,
-      // width: 60,
-      child: Image.network(categoryModel.image ?? noImage,
-          loadingBuilder: (context, child, loadingProgress) =>
-              loadingProgress == null ? child : const LoadingScreen()));
+      child: CachedNetworkImage(
+          imageUrl: categoryModel.image ?? '',
+          placeholder: (context, url) => const LoadingScreen(),
+          errorWidget: (context, url, error) => const Icon(Icons.photo)));
 
   Widget _buildInfo(CategoryModel categoryModel) => Column(
           mainAxisAlignment: MainAxisAlignment.start,

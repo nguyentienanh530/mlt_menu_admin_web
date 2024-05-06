@@ -223,7 +223,7 @@ class PrintView extends StatelessWidget {
                     descriptrion: 'Đang xóa...',
                     isProgressed: false,
                     onPressed: () {
-                      pop(context, 1);
+                      pop(context, 2);
                       // _getData(context);
                     })
               };
