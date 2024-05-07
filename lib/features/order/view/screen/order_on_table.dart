@@ -284,7 +284,7 @@ class _OrderViewState extends State<OrderView> {
                                 onPressed: () {
                                   _getData();
                                   _updateTable();
-                                  pop(context, 1);
+                                  pop(context, 2);
                                 })
                           })));
         });
