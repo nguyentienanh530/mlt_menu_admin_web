@@ -155,6 +155,7 @@ class _OrderDetailViewState extends State<OrderDetailView> {
           });
 
           context.read<OrderBloc>().add(OrderUpdated(orders: orders));
+          context.pop();
           // context.pop();
         }).then((value) => _totalPrice.value = orders.totalPrice!);
   }

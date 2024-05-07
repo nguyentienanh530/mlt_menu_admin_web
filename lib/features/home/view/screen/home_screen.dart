@@ -168,7 +168,7 @@ class _HomeViewState extends State<HomeView> {
                     backgroundColor:
                         context.colorScheme.primary.withOpacity(0.1),
                     centerTitle: true,
-                    title: Text('Minh Long Menu',
+                    title: Text(userState.data?.name ?? '',
                         style: context.titleStyleMedium!
                             .copyWith(fontWeight: FontWeight.bold)),
                     automaticallyImplyLeading:

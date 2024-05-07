@@ -151,48 +151,48 @@ class AfterSearchUI extends StatelessWidget {
   }
 
   Widget _buildItemSearch(BuildContext context, Food food) {
-    return InkWell(
-        onTap: () {
-          var foodDto = FoodDto(
-              foodID: food.id,
-              quantity: 1,
-              note: '',
-              discount: 0,
-              foodImage: food.image,
-              foodName: food.name,
-              foodPrice: food.price,
-              isDiscount: food.isDiscount,
-              totalPrice: Ultils.foodPrice(
-                  isDiscount: food.isDiscount,
-                  foodPrice: food.price,
-                  discount: food.discount));
-          context.pop<FoodDto>(foodDto);
-        },
-        child: Card(
-            borderOnForeground: false,
-            child: SizedBox(
-                height: 60,
-                child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      _buildImage(food),
-                      Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          mainAxisAlignment: MainAxisAlignment.spaceAround,
-                          children: [
-                            _buildTitle(context, food),
-                            // _buildCategory(context, food),
-                            _buildPrice(context, food)
-                          ])
-                    ]
-                        .animate(interval: 50.ms)
-                        .slideX(
-                            begin: -0.1,
-                            end: 0,
-                            curve: Curves.easeInOutCubic,
-                            duration: 500.ms)
-                        .fadeIn(
-                            curve: Curves.easeInOutCubic, duration: 500.ms)))));
+    return Card(
+        borderOnForeground: false,
+        child: InkWell(
+          onTap: () {
+            var foodDto = FoodDto(
+                foodID: food.id,
+                quantity: 1,
+                note: '',
+                discount: 0,
+                foodImage: food.image,
+                foodName: food.name,
+                foodPrice: food.price,
+                isDiscount: food.isDiscount,
+                totalPrice: Ultils.foodPrice(
+                    isDiscount: food.isDiscount,
+                    foodPrice: food.price,
+                    discount: food.discount));
+            context.pop<FoodDto>(foodDto);
+          },
+          child: SizedBox(
+              height: 60,
+              child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    _buildImage(food),
+                    Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisAlignment: MainAxisAlignment.spaceAround,
+                        children: [
+                          _buildTitle(context, food),
+                          // _buildCategory(context, food),
+                          _buildPrice(context, food)
+                        ])
+                  ]
+                      .animate(interval: 50.ms)
+                      .slideX(
+                          begin: -0.1,
+                          end: 0,
+                          curve: Curves.easeInOutCubic,
+                          duration: 500.ms)
+                      .fadeIn(curve: Curves.easeInOutCubic, duration: 500.ms))),
+        ));
   }
 
   Widget _buildImage(Food food) {
