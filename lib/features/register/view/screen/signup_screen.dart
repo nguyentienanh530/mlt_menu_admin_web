@@ -85,7 +85,7 @@ class _SignUpViewState extends State<SignUpView> {
                                 title: AppString.registerFailureTitle,
                                 desc: state.errorMessage, btnCancelOnPress: () {
                               context.read<RegisterCubit>().resetStatus();
-                              context.pop();
+                              pop(context, 2);
                             });
                             break;
                           case FormzSubmissionStatus.success:
