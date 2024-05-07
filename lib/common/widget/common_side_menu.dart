@@ -65,19 +65,30 @@ class CommonSideMenu extends StatelessWidget {
                         children: [
                           const Divider(indent: 8.0, endIndent: 8.0),
                           // const SizedBox(height: 16),
-                          Text('Minh Long Technology',
-                              style: context.titleStyleMedium!
-                                  .copyWith(fontWeight: FontWeight.bold)),
-                          Text('0799909487',
-                              style: context.textStyleSmall!.copyWith(
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.white.withOpacity(0.3))),
-                          Text(
-                              'Tổ 21 Finom - Hiệp Thạnh - Đức Trọng - Lâm Đồng',
-                              textAlign: TextAlign.center,
-                              style: context.textStyleSmall!.copyWith(
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.white.withOpacity(0.3)))
+                          Expanded(
+                              child: FittedBox(
+                                  fit: BoxFit.scaleDown,
+                                  child: Text('Minh Long Technology',
+                                      style: context.titleStyleMedium!.copyWith(
+                                          fontWeight: FontWeight.bold)))),
+                          Expanded(
+                              child: FittedBox(
+                                  fit: BoxFit.scaleDown,
+                                  child: Text('0799909487',
+                                      style: context.textStyleSmall!.copyWith(
+                                          fontWeight: FontWeight.bold,
+                                          color:
+                                              Colors.white.withOpacity(0.3))))),
+                          Expanded(
+                              child: FittedBox(
+                                  fit: BoxFit.scaleDown,
+                                  child: Text(
+                                      'Tổ 21 Finom - Hiệp Thạnh - Đức Trọng - Lâm Đồng',
+                                      textAlign: TextAlign.center,
+                                      style: context.textStyleSmall!.copyWith(
+                                          fontWeight: FontWeight.bold,
+                                          color:
+                                              Colors.white.withOpacity(0.3)))))
                         ]))),
             items: [
               SideMenuItem(

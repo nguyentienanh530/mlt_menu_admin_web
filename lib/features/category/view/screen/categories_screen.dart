@@ -173,19 +173,12 @@ class _CategoriesViewState extends State<CategoriesView>
               Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
             Text('#${index + 1}',
                 style: const TextStyle(fontWeight: FontWeight.bold)),
-            Row(children: [
-              const SizedBox(width: 8),
-              CommonIconButton(
-                  icon: Icons.edit,
-                  onTap: () async => _editCategory(categoryModel)),
-              const SizedBox(width: 8),
-              BlocProvider(
-                  create: (context) => CategoryBloc(),
-                  child: CommonIconButton(
-                      icon: Icons.delete,
-                      color: context.colorScheme.errorContainer,
-                      onTap: () => _buildDeleteFood(categoryModel)))
-            ])
+            BlocProvider(
+                create: (context) => CategoryBloc(),
+                child: CommonIconButton(
+                    icon: Icons.delete,
+                    color: context.colorScheme.errorContainer,
+                    onTap: () => _buildDeleteFood(categoryModel)))
           ])));
 
   _editCategory(CategoryModel categoryModel) async {
@@ -205,19 +198,6 @@ class _CategoriesViewState extends State<CategoriesView>
   }
 
   _buildDeleteFood(CategoryModel categoryModel) async {
-    // showCupertinoModalPopup<void>(
-    //     context: context,
-    //     builder: (BuildContext context) {
-    //       return SizedBox(
-    //           // height: 200,
-    //           child: CommonBottomSheet(
-    //               title: "Bạn có muốn xóa danh mục này không?",
-    //               textConfirm: 'Xóa',
-    //               textCancel: "Hủy",
-    //               textConfirmColor: context.colorScheme.errorContainer,
-    //               onConfirm: () => _handleDeleteFood(categoryModel)));
-    //     });
-
     await AppAlerts.warningDialog(context,
         title: 'Xóa "${categoryModel.name}"?',
         desc: 'Kiểm tra kĩ trước khi xóa!',
@@ -272,15 +252,17 @@ class _CategoriesViewState extends State<CategoriesView>
   Widget _buildCategory(CategoryModel categoryModel, int index) {
     return Card(
         elevation: 10,
-        child: Column(children: [
-          _buildHeader(categoryModel, index),
-          Expanded(child: _buildItemBody(categoryModel))
-        ]));
+        child: InkWell(
+            onTap: () async => _editCategory(categoryModel),
+            child: Column(children: [
+              _buildHeader(categoryModel, index),
+              Expanded(child: _buildItemBody(categoryModel))
+            ])));
   }
 
   Widget _buildItemBody(CategoryModel categoryModel) {
     return Column(crossAxisAlignment: CrossAxisAlignment.center, children: [
-      Expanded(child: _buildImage(categoryModel)),
+      Expanded(flex: 2, child: _buildImage(categoryModel)),
       Expanded(child: _buildInfo(categoryModel))
     ]);
   }

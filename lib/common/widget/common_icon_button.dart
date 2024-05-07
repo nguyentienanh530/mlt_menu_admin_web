@@ -9,11 +9,11 @@ class CommonIconButton extends StatelessWidget {
   final IconData? icon;
   @override
   Widget build(BuildContext context) {
-    return FittedBox(
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 5),
       child: InkWell(
           onTap: onTap,
           child: Container(
-              margin: const EdgeInsets.symmetric(vertical: 5),
               padding: const EdgeInsets.all(5),
               // height: 25,
               // width: 25,

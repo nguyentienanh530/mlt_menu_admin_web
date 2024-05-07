@@ -111,8 +111,8 @@ class _UpdateUserDialogState extends State<UpdateUser> {
 
   Widget _buildIconEditImage() {
     return Positioned(
-        top: context.sizeDevice.width * 0.3 - 25,
-        left: (context.sizeDevice.width * 0.3 - 20) / 2,
+        top: 200 - 25,
+        left: (200 - 20) / 2,
         child: GestureDetector(
             onTap: () async =>
                 await pickAndResizeImage().then((value) => setState(() {
@@ -177,8 +177,8 @@ class _UpdateUserDialogState extends State<UpdateUser> {
   Widget _buildImageProfile() {
     return _imageFile == null
         ? Container(
-            height: context.sizeDevice.width * 0.3,
-            width: context.sizeDevice.width * 0.3,
+            height: 200,
+            width: 200,
             decoration: BoxDecoration(
                 border: Border.all(color: context.colorScheme.primary),
                 shape: BoxShape.circle,
@@ -186,8 +186,8 @@ class _UpdateUserDialogState extends State<UpdateUser> {
                     fit: BoxFit.cover,
                     image: NetworkImage(_image.isEmpty ? noImage : _image))))
         : Container(
-            height: context.sizeDevice.width * 0.3,
-            width: context.sizeDevice.width * 0.3,
+            height: 200,
+            width: 200,
             decoration: BoxDecoration(
                 border: Border.all(color: context.colorScheme.primary),
                 shape: BoxShape.circle,

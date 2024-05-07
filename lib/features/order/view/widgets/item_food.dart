@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import '../../../../common/widget/common_icon_button.dart';
 import '../../../../core/utils/utils.dart';
 import '../../data/model/food_dto.dart';
@@ -36,33 +37,34 @@ class ItemFood extends StatelessWidget {
                   child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Text('#${index + 1}',
-                            style:
-                                const TextStyle(fontWeight: FontWeight.bold)),
+                        Row(children: [
+                          Text('#${index + 1} - ',
+                              style:
+                                  const TextStyle(fontWeight: FontWeight.bold)),
+                          Padding(
+                              padding:
+                                  EdgeInsets.only(right: defaultPadding / 2),
+                              child: ValueListenableBuilder(
+                                  valueListenable: totalPriceFood,
+                                  builder: (context, value, child) =>
+                                      _PriceFoodItem(
+                                          totalPrice: value.toString())))
+                        ]),
                         CommonIconButton(
                             onTap: onPressed,
                             color: context.colorScheme.errorContainer,
                             icon: Icons.delete)
                       ]))),
-          Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
+          Row(children: [
             Row(children: [
               _buildImage(foodDto),
               Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
                 const SizedBox(),
-                Text(foodDto.foodName),
+                FittedBox(fit: BoxFit.scaleDown, child: Text(foodDto.foodName)),
                 SizedBox(height: defaultPadding / 2),
                 _buildQuality(context, foodDto)
               ])
             ]),
-            Column(children: [
-              Padding(
-                  padding: EdgeInsets.only(right: defaultPadding / 2),
-                  child: ValueListenableBuilder(
-                      valueListenable: totalPriceFood,
-                      builder: (context, value, child) =>
-                          _PriceFoodItem(totalPrice: value.toString()))),
-              const SizedBox(height: 8)
-            ])
           ]),
           foodDto.note.isNotEmpty
               ? Padding(
@@ -129,8 +131,11 @@ class _PriceFoodItem extends StatelessWidget {
   // food.totalPrice.toString()
   @override
   Widget build(BuildContext context) {
-    return Text(Ultils.currencyFormat(double.parse(totalPrice)),
-        style: TextStyle(
-            color: context.colorScheme.secondary, fontWeight: FontWeight.bold));
+    return FittedBox(
+        fit: BoxFit.scaleDown,
+        child: Text(Ultils.currencyFormat(double.parse(totalPrice)),
+            style: TextStyle(
+                color: context.colorScheme.secondary,
+                fontWeight: FontWeight.bold)));
   }
 }

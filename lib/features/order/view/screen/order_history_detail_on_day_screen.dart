@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:mlt_menu_admin/features/order/view/screen/order_history_detail_screen.dart';
 import '../../../../core/utils/utils.dart';
@@ -79,7 +80,7 @@ class OrderHistoryDetailOnDayScreen extends StatelessWidget {
   }
 
   _buildAppbar(BuildContext context) => AppBar(
-      // automaticallyImplyLeading: false,
+      automaticallyImplyLeading: kIsWeb ? false : true,
       centerTitle: true,
       title: Text(
           'Tổng đơn ngày: ${Ultils.reverseDate(orders.first.payTime ?? '')}',

@@ -124,7 +124,7 @@ class _OrderHistoryViewState extends State<OrderHistoryView> {
   Widget _buildItem(OrdersGroupByPayTime order, int index, int totalOrder,
       double totalPrice) {
     return InkWell(
-      onTap: () => context.goNamed(RouteName.orderHistoryDetailOnDayScreen,
+      onTap: () => context.pushNamed(RouteName.orderHistoryDetailOnDayScreen,
           extra: order.orders),
       child: _buildRowTitle(
           color: index % 2 == 0

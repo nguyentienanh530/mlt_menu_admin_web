@@ -20,6 +20,7 @@ class CommonLineText extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return FittedBox(
+        fit: BoxFit.scaleDown,
         child: RichText(
             maxLines: 1,
             softWrap: false,

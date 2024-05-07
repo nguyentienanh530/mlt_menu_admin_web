@@ -1,7 +1,6 @@
+import 'package:lottie/lottie.dart';
 import 'package:mlt_menu_admin/core/utils/utils.dart';
 import 'package:flutter/material.dart';
-
-import '../widget/spinkit_indicator.dart';
 
 class ProgressDialog extends StatelessWidget {
   const ProgressDialog({
@@ -26,8 +25,8 @@ class ProgressDialog extends StatelessWidget {
         content: Column(mainAxisSize: MainAxisSize.min, children: [
       const SizedBox(height: 15),
       isProgressed
-          ? const SpinKitIndicator(type: SpinKitType.circle)
-          : const SizedBox(),
+          ? Lottie.asset('assets/animations/loading1.json')
+          : Lottie.asset('assets/animations/success.json'),
       const SizedBox(height: 15),
       Text(descriptrion),
       const SizedBox(height: 15),

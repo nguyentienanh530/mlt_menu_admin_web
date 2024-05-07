@@ -305,25 +305,25 @@ class _ItemProfile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-        onTap: onTap,
-        child: Card(
-            child: SizedBox(
-                child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-              Row(children: [
-                Padding(
-                    padding: EdgeInsets.all(defaultPadding),
-                    child: SvgPicture.asset(svgPath,
-                        colorFilter: ColorFilter.mode(
-                            context.colorScheme.primary, BlendMode.srcIn))),
-                Text(title)
-              ]),
-              Padding(
-                  padding: EdgeInsets.all(defaultPadding),
-                  child: const Icon(Icons.arrow_forward_ios_rounded, size: 15))
-            ]))));
+    return Card(
+        child: InkWell(
+      onTap: onTap,
+      child: SizedBox(
+          child:
+              Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
+        Row(children: [
+          Padding(
+              padding: EdgeInsets.all(defaultPadding),
+              child: SvgPicture.asset(svgPath,
+                  colorFilter: ColorFilter.mode(
+                      context.colorScheme.primary, BlendMode.srcIn))),
+          Text(title)
+        ]),
+        Padding(
+            padding: EdgeInsets.all(defaultPadding),
+            child: const Icon(Icons.arrow_forward_ios_rounded, size: 15))
+      ])),
+    ));
   }
 }
 

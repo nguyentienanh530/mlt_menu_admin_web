@@ -1,3 +1,5 @@
+import 'package:flutter/cupertino.dart';
+import 'package:flutter/widgets.dart';
 import 'package:mlt_menu_admin/common/dialog/app_alerts.dart';
 import 'package:mlt_menu_admin/common/widget/common_refresh_indicator.dart';
 import 'package:mlt_menu_admin/features/table/bloc/table_bloc.dart';
@@ -186,22 +188,12 @@ class TableView extends StatelessWidget {
             _buildItem(context, tables[index], index),
         gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
             crossAxisCount: countGridView(context),
-            // childAspectRatio: 1.5,
+            mainAxisExtent: 150,
             mainAxisSpacing: 16,
             crossAxisSpacing: 16));
   }
 
   void _dialogDeleted(BuildContext context, TableModel table) async {
-    // showCupertinoModalPopup(
-    //     context: context,
-    //     builder: (context) => CommonBottomSheet(
-    //           title: 'Chắc chắn muốn xóa bàn: ${table.name}?',
-    //           textCancel: 'Hủy',
-    //           textConfirm: 'Xóa',
-    //           textConfirmColor: context.colorScheme.errorContainer,
-    //           onConfirm: () => onDeleteTable(context, table),
-    //         ));
-
     await AppAlerts.warningDialog(context,
         title: 'Chắc chắn muốn xóa bàn: ${table.name}?',
         desc: 'Kiểm tra kĩ trước khi xóa!',
@@ -271,11 +263,6 @@ class TableView extends StatelessWidget {
                         style: const TextStyle(fontWeight: FontWeight.bold)),
                     Row(children: [
                       CommonIconButton(
-                          icon: Icons.edit,
-                          onTap: () async =>
-                              await _goToEditTable(context, tableModel)),
-                      const SizedBox(width: 8),
-                      CommonIconButton(
                           icon: Icons.delete,
                           color: context.colorScheme.errorContainer,
                           onTap: () => _dialogDeleted(context, tableModel))
@@ -286,34 +273,44 @@ class TableView extends StatelessWidget {
     return Card(
         elevation: 10,
         // margin: const EdgeInsets.symmetric(vertical: 8),
-        child: Column(children: [
-          _buildHeader(context, table, index),
-          Container(
-              width: context.sizeDevice.width,
-              padding: const EdgeInsets.all(8),
-              child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    CommonLineText(
-                        title: 'Tên bàn: ',
-                        value: table.name,
-                        valueStyle: TextStyle(
-                            color: context.colorScheme.secondary,
-                            fontWeight: FontWeight.bold)),
-                    const SizedBox(height: 8),
-                    CommonLineText(
-                        title: 'Số ghế: ', value: table.seats.toString()),
-                    const SizedBox(height: 8),
-                    CommonLineText(
-                        title: 'Trạng thái: ',
-                        value: Ultils.tableStatus(table.isUse),
-                        valueStyle: TextStyle(
-                            color: table.isUse
-                                ? Colors.greenAccent
-                                : Colors.redAccent))
-                  ]))
-        ]));
+        child: InkWell(
+            onTap: () async => await _goToEditTable(context, table),
+            child: Column(children: [
+              _buildHeader(context, table, index),
+              Expanded(
+                child: Container(
+                    width: context.sizeDevice.width,
+                    padding: const EdgeInsets.all(8),
+                    child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Expanded(
+                              child: CommonLineText(
+                                  title: 'Tên bàn: ',
+                                  value: table.name,
+                                  valueStyle: TextStyle(
+                                      color: context.colorScheme.secondary,
+                                      fontWeight: FontWeight.bold))),
+                          const SizedBox(height: 8),
+                          Expanded(
+                            child: CommonLineText(
+                                title: 'Số ghế: ',
+                                value: table.seats.toString()),
+                          ),
+                          const SizedBox(height: 8),
+                          Expanded(
+                            child: CommonLineText(
+                                title: 'Trạng thái: ',
+                                value: Ultils.tableStatus(table.isUse),
+                                valueStyle: TextStyle(
+                                    color: table.isUse
+                                        ? Colors.greenAccent
+                                        : Colors.redAccent)),
+                          )
+                        ])),
+              )
+            ])));
   }
 
   _goToEditTable(BuildContext context, TableModel tableModel) async {

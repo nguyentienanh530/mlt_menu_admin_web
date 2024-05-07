@@ -1,3 +1,4 @@
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mlt_menu_admin/common/bloc/generic_bloc_state.dart';
 import 'package:mlt_menu_admin/common/dialog/app_alerts.dart';
@@ -13,6 +14,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../common/dialog/progress_dialog.dart';
 import '../../../../common/dialog/retry_dialog.dart';
+import '../../../../common/widget/_print_bottom_sheet.dart';
+import '../../../print/cubit/is_use_print_cubit.dart';
+import '../../../print/cubit/print_cubit.dart';
+import '../../../print/data/model/print_model.dart';
+import '../../data/model/food_dto.dart';
 import '../../data/model/order_group.dart';
 import '../../data/model/order_model.dart';
 import 'order_detail_screen.dart';
@@ -44,7 +50,7 @@ class _CurrentOrderState extends State<CurrentOrder>
                   title: Text('Đơn hiện tại',
                       style: context.titleStyleMedium!
                           .copyWith(fontWeight: FontWeight.bold))),
-              const SliverToBoxAdapter(child: OrderHistoryView())
+              SliverToBoxAdapter(child: OrderHistoryView())
             ])));
   }
 
@@ -52,11 +58,18 @@ class _CurrentOrderState extends State<CurrentOrder>
   bool get wantKeepAlive => true;
 }
 
+// ignore: must_be_immutable
 class OrderHistoryView extends StatelessWidget {
-  const OrderHistoryView({super.key});
+  OrderHistoryView({super.key});
+  var _isUsePrint = false;
+  final _loading = ValueNotifier(false);
+
+  var _print = PrintModel();
 
   @override
   Widget build(BuildContext context) {
+    _isUsePrint = context.watch<IsUsePrintCubit>().state;
+    _print = context.watch<PrintCubit>().state;
     return CommonRefreshIndicator(onRefresh: () async {
       await Future.delayed(const Duration(milliseconds: 500));
       if (!context.mounted) return;
@@ -128,16 +141,17 @@ class OrderHistoryView extends StatelessWidget {
       BuildContext context, Orders orderModel, int index) {
     return Card(
         elevation: 10,
-        child: SizedBox(
-          height: 120,
-          child: Column(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              // crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                _buildHeaderItem(context, index, orderModel),
-                Expanded(child: _buildBodyItem(context, orderModel))
-              ]),
-        ));
+        child: InkWell(
+            onTap: () async => await _goToEditOrder(context, orderModel),
+            child: SizedBox(
+                height: 120,
+                child: Column(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    // crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      _buildHeaderItem(context, index, orderModel),
+                      Expanded(child: _buildBodyItem(context, orderModel))
+                    ]))));
   }
 
   Widget _buildHeaderItem(BuildContext context, int index, Orders orders) =>
@@ -152,11 +166,39 @@ class OrderHistoryView extends StatelessWidget {
                     Text('#${index + 1} - ${orders.id}',
                         style: const TextStyle(fontWeight: FontWeight.bold)),
                     Row(children: [
-                      const SizedBox(width: 8),
-                      CommonIconButton(
-                          icon: Icons.edit,
-                          onTap: () async =>
-                              await _goToEditOrder(context, orders)),
+                      _isUsePrint
+                          ? CommonIconButton(
+                              onTap: () {
+                                showDialog(
+                                    context: context,
+                                    builder: (context) => AlertDialog(
+                                        content: SizedBox(
+                                            width: 600,
+                                            child: ValueListenableBuilder(
+                                                valueListenable: _loading,
+                                                builder: (context, value,
+                                                        child) =>
+                                                    value
+                                                        ? const LoadingScreen()
+                                                        : PrintBottomSheet(
+                                                            listFoodDto:
+                                                                orders.foods,
+                                                            onPressedPrint: () {
+                                                              context.pop();
+                                                              _handlePrint(
+                                                                  context,
+                                                                  lst: orders
+                                                                      .foods,
+                                                                  tableID: orders
+                                                                          .tableID ??
+                                                                      '',
+                                                                  tableName: orders
+                                                                      .tableName);
+                                                            })))));
+                              },
+                              icon: Icons.print,
+                              color: Colors.blueAccent)
+                          : const SizedBox(),
                       const SizedBox(width: 8),
                       CommonIconButton(
                           icon: Icons.delete,
@@ -164,6 +206,38 @@ class OrderHistoryView extends StatelessWidget {
                           onTap: () => _handleDeleteOrder(context, orders))
                     ])
                   ])));
+  void _handlePrint(BuildContext context,
+      {List<FoodDto>? lst, String? tableID, String? tableName}) async {
+    var newList = [];
+    for (var element in lst ?? <FoodDto>[]) {
+      newList.add(
+          '$tableID - $tableName - ${element.foodName} - ${element.quantity} - ${element.totalPrice}');
+    }
+    logger.d(newList);
+
+    _loading.value = true;
+    final toast = FToast()..init(context);
+    if (_print.id.isNotEmpty) {
+      await Ultils.sendPrintToServer(
+              ip: _print.ip, port: _print.port, lst: newList)
+          .then((value) {
+        _loading.value = false;
+        toast
+          ..removeQueuedCustomToasts()
+          ..showToast(child: AppAlerts.successToast(msg: 'in thành công!'));
+      }).onError((error, stackTrace) {
+        _loading.value = false;
+        toast
+          ..removeQueuedCustomToasts()
+          ..showToast(child: AppAlerts.errorToast(msg: error.toString()));
+      });
+    } else {
+      _loading.value = false;
+      toast
+        ..removeQueuedCustomToasts()
+        ..showToast(child: AppAlerts.errorToast(msg: 'Chưa chọn máy in!'));
+    }
+  }
 
   Future<void> _goToEditOrder(BuildContext context, Orders orders) async {
     // await context.push(RouteName.orderDetail, extra: orders).then((value) {

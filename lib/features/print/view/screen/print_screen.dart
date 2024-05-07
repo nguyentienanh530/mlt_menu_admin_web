@@ -94,51 +94,68 @@ class PrintView extends StatelessWidget {
     var printCubit = context.watch<PrintCubit>().state;
     return Card(
         margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-        child: Column(children: [
-          _buildHeader(context, index + 1, print),
-          Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Row(children: [
-                      Padding(
-                          padding: const EdgeInsets.all(16.0),
-                          child: SvgPicture.asset('assets/icon/print.svg',
-                              colorFilter: const ColorFilter.mode(
-                                  Colors.white, BlendMode.srcIn))),
-                      Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(print.name,
-                                style: const TextStyle(
-                                    fontWeight: FontWeight.bold)),
-                            Row(children: [
-                              _buildChildItem(context, 'IP: ', print.ip)
-                            ]),
-                            _buildChildItem(context, 'port: ', print.port)
-                          ])
-                    ]),
-                    ValueListenableBuilder(
-                        valueListenable: isPrintActive,
-                        builder: (context, value, child) {
-                          if (value) {
-                            _handleSavePrint(print);
-                            context.read<PrintCubit>().onPrintChanged(print);
-                          }
-                          return Transform.scale(
-                              scale: 0.8,
-                              child: Switch(
-                                  activeTrackColor:
-                                      context.colorScheme.secondary,
-                                  value:
-                                      printCubit.id == print.id ? true : false,
-                                  onChanged: (value) {
-                                    isPrintActive.value = value;
-                                  }));
-                        })
-                  ]))
-        ]));
+        child: InkWell(
+          onTap: () async {
+            await showDialog(
+                context: context,
+                builder: (context) => AlertDialog(
+                    content: SizedBox(
+                        width: 600,
+                        child: CreateOrUpdatePrint(
+                            mode: Mode.update,
+                            printModel: print)))).then((value) {
+              if (value is bool && value) {
+                _getData(context);
+              }
+            });
+          },
+          child: Column(children: [
+            _buildHeader(context, index + 1, print),
+            Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Row(children: [
+                        Padding(
+                            padding: const EdgeInsets.all(16.0),
+                            child: SvgPicture.asset('assets/icon/print.svg',
+                                colorFilter: const ColorFilter.mode(
+                                    Colors.white, BlendMode.srcIn))),
+                        Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(print.name,
+                                  style: const TextStyle(
+                                      fontWeight: FontWeight.bold)),
+                              Row(children: [
+                                _buildChildItem(context, 'IP: ', print.ip)
+                              ]),
+                              _buildChildItem(context, 'port: ', print.port)
+                            ])
+                      ]),
+                      ValueListenableBuilder(
+                          valueListenable: isPrintActive,
+                          builder: (context, value, child) {
+                            if (value) {
+                              _handleSavePrint(print);
+                              context.read<PrintCubit>().onPrintChanged(print);
+                            }
+                            return Transform.scale(
+                                scale: 0.8,
+                                child: Switch(
+                                    activeTrackColor:
+                                        context.colorScheme.secondary,
+                                    value: printCubit.id == print.id
+                                        ? true
+                                        : false,
+                                    onChanged: (value) {
+                                      isPrintActive.value = value;
+                                    }));
+                          })
+                    ]))
+          ]),
+        ));
   }
 
   void _handleSavePrint(PrintModel print) {
@@ -161,29 +178,10 @@ class PrintView extends StatelessWidget {
               Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
             Text('#$index',
                 style: const TextStyle(fontWeight: FontWeight.bold)),
-            Row(children: [
-              CommonIconButton(
-                  onTap: () async {
-                    await showDialog(
-                        context: context,
-                        builder: (context) => AlertDialog(
-                            content: SizedBox(
-                                width: 600,
-                                child: CreateOrUpdatePrint(
-                                    mode: Mode.update,
-                                    printModel: printModel)))).then((value) {
-                      if (value is bool && value) {
-                        _getData(context);
-                      }
-                    });
-                  },
-                  icon: Icons.edit),
-              const SizedBox(width: 8),
-              CommonIconButton(
-                  onTap: () => _deletePrintSubmit(context, printModel),
-                  icon: Icons.delete,
-                  color: context.colorScheme.errorContainer)
-            ])
+            CommonIconButton(
+                onTap: () => _deletePrintSubmit(context, printModel),
+                icon: Icons.delete,
+                color: context.colorScheme.errorContainer)
           ]));
 
   _deletePrintSubmit(BuildContext context, PrintModel printModel) async {

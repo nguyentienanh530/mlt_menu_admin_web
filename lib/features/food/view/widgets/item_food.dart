@@ -30,38 +30,41 @@ class ItemFood extends StatelessWidget {
     return LayoutBuilder(
         builder: (context, constraints) => Card(
             elevation: 10,
-            child: SizedBox(
-                height: constraints.maxHeight,
-                width: constraints.maxWidth,
-                child: Column(children: [
-                  Expanded(child: _buildHeader(context, food)),
-                  Expanded(
-                    flex: 5,
-                    child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          Expanded(flex: 3, child: _buildImage(food)),
-                          Expanded(
-                              child: Column(
-                                  // crossAxisAlignment: CrossAxisAlignment.center,
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceAround,
-                                  children: [
-                                Expanded(child: _buildTitle(context, food)),
-                                Expanded(child: _buildPrice(context, food))
-                              ]))
-                        ]
-                            .animate(interval: 50.ms)
-                            .slideX(
-                                begin: -0.1,
-                                end: 0,
-                                curve: Curves.easeInOutCubic,
-                                duration: 500.ms)
-                            .fadeIn(
-                                curve: Curves.easeInOutCubic,
-                                duration: 500.ms)),
-                  )
-                ]))));
+            child: InkWell(
+              onTap: onTapEditFood,
+              child: SizedBox(
+                  height: constraints.maxHeight,
+                  width: constraints.maxWidth,
+                  child: Column(children: [
+                    Expanded(child: _buildHeader(context, food)),
+                    Expanded(
+                      flex: 5,
+                      child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            Expanded(flex: 3, child: _buildImage(food)),
+                            Expanded(
+                                child: Column(
+                                    // crossAxisAlignment: CrossAxisAlignment.center,
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceAround,
+                                    children: [
+                                  Expanded(child: _buildTitle(context, food)),
+                                  Expanded(child: _buildPrice(context, food))
+                                ]))
+                          ]
+                              .animate(interval: 50.ms)
+                              .slideX(
+                                  begin: -0.1,
+                                  end: 0,
+                                  curve: Curves.easeInOutCubic,
+                                  duration: 500.ms)
+                              .fadeIn(
+                                  curve: Curves.easeInOutCubic,
+                                  duration: 500.ms)),
+                    )
+                  ])),
+            )));
   }
 
   Widget _buildHeader(BuildContext context, Food food) => Container(
@@ -73,15 +76,15 @@ class ItemFood extends StatelessWidget {
             Text('#${index + 1}',
                 style: const TextStyle(fontWeight: FontWeight.bold)),
             Row(children: [
-              food.isShowFood
-                  ? CommonIconButton(onTap: onTapView, color: Colors.green)
-                  : CommonIconButton(
-                      icon: Icons.visibility_off,
-                      onTap: onTapView,
-                      color: Colors.red),
-              const SizedBox(width: 8),
-              CommonIconButton(icon: Icons.edit, onTap: onTapEditFood),
-              const SizedBox(width: 8),
+              // food.isShowFood
+              //     ? CommonIconButton(onTap: onTapView, color: Colors.green)
+              //     : CommonIconButton(
+              //         icon: Icons.visibility_off,
+              //         onTap: onTapView,
+              //         color: Colors.red),
+              // const SizedBox(width: 8),
+              // CommonIconButton(icon: Icons.edit, onTap: onTapEditFood),
+              // const SizedBox(width: 8),
               CommonIconButton(
                   icon: Icons.delete,
                   color: context.colorScheme.errorContainer,

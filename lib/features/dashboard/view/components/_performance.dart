@@ -13,7 +13,6 @@ extension on DashboardViewState {
     } else {
       logger.d(
           'Tổng doanh thu của ngày trước đó là 0, không thể tính phần trăm.');
-      // Xử lý trường hợp tổng doanh thu của ngày trước đó bằng 0 ở đây
     }
 
     price() => Text(Ultils.currencyFormat(totalPriceYesterday),
@@ -25,35 +24,30 @@ extension on DashboardViewState {
 
     return Card(
         elevation: 10,
-        child: Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: SizedBox(
-                height: context.sizeDevice.height,
-                child: Column(
-                    mainAxisAlignment: MainAxisAlignment.spaceAround,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      title(),
-                      const SizedBox(height: 8),
-                      // price(),
-                      SizedBox(
-                          child: Row(children: [
-                        Expanded(
-                            child: FittedBox(
-                                fit: BoxFit.scaleDown,
-                                child: Padding(
-                                    padding: const EdgeInsets.all(8.0),
-                                    child: _buildCircularPercentIndicator(
-                                        context, percentInCome)))),
-                        Expanded(
-                            child: Column(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                              const Text('Doanh thu hôm qua'),
-                              price()
-                            ]))
-                      ]))
-                    ]))));
+        child: SizedBox(
+            height: context.sizeDevice.height,
+            child:
+                Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+              _buildHeader([title()]),
+              const SizedBox(height: 8),
+              // price(),
+              Expanded(
+                child: SizedBox(
+                    child: Row(children: [
+                  Expanded(
+                      child: FittedBox(
+                          fit: BoxFit.scaleDown,
+                          child: Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: _buildCircularPercentIndicator(
+                                  context, percentInCome)))),
+                  Expanded(
+                      child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [const Text('Doanh thu hôm qua'), price()]))
+                ])),
+              )
+            ])));
   }
 
   double _handlePercent(int percentInCome) {
@@ -65,6 +59,15 @@ extension on DashboardViewState {
       return (percentInCome / 100);
     }
   }
+
+  Widget _buildHeader(List<Widget> children) => Container(
+      height: 40,
+      color: context.colorScheme.primary.withOpacity(0.3),
+      child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 8),
+          child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: children)));
 
   Widget _buildCircularPercentIndicator(
           BuildContext context, int percentInCome) =>

@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:fluttertoast/fluttertoast.dart';
@@ -125,7 +126,11 @@ class _BannerViewState extends State<BannerView> {
                 children: [
                   _buildHeader(bannerModel, index),
                   Expanded(
-                      child: Image.network(bannerModel.image ?? noImage,
+                      child: CachedNetworkImage(
+                          imageUrl: bannerModel.image ?? '',
+                          placeholder: (context, url) => const LoadingScreen(),
+                          errorWidget: (context, url, error) =>
+                              const Icon(Icons.photo),
                           fit: BoxFit.cover))
                 ])));
   }

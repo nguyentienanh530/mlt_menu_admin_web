@@ -2,7 +2,7 @@
 // import 'package:awesome_dialog/awesome_dialog.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_spinkit/flutter_spinkit.dart';
+// import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lottie/lottie.dart';
 import 'package:material_dialogs/material_dialogs.dart';
@@ -54,31 +54,17 @@ class AppAlerts {
       {String? title,
       String? desc,
       String? btnOkText,
-      Function()? btnOkOnPress}) {
-    // AwesomeDialog(
-    //   dialogBackgroundColor: context.colorScheme.primaryContainer,
-    //   dismissOnTouchOutside: false,
-    //   titleTextStyle:
-    //       context.textStyleLarge!.copyWith(fontWeight: FontWeight.bold),
-    //   descTextStyle: context.textStyleSmall,
-    //   context: context,
-    //   dialogType: DialogType.success,
-    //   animType: AnimType.rightSlide,
-    //   title: title ?? 'Thành công!',
-    //   desc: desc ?? '',
-    //   btnOkText: btnOkText ?? AppString.ok,
-    //   btnCancelOnPress: btnCancelOnPress,
-    //   btnOkOnPress: btnOkOnPress,
-    // ).show();
-
-    Dialogs.materialDialog(
+      Function()? btnOkOnPress}) async {
+    await Dialogs.materialDialog(
         barrierDismissible: false,
-        color: Colors.white,
-        titleStyle: context.titleStyleLarge!
-            .copyWith(fontWeight: FontWeight.bold, color: Colors.black),
-        msgStyle: context.textStyleSmall!.copyWith(color: Colors.black),
+        color: context.colorScheme.background,
+        titleStyle:
+            context.titleStyleLarge!.copyWith(fontWeight: FontWeight.bold),
+        msgStyle: context.textStyleSmall!,
         msg: desc,
         title: title,
+        titleAlign: TextAlign.center,
+        msgAlign: TextAlign.center,
         lottieBuilder:
             Lottie.asset('assets/animations/success.json', fit: BoxFit.contain),
         dialogWidth: kIsWeb ? 0.3 : null,
@@ -88,22 +74,25 @@ class AppAlerts {
               onPressed: btnOkOnPress ?? () {},
               text: btnOkText ?? AppString.ok,
               iconData: Icons.done,
-              color: Colors.blue,
-              textStyle: const TextStyle(color: Colors.white),
+              color: context.colorScheme.secondary,
+              textStyle: const TextStyle(
+                  color: Colors.white, fontWeight: FontWeight.bold),
               iconColor: Colors.white)
         ]);
   }
 
   static failureDialog(BuildContext context,
-      {String? title, String? desc, Function()? btnCancelOnPress}) {
-    Dialogs.materialDialog(
+      {String? title, String? desc, Function()? btnCancelOnPress}) async {
+    await Dialogs.materialDialog(
         barrierDismissible: false,
-        color: Colors.white,
-        titleStyle: context.titleStyleLarge!
-            .copyWith(fontWeight: FontWeight.bold, color: Colors.black),
-        msgStyle: context.textStyleSmall!.copyWith(color: Colors.black),
+        color: context.colorScheme.background,
+        titleStyle:
+            context.titleStyleLarge!.copyWith(fontWeight: FontWeight.bold),
+        msgStyle: context.textStyleSmall!,
         msg: desc,
         title: title,
+        titleAlign: TextAlign.center,
+        msgAlign: TextAlign.center,
         lottieBuilder:
             Lottie.asset('assets/animations/error.json', fit: BoxFit.contain),
         dialogWidth: kIsWeb ? 0.3 : null,
@@ -114,7 +103,8 @@ class AppAlerts {
               text: 'Ok',
               iconData: Icons.error,
               color: Colors.red,
-              textStyle: const TextStyle(color: Colors.white),
+              textStyle: const TextStyle(
+                  color: Colors.white, fontWeight: FontWeight.bold),
               iconColor: Colors.white)
         ]);
   }
@@ -125,15 +115,17 @@ class AppAlerts {
       String? textCancel,
       String? textOk,
       Function()? btnCancelOnPress,
-      Function()? btnOkOnPress}) {
-    Dialogs.materialDialog(
+      Function()? btnOkOnPress}) async {
+    await Dialogs.materialDialog(
         barrierDismissible: false,
-        color: Colors.white,
-        titleStyle: context.titleStyleLarge!
-            .copyWith(fontWeight: FontWeight.bold, color: Colors.black),
-        msgStyle: context.textStyleSmall!.copyWith(color: Colors.black),
+        color: context.colorScheme.background,
+        titleStyle:
+            context.titleStyleLarge!.copyWith(fontWeight: FontWeight.bold),
+        msgStyle: context.textStyleSmall!,
         msg: desc,
         title: title,
+        titleAlign: TextAlign.center,
+        msgAlign: TextAlign.center,
         lottieBuilder:
             Lottie.asset('assets/animations/warning.json', fit: BoxFit.contain),
         dialogWidth: kIsWeb ? 0.3 : null,
@@ -147,14 +139,16 @@ class AppAlerts {
               text: textCancel ?? 'Hủy',
               iconData: Icons.highlight_remove_rounded,
               color: Colors.red,
-              textStyle: const TextStyle(color: Colors.white),
+              textStyle: const TextStyle(
+                  color: Colors.white, fontWeight: FontWeight.bold),
               iconColor: Colors.white),
           IconsButton(
               onPressed: btnOkOnPress ?? () {},
               text: textOk ?? 'Ok',
               iconData: Icons.done,
-              color: Colors.blue,
-              textStyle: const TextStyle(color: Colors.white),
+              color: context.colorScheme.secondary,
+              textStyle: const TextStyle(
+                  color: Colors.white, fontWeight: FontWeight.bold),
               iconColor: Colors.white)
         ]);
   }
@@ -175,8 +169,10 @@ class AppAlerts {
                     child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          SpinKitCircle(
-                              color: context.colorScheme.secondary, size: 30),
+                          // SpinKitCircle(
+                          //     color: context.colorScheme.secondary, size: 30),
+
+                          Lottie.asset('assets/animations/loading.json'),
                           SizedBox(height: defaultPadding / 2),
                           FittedBox(
                               child: Text(desc ?? 'Vui lòng đợi...',
