@@ -221,7 +221,7 @@ class _OrderDetailViewState extends State<OrderDetailView> {
         textOk: 'Thanh toán',
         btnCancelOnPress: () => context.pop(),
         btnOkOnPress: () {
-          pop(context, 1);
+          context.pop();
           handlePaymentSubmited();
         });
   }
@@ -244,7 +244,7 @@ class _OrderDetailViewState extends State<OrderDetailView> {
                       descriptrion: 'Thanh toán thành công',
                       isProgressed: false,
                       onPressed: () {
-                        pop(context, 1);
+                        pop(context, 2);
                       })
                 }));
   }
@@ -298,6 +298,7 @@ class _OrderDetailViewState extends State<OrderDetailView> {
       totalPrice += foo.totalPrice;
     }
     orders = orders.copyWith(foods: foods, totalPrice: totalPrice);
+    _totalPrice.value = orders.totalPrice!;
     OrderRepo(
             orderRepository:
                 OrderRepository(firebaseFirestore: FirebaseFirestore.instance))
