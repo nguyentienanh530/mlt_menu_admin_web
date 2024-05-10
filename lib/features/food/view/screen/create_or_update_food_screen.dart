@@ -141,13 +141,18 @@ class _UpdateFoodViewState extends State<UpdateFoodView> {
                           Text("Hình ảnh: (*)",
                               style: context.titleStyleMedium),
                           SizedBox(height: defaultPadding / 2),
-                          _ImageFood(
-                              image: _image,
-                              imageFile: _imageFile,
-                              onTap: () async => await pickAndResizeImage()
-                                  .then((value) => setState(() {
-                                        _imageFile = value;
-                                      }))),
+                          Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                _ImageFood(
+                                    image: _image,
+                                    imageFile: _imageFile,
+                                    onTap: () async =>
+                                        await pickAndResizeImage()
+                                            .then((value) => setState(() {
+                                                  _imageFile = value;
+                                                })))
+                              ]),
                           SizedBox(height: defaultPadding / 2),
                           Text("Tên món ăn: (*)",
                               style: context.titleStyleMedium),
@@ -625,18 +630,18 @@ class _PhotoGallery extends StatelessWidget {
             decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(defaultBorderRadius),
                 image: DecorationImage(
-                    image: NetworkImage(image), fit: BoxFit.cover)),
-          );
+                    image: NetworkImage(image), fit: BoxFit.cover)));
   }
 }
 
+// ignore: must_be_immutable
 class _ImageFood extends StatelessWidget {
-  const _ImageFood(
+  _ImageFood(
       {required this.image, required this.imageFile, required this.onTap});
   final String image;
   final Uint8List? imageFile;
   final Function()? onTap;
-
+  var sizeImage = 300.0;
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
@@ -644,8 +649,8 @@ class _ImageFood extends StatelessWidget {
         child: imageFile == null
             ? _buildImage(context)
             : Container(
-                height: 155,
-                width: double.infinity,
+                height: sizeImage,
+                width: sizeImage,
                 decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(defaultBorderRadius),
                     image: DecorationImage(
@@ -655,7 +660,8 @@ class _ImageFood extends StatelessWidget {
   Widget _buildImage(BuildContext context) {
     return image == ''
         ? Container(
-            height: 155,
+            height: sizeImage,
+            width: sizeImage,
             decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(defaultBorderRadius)),
             child: DottedBorder(
@@ -686,8 +692,8 @@ class _ImageFood extends StatelessWidget {
                       Text("Hình ảnh món ăn", style: context.textStyleSmall)
                     ])))
         : Container(
-            height: 155,
-            width: double.infinity,
+            height: sizeImage,
+            width: sizeImage,
             decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(defaultBorderRadius),
                 image: DecorationImage(

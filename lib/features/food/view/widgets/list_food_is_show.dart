@@ -1,3 +1,4 @@
+import 'package:go_router/go_router.dart';
 import 'package:mlt_menu_admin/common/widget/common_refresh_indicator.dart';
 import 'package:mlt_menu_admin/common/widget/common_text_field.dart';
 import 'package:mlt_menu_admin/common/widget/loading_screen.dart';
@@ -133,6 +134,7 @@ class ListFoodIsShowViewState extends State<ListFoodIsShowView>
               gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                   mainAxisSpacing: 16,
                   crossAxisSpacing: 16,
+                  mainAxisExtent: 400,
                   crossAxisCount: countGridView(context)));
         });
   }
@@ -179,8 +181,10 @@ class ListFoodIsShowViewState extends State<ListFoodIsShowView>
     AppAlerts.warningDialog(context,
         title: "Bạn có muốn xóa ${food.name} không?",
         textOk: 'Xóa',
-        textCancel: "Hủy",
-        btnOkOnPress: () => _handleDeleteFood(context, food));
+        textCancel: "Hủy", btnOkOnPress: () {
+      context.pop();
+      _handleDeleteFood(context, food);
+    });
   }
 
   void _handleDeleteFood(BuildContext context, Food food) {
@@ -208,7 +212,7 @@ class ListFoodIsShowViewState extends State<ListFoodIsShowView>
                           ..showToast(
                               child: AppAlerts.successToast(
                                   msg: 'Xóa thành công!'));
-                        pop(context, 2);
+                        pop(context, 1);
                         _getData();
                       },
                       isProgressed: false)

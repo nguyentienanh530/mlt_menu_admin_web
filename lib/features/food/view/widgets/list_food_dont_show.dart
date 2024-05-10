@@ -167,6 +167,7 @@ class _ListFoodIsShowViewState extends State<ListFoodIsShowView>
                   gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                       mainAxisSpacing: 16,
                       crossAxisSpacing: 16,
+                      mainAxisExtent: 400,
                       crossAxisCount: countGridView(context))));
         });
   }

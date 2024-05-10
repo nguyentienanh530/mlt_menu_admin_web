@@ -7,7 +7,7 @@ import '../../../../core/utils/utils.dart';
 import '../../data/model/food_model.dart';
 
 class ItemFood extends StatelessWidget {
-  const ItemFood(
+  ItemFood(
       {super.key,
       required this.food,
       required this.onTapView,
@@ -20,6 +20,7 @@ class ItemFood extends StatelessWidget {
   final void Function()? onTapDeleteFood;
   final void Function()? onTapEditFood;
   final int index;
+  final _onHover = ValueNotifier(false);
 
   @override
   Widget build(BuildContext context) {
@@ -31,12 +32,15 @@ class ItemFood extends StatelessWidget {
         builder: (context, constraints) => Card(
             elevation: 10,
             child: InkWell(
+              onHover: (value) {
+                _onHover.value = value;
+              },
               onTap: onTapEditFood,
               child: SizedBox(
                   height: constraints.maxHeight,
                   width: constraints.maxWidth,
                   child: Column(children: [
-                    Expanded(child: _buildHeader(context, food)),
+                    _buildHeader(context, food),
                     Expanded(
                       flex: 5,
                       child: Column(
@@ -68,6 +72,7 @@ class ItemFood extends StatelessWidget {
   }
 
   Widget _buildHeader(BuildContext context, Food food) => Container(
+      height: 45,
       color: context.colorScheme.primary.withOpacity(0.3),
       child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 8),
@@ -93,18 +98,27 @@ class ItemFood extends StatelessWidget {
           ])));
 
   Widget _buildImage(Food food) {
-    return Container(
-        margin: EdgeInsets.all(defaultPadding / 2),
-        height: 120,
-        width: 120,
-        clipBehavior: Clip.hardEdge,
-        decoration: BoxDecoration(
-            shape: BoxShape.circle, color: Colors.black.withOpacity(0.3)),
-        child: CachedNetworkImage(
-            fit: BoxFit.cover,
-            imageUrl: food.image,
-            placeholder: (context, url) => const LoadingScreen(),
-            errorWidget: (context, url, error) => const Icon(Icons.photo)));
+    return ValueListenableBuilder(
+        valueListenable: _onHover,
+        builder: (context, value, child) {
+          return AnimatedContainer(
+              width: value ? double.infinity : null,
+              clipBehavior: Clip.hardEdge,
+              curve: Curves.easeOutCubic,
+              duration: const Duration(seconds: 1),
+              margin: EdgeInsets.all(defaultPadding / 2),
+              decoration: BoxDecoration(
+                  borderRadius: value
+                      ? BorderRadius.circular(16)
+                      : BorderRadius.circular(32),
+                  color: Colors.transparent),
+              child: CachedNetworkImage(
+                  fit: BoxFit.cover,
+                  imageUrl: food.image,
+                  placeholder: (context, url) => const LoadingScreen(),
+                  errorWidget: (context, url, error) =>
+                      const Icon(Icons.photo)));
+        });
   }
 
   Widget _buildCategory(BuildContext context, Food food) {
